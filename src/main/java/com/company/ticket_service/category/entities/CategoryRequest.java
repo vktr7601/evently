@@ -8,13 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CategoryRequest {
-  @NotBlank(message = "Category name cannot be empty")
-  @Size(min = 3, max = 64, message = "Name should be between 5 and 64 characters in length")
-  @JsonProperty(value = "name")
-  private String name;
-}
+public record CategoryRequest(
+    @NotBlank(message = "Category name cannot be empty")
+        @Size(min = 3, max = 64, message = "Name should be between 5 and 64 characters in length")
+        @JsonProperty(value = "name")
+        String name) {}

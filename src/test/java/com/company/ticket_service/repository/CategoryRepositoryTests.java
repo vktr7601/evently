@@ -71,12 +71,12 @@ public class CategoryRepositoryTests {
 
   @Test
   void toEntityReturnsCategory_when_requestProvided() {
-    CategoryRequest request = CategoryRequest.builder().name("Electronics").build();
+    CategoryRequest request = new CategoryRequest("Electronics");
 
     Category entity = mapper.toEntity(request);
 
     assertNotNull(entity, "Category is expected to be found, but it was not");
-    assertEquals(request.getName(), entity.getName(), "Name should be equal to");
+    assertEquals(request.name(), entity.getName(), "Name should be equal to");
   }
 
   @Test
