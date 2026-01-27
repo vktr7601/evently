@@ -7,18 +7,14 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import static com.company.ticket_service.core.NumberGenerator.generateUniqueNumber;
 
 @Data
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tickets")
 public class Ticket extends BaseEntity {
-  @EqualsAndHashCode.Include
-  @Column(name = "number", unique = true, nullable = false)
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_number_seq")
-  @SequenceGenerator(name = "ticket_number_seq", sequenceName = "ticket_number_seq", allocationSize = 1, initialValue = 1000)
+  @Column(name = "number")
   private Long number;
 
   @ManyToOne
@@ -38,5 +34,6 @@ public class Ticket extends BaseEntity {
   @Override
   public void onCreate() {
     super.onCreate();
+    number = generateUniqueNumber();
   }
 }

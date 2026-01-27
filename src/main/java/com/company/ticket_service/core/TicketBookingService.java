@@ -14,35 +14,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class TicketBookingService {
-    private final EventRepository eventRepository;
-    private final UserRepository userRepository;
-    private final TicketService ticketService;
+  private final EventRepository eventRepository;
+  private final UserRepository userRepository;
+  private final TicketService ticketService;
 
-    @Transactional
-    public void bookTicket(Long eventId, TicketRequest ticketRequest) {
-        Event event = eventRepository.findByIdOrThrow(eventId);
+  @Transactional
+  public void bookTicket(Long eventId, TicketRequest ticketRequest) {
+    Event event = eventRepository.findByIdOrThrow(eventId);
 
-        if (!event.hasAvailableTickets()) {
-            throw InsufficientTicketsException.soldOut(event.getName());
-        }
-
-        if (ticketRequest.ticketsCount() <= 0) {
-            throw new IllegalArgumentException("Ticket count must be positive");
-        }
-
-        if (ticketRequest.ticketsCount() > event.getRemainingTickets()) {
-            throw InsufficientTicketsException.notEnough(
-                    ticketRequest.ticketsCount(), event.getRemainingTickets());
-        }
-
-        // Update booked tickets count - CRITICAL: This prevents overbooking
-        // remainingTickets is now calculated as totalTickets - bookedTickets
-        event.setBookedTickets(event.getBookedTickets() + ticketRequest.ticketsCount());
-
-        User user = userRepository.findByIdOrThrow(ticketRequest.user());
-
-        ticketService.createTickets(event, user, ticketRequest.ticketsCount());
-
-        eventRepository.save(event);
+    if (ticketRequest.ticketsCount() <= 0) {
+      throw new IllegalArgumentException("Ticket count must be positive");
     }
+
+    if (ticketRequest.ticketsCount() > event.getRemainingTickets()) {
+      throw InsufficientTicketsException.notEnough(
+          ticketRequest.ticketsCount(), event.getRemainingTickets());
+    }
+
+    // Update booked tickets count - CRITICAL: This prevents overbooking
+    // remainingTickets is now calculated as totalTickets - bookedTickets
+    event.setBookedTickets(event.getBookedTickets() + ticketRequest.ticketsCount());
+
+    User user = userRepository.findByIdOrThrow(ticketRequest.user());
+
+    ticketService.createTickets(event, user, ticketRequest.ticketsCount());
+
+    eventRepository.save(event);
+  }
 }
