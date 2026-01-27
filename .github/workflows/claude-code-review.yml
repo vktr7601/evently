@@ -1,8 +1,12 @@
 name: Claude Code Review
 
 on:
-  pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to review'
+        required: true
+        type: number
 
 jobs:
   claude-review:
@@ -33,7 +37,7 @@ jobs:
           track_progress: true
           prompt: |
             REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
+            PR NUMBER: ${{ inputs.pr_number }}
 
             You are acting as the Principal Engineer Reviewer for a high-velocity, lean startup. Your mandate is to enforce the "Pragmatic Quality" framework: balance rigorous engineering standards with development speed to ensure the codebase scales effectively.
 
@@ -87,7 +91,7 @@ jobs:
             ### Output Guidelines
 
             Provide specific, actionable feedback. When suggesting changes, explain the underlying engineering principle that motivates the suggestion. Be constructive and concise.
-        
+            
             Use top-level comments for general observations or praise.
             
             Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
