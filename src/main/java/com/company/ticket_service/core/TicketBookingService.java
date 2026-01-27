@@ -18,19 +18,27 @@ public class TicketBookingService {
     private final UserRepository userRepository;
     private final TicketService ticketService;
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void bookTicket(Long eventId, TicketRequest ticketRequest) {
         Event event = eventRepository.findByIdOrThrow(eventId);
-    //        if (!event.hasAvailableTickets()) {
-    //            throw InsufficientTicketsException.soldOut(event.getName());
-    //        }
 
-    if (ticketRequest.ticketsCount() > event.getRemainingTickets()) {
+        if (!event.hasAvailableTickets()) {
+            throw InsufficientTicketsException.soldOut(event.getName());
+        }
+
+        if (ticketRequest.ticketsCount() <= 0) {
+            throw new IllegalArgumentException("Ticket count must be positive");
+        }
+
+        if (ticketRequest.ticketsCount() > event.getRemainingTickets()) {
             throw InsufficientTicketsException.notEnough(
                     ticketRequest.ticketsCount(), event.getRemainingTickets());
         }
 
-       // event.bookTicket(ticketRequest.ticketsCount());
+        // Update booked tickets count - CRITICAL: This prevents overbooking
+        // remainingTickets is now calculated as totalTickets - bookedTickets
+        event.setBookedTickets(event.getBookedTickets() + ticketRequest.ticketsCount());
+
         User user = userRepository.findByIdOrThrow(ticketRequest.user());
 
         ticketService.createTickets(event, user, ticketRequest.ticketsCount());

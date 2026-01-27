@@ -5,6 +5,7 @@ import com.company.ticket_service.core.BaseEntity;
 import com.company.ticket_service.event.Event;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Entity
@@ -16,6 +17,7 @@ import lombok.ToString;
       @Index(name = "idx_category_id", columnList = "category_id")
     })
 @Data
+@EqualsAndHashCode(callSuper = false, of = "id")
 public class EventsCategories extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "event_id", nullable = false)
