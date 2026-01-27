@@ -7,9 +7,11 @@ import jakarta.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @Table(name = "users")
 public class User extends BaseEntity {
   @NotBlank(message = "First name is required")
@@ -28,6 +30,7 @@ public class User extends BaseEntity {
   @Column(name = "age", nullable = false)
   private Integer age;
 
+  @EqualsAndHashCode.Include
   @NotBlank(message = "Email is required")
   @Email(message = "Invalid email format")
   @Column(name = "email", nullable = false, unique = true, length = 255)
