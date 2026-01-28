@@ -1,4 +1,4 @@
-package com.company.ticket_service.core.config;
+package com.company.ticket_service.core.config.cache;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,10 +1,10 @@
 package com.company.ticket_service.repository;
 
-import com.company.ticket_service.category.Category;
-import com.company.ticket_service.category.CategoryMapper;
-import com.company.ticket_service.category.CategoryRepository;
-import com.company.ticket_service.category.entities.CategoryDto;
-import com.company.ticket_service.category.entities.CategoryRequest;
+import com.company.ticket_service.classification.Classification;
+import com.company.ticket_service.classification.ClassificationMapper;
+import com.company.ticket_service.classification.ClassificationRepository;
+import com.company.ticket_service.classification.entities.ClassificationDto;
+import com.company.ticket_service.classification.entities.ClassificationRequest;
 import com.company.ticket_service.core.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,23 +16,23 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class CategoryRepositoryTests {
+public class ClassificationRepositoryTests {
 
-  @Autowired private CategoryRepository categoryRepository;
+  @Autowired private ClassificationRepository classificationRepository;
 
   @Autowired private TestEntityManager entityManager;
 
-  private final CategoryMapper mapper = Mappers.getMapper(CategoryMapper.class);
-  private Category category;
+  private final ClassificationMapper mapper = Mappers.getMapper(ClassificationMapper.class);
+  private Classification category;
 
   @BeforeEach
   public void beforeEach() {
-    category = Category.builder().name("Electronics").build();
+    category = Classification.builder().name("Electronics").build();
   }
 
   @Test
   void recordSuccessfullyCreated_when_saveMethodInvoked() {
-    Category saved = categoryRepository.save(category);
+    Classification saved = classificationRepository.save(category);
 
     assertNotNull(saved.getId(), "Saved Category should not be null");
     assertEquals("Electronics", saved.getName(), "Saved Category should be equal to");
@@ -44,7 +44,7 @@ public class CategoryRepositoryTests {
   void findByIdOrThrowReturnCategory_when_categoryExists() {
     entityManager.persistAndFlush(category);
 
-    Category found = categoryRepository.findByIdOrThrow(category.getId());
+    Classification found = classificationRepository.findByIdOrThrow(category.getId());
 
     assertNotNull(found, "Category is expected to be found, but it was not");
     assertEquals(category.getId(), found.getId(), "Id should be equal to");
@@ -52,7 +52,7 @@ public class CategoryRepositoryTests {
 
   @Test
   void findByIdOrThrowThrowException_when_categoryDoesNotExist() {
-    assertThrows(ResourceNotFoundException.class, () -> categoryRepository.findByIdOrThrow(999L));
+    assertThrows(ResourceNotFoundException.class, () -> classificationRepository.findByIdOrThrow(999L));
   }
 
   @Test
@@ -60,20 +60,20 @@ public class CategoryRepositoryTests {
     entityManager.persistAndFlush(category);
     long id = category.getId();
 
-    categoryRepository.deleteById(id);
+    classificationRepository.deleteById(id);
     entityManager.flush();
 
     assertThrows(
         ResourceNotFoundException.class,
-        () -> categoryRepository.findByIdOrThrow(id),
+        () -> classificationRepository.findByIdOrThrow(id),
         "Category with id " + id + " should not exists, but it was.");
   }
 
   @Test
   void toEntityReturnsCategory_when_requestProvided() {
-    CategoryRequest request = new CategoryRequest("Electronics");
+    ClassificationRequest request = new ClassificationRequest("Electronics");
 
-    Category entity = mapper.toEntity(request);
+    Classification entity = mapper.toEntity(request);
 
     assertNotNull(entity, "Category is expected to be found, but it was not");
     assertEquals(request.name(), entity.getName(), "Name should be equal to");
@@ -81,7 +81,7 @@ public class CategoryRepositoryTests {
 
   @Test
   void toEntityReturnsNull_when_requestIsNull() {
-    Category entity = mapper.toEntity(null);
+    Classification entity = mapper.toEntity(null);
 
     assertNull(entity, "Entity is expected to be null, but it was not");
   }
@@ -90,7 +90,7 @@ public class CategoryRepositoryTests {
   void toDtoReturnsCategoryDto_when_entityProvided() {
     entityManager.persistAndFlush(category);
 
-    CategoryDto dto = mapper.toDto(category);
+    ClassificationDto dto = mapper.toDto(category);
 
     assertNotNull(dto, "Category Dto is expected to be not null, but it was");
     assertEquals(category.getId(), dto.id(), "Id should be equal to");
@@ -101,7 +101,7 @@ public class CategoryRepositoryTests {
 
   @Test
   void toDtoReturnsNull_when_entityIsNull() {
-    CategoryDto dto = mapper.toDto(null);
+    ClassificationDto dto = mapper.toDto(null);
 
     assertNull(dto, "Category Dto is expected to be null, but it was not null.");
   }

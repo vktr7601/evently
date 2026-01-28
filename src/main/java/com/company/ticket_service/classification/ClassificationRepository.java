@@ -1,4 +1,4 @@
-package com.company.ticket_service.category;
+package com.company.ticket_service.classification;
 
 import com.company.ticket_service.core.BaseRepository;
 import org.springframework.stereotype.Repository;
@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends BaseRepository<Category> {
+public interface ClassificationRepository extends BaseRepository<Classification> {
   boolean existsByName(String name);
 
-  List<Category> findAllByNameIn(List<String> names);
+  List<Classification> findAllByNameIn(List<String> names);
 
   default String getEntityName() {
     return "Category";

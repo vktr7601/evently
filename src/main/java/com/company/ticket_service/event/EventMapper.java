@@ -11,7 +11,7 @@ import java.util.List;
 public interface EventMapper {
   Event toEntity(EventRequest dto);
 
-  @Mapping(source = "entity.remainingTickets", target = "tickets")
-  @Mapping(source = "category", target = "categories")
+//  @Mapping(source = "entity.remainingTickets", target = "tickets")
+//  @Mapping(source = "category", target = "categories")
   EventDto toDTO(Event entity, List<String> category);
 }

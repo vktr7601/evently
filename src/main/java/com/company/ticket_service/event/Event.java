@@ -1,7 +1,7 @@
 package com.company.ticket_service.event;
 
 import com.company.ticket_service.core.BaseEntity;
-import com.company.ticket_service.eventCategories.EventsCategories;
+import com.company.ticket_service.eventCategories.EventsClassifications;
 import com.company.ticket_service.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -41,7 +41,7 @@ public class Event extends BaseEntity {
   private int remainingTickets;
 
   @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-  private List<EventsCategories> eventsCategories;
+  private List<EventsClassifications> eventsClassifications;
 
   @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
   private List<Ticket> tickets;
