@@ -5,8 +5,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TicketsRepository extends BaseRepository<Ticket> {
-  @Override
-  default String getEntityName() {
-    return "Ticket";
-  }
+    @Override
+    default String getEntityName() {
+        return "Ticket";
+    }
 }

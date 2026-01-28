@@ -5,7 +5,7 @@ import com.company.ticket_service.core.EventRegistrationService;
 import com.company.ticket_service.core.exceptions.ResourceNotFoundException;
 import com.company.ticket_service.event.dto.EventDto;
 import com.company.ticket_service.event.dto.EventRequest;
-import com.company.ticket_service.eventCategories.EventsClassificationsService;
+import com.company.ticket_service.eventClassification.EventsClassificationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

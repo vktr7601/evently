@@ -2,10 +2,13 @@ package com.company.ticket_service.ticket;
 
 import com.company.ticket_service.core.BaseEntity;
 import com.company.ticket_service.event.Event;
+import com.company.ticket_service.eventsLocations.EventsLocations;
 import com.company.ticket_service.user.User;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import lombok.Data;
 
 import static com.company.ticket_service.core.NumberGenerator.generateUniqueNumber;
@@ -14,26 +17,30 @@ import static com.company.ticket_service.core.NumberGenerator.generateUniqueNumb
 @Entity
 @Table(name = "tickets")
 public class Ticket extends BaseEntity {
-  @Column(name = "number")
-  private Long number;
+    @Column(name = "number")
+    private Long number;
 
-  @ManyToOne
-  @JoinColumn(name = "event_id")
-  private Event event;
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 
-  @Column(name = "price", nullable = false, precision = 10, scale = 2)
-  private BigDecimal price;
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
-  @ManyToOne
-  @JoinColumn(name = "owner_id")
-  private User owner;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
-  @Column(name = "book_date")
-  private LocalDateTime bookDate;
+    @ManyToOne
+    @JoinColumn(name = "event_location_id")
+    private EventsLocations eventsLocations;
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    number = generateUniqueNumber();
-  }
+    @Column(name = "book_date")
+    private LocalDateTime bookDate;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        number = generateUniqueNumber();
+    }
 }

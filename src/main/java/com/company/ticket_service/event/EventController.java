@@ -33,7 +33,6 @@ public class EventController {
         return new ResponseEntity<>(eventService.findById(id), HttpStatus.OK);
     }
 
-
     @PostMapping("/{eventId}/book")
     @ResponseStatus(HttpStatus.CREATED)
     public void bookTicket(@PathVariable Long eventId, @RequestBody TicketRequest request) {

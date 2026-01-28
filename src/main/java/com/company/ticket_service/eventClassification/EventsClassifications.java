@@ -1,4 +1,4 @@
-package com.company.ticket_service.eventCategories;
+package com.company.ticket_service.eventClassification;
 
 import com.company.ticket_service.classification.Classification;
 import com.company.ticket_service.core.BaseEntity;
@@ -9,7 +9,7 @@ import lombok.ToString;
 
 @Entity
 @Table(
-        name = "events_classification_id",
+        name = "events_classifications",
         uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "classification_id"}),
         indexes = {
                 @Index(name = "idx_event_id", columnList = "event_id"),

@@ -1,4 +1,4 @@
-package com.company.ticket_service.eventCategories;
+package com.company.ticket_service.eventClassification;
 
 import java.util.List;
 
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventsClassificationsRepository extends BaseRepository<EventsClassifications> {
 
-    List<EventsClassifications> findAllByName(String categoryName);
 
     List<EventsClassifications> findAllByEventId(Long eventId);
 }

@@ -6,7 +6,7 @@ import com.company.ticket_service.event.EventMapper;
 import com.company.ticket_service.event.EventRepository;
 import com.company.ticket_service.event.dto.EventDto;
 import com.company.ticket_service.event.dto.EventRequest;
-import com.company.ticket_service.eventCategories.EventsClassificationsService;
+import com.company.ticket_service.eventClassification.EventsClassificationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

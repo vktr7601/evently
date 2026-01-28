@@ -25,15 +25,15 @@ public class TicketBookingService {
     if (ticketRequest.ticketsCount() <= 0) {
       throw new IllegalArgumentException("Ticket count must be positive");
     }
-
-    if (ticketRequest.ticketsCount() > event.getRemainingTickets()) {
-      throw InsufficientTicketsException.notEnough(
-          ticketRequest.ticketsCount(), event.getRemainingTickets());
-    }
-
-    // Update booked tickets count - CRITICAL: This prevents overbooking
-    // remainingTickets is now calculated as totalTickets - bookedTickets
-    event.setBookedTickets(event.getBookedTickets() + ticketRequest.ticketsCount());
+//
+//    if (ticketRequest.ticketsCount() > event.getRemainingTickets()) {
+//      throw InsufficientTicketsException.notEnough(
+//          ticketRequest.ticketsCount(), event.getRemainingTickets());
+//    }
+//
+//    // Update booked tickets count - CRITICAL: This prevents overbooking
+//    // remainingTickets is now calculated as totalTickets - bookedTickets
+//    event.setBookedTickets(event.getBookedTickets() + ticketRequest.ticketsCount());
 
     User user = userRepository.findByIdOrThrow(ticketRequest.user());
 

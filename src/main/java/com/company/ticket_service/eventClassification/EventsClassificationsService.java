@@ -1,4 +1,4 @@
-package com.company.ticket_service.eventCategories;
+package com.company.ticket_service.eventClassification;
 
 import java.util.List;
 
