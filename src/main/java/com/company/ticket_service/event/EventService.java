@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class EventService {
-
     private final EventRepository eventRepository;
     private final EventRegistrationService eventRegistrationService;
     private final EventsClassificationsService eventsClassificationsService;

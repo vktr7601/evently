@@ -1,13 +1,12 @@
-package com.company.ticket_service.user;
+package com.company.ticket_service.account;
 
 import com.company.ticket_service.core.BaseRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends BaseRepository<User> {
+public interface AccountRepository extends BaseRepository<Account> {
 
     @Override
     default String getEntityName() {
@@ -15,7 +14,7 @@ public interface UserRepository extends BaseRepository<User> {
     }
 
 
-    Optional<User> findByEmail(String email);
+    Optional<Account> findByEmail(String email);
 
     boolean existsByEmail(String email);
 }

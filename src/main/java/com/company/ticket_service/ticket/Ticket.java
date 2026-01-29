@@ -1,19 +1,23 @@
 package com.company.ticket_service.ticket;
 
+import com.company.ticket_service.account.Account;
 import com.company.ticket_service.core.BaseEntity;
 import com.company.ticket_service.event.Event;
 import com.company.ticket_service.eventsLocations.EventsLocations;
-import com.company.ticket_service.user.User;
+import com.company.ticket_service.payment.Payment;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import static com.company.ticket_service.core.NumberGenerator.generateUniqueNumber;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "tickets")
 public class Ticket extends BaseEntity {
@@ -29,7 +33,7 @@ public class Ticket extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
-    private User owner;
+    private Account owner;
 
     @ManyToOne
     @JoinColumn(name = "event_location_id")
@@ -37,6 +41,10 @@ public class Ticket extends BaseEntity {
 
     @Column(name = "book_date")
     private LocalDateTime bookDate;
+
+    @ManyToOne
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
     @Override
     public void onCreate() {

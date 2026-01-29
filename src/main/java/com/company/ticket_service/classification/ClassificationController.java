@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/categories")
 public class ClassificationController {
 
-  private final ClassificationService classificationService;
+    private final ClassificationService classificationService;
 
-  @PostMapping
-  public ResponseEntity<ClassificationDto> create(@Valid @RequestBody ClassificationRequest request) {
-    var category = classificationService.create(request);
-    return new ResponseEntity<>(category, HttpStatus.CREATED);
-  }
+    @PostMapping
+    public ResponseEntity<ClassificationDto> create(@Valid @RequestBody ClassificationRequest request) {
+        var category = classificationService.create(request);
+        return new ResponseEntity<>(category, HttpStatus.CREATED);
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<ClassificationDto> getById(@PathVariable Long id) {
-    return new ResponseEntity<>(classificationService.findById(id), HttpStatus.OK);
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<ClassificationDto> getById(@PathVariable Long id) {
+        return new ResponseEntity<>(classificationService.findById(id), HttpStatus.OK);
+    }
 }

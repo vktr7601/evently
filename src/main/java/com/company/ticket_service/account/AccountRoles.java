@@ -1,13 +1,13 @@
-package com.company.ticket_service.user;
+package com.company.ticket_service.account;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public enum Roles implements GrantedAuthority {
+public enum AccountRoles implements GrantedAuthority {
     ADMIN("ADMIN"),
     USER("USER");
     private String authority;
 
-    Roles(String authority) {
+    AccountRoles(String authority) {
         this.authority = authority;
     }
 

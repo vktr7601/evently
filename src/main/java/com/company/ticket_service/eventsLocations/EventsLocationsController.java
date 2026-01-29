@@ -1,7 +1,6 @@
-package com.company.ticket_service.event;
+package com.company.ticket_service.eventsLocations;
 
 import com.company.ticket_service.eventsLocations.entities.EventOccurrenceDTO;
-import com.company.ticket_service.eventsLocations.EventsLocationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,12 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1/event-occurrences")
 @RequiredArgsConstructor
-@RequestMapping("/events")
-public class EventController {
+public class EventsLocationsController {
 
     private final EventsLocationsService eventsLocationsService;
-
 
     @GetMapping
     public ResponseEntity<List<EventOccurrenceDTO>> getEventsByClassification(
@@ -22,18 +20,4 @@ public class EventController {
         List<EventOccurrenceDTO> events = eventsLocationsService.getEventsByClassification(classificationName);
         return ResponseEntity.ok(events);
     }
-
-    @GetMapping
-    public ResponseEntity<List<EventOccurrenceDTO>> getEventsByLocation(
-            @RequestParam(name = "locationName") String locationName
-    ) {
-        List<EventOccurrenceDTO> events = eventsLocationsService.getEventsByLocation(locationName);
-        return ResponseEntity.ok(events);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<List<EventOccurrenceDTO>> getEvent(@PathVariable long id) {
-        return null;
-    }
-
 }

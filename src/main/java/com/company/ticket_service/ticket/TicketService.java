@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.company.ticket_service.account.Account;
 import com.company.ticket_service.event.Event;
-import com.company.ticket_service.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ public class TicketService {
     private final TicketsRepository ticketsRepository;
 
     @Transactional
-    public void createTickets(Event event, User user, int ticketsCount) {
+    public void createTickets(Event event, Account account, int ticketsCount) {
         List<Ticket> tickets =
                 IntStream.range(0, ticketsCount)
                         .mapToObj(
@@ -26,7 +26,7 @@ public class TicketService {
                                     Ticket ticket = new Ticket();
                                     ticket.setEvent(event);
                                     //  ticket.setPrice(event.getPrice());
-                                    ticket.setOwner(user);
+                                    ticket.setOwner(account);
                                     ticket.setBookDate(LocalDateTime.now());
                                     return ticket;
                                 })

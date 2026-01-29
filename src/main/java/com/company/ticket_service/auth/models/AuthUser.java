@@ -1,6 +1,6 @@
 package com.company.ticket_service.auth.models;
 
-import com.company.ticket_service.user.Roles;
+import com.company.ticket_service.account.AccountRoles;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,7 +14,7 @@ import java.util.List;
 public class AuthUser implements UserDetails {
     private String email;
     private String password;
-    private Roles roles;
+    private AccountRoles roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

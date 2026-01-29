@@ -5,21 +5,26 @@ import com.company.ticket_service.event.Event;
 import com.company.ticket_service.location.Location;
 import com.company.ticket_service.ticket.Ticket;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Table(
         name = "events_locations",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "location_id"}),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"event_id", "location_id", "date"}),
         indexes = {
                 @Index(name = "idx_event_id", columnList = "event_id"),
                 @Index(name = "idx_classification_idd", columnList = "location_id")
         })
 @Entity
+@Getter
+@Setter
 public class EventsLocations extends BaseEntity {
-    @Column(name = "event_date", nullable = false)
+    @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
 
@@ -44,5 +49,5 @@ public class EventsLocations extends BaseEntity {
     private Location location;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "eventsLocations")
-    private List<Ticket> tickets;
+    private List<Ticket> tickets = new ArrayList<>();
 }

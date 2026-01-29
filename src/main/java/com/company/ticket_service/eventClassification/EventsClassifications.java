@@ -5,6 +5,8 @@ import com.company.ticket_service.core.BaseEntity;
 import com.company.ticket_service.event.Event;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -15,7 +17,8 @@ import lombok.ToString;
                 @Index(name = "idx_event_id", columnList = "event_id"),
                 @Index(name = "idx_classification_idd", columnList = "classification_id")
         })
-@Data
+@Getter
+@Setter
 public class EventsClassifications extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
