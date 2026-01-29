@@ -32,7 +32,7 @@ public class AuthenticationController {
     public void registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
         if (accountRepository.existsByEmail(registerUserRequest.email())) throw new RuntimeException();
         Account account = new Account();
-        account.(registerUserRequest.email());
+        account.setEmail(registerUserRequest.email());
         account.setPassword(passwordEncoder.encode(registerUserRequest.password()));
         account.setFirstName(registerUserRequest.firstName());
         account.setLastName(registerUserRequest.lastName());

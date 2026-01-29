@@ -10,12 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AccountsService {
-    private final AccountRepository accountRepository;
-    private final AccountMapper userMapper;
+    private final AccountRepository accountrepository;
+    private final AccountMapper accountMapper;
 
     @Transactional
     public AccountDto create(AccountRequest request) {
-        Account dbRecord = accountRepository.save(userMapper.toEntity(request));
-        return userMapper.toDTO(dbRecord);
+        Account dbRecord = accountrepository.save(accountMapper.toEntity(request));
+        return accountMapper.toDTO(dbRecord);
     }
 }

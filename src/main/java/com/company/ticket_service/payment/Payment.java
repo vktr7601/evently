@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 public class Payment extends BaseEntity {
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 

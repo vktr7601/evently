@@ -5,7 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 public enum AccountRoles implements GrantedAuthority {
     ADMIN("ADMIN"),
     USER("USER");
-    private String authority;
+    private final String authority;
 
     AccountRoles(String authority) {
         this.authority = authority;

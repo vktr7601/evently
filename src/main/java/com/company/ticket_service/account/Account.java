@@ -5,20 +5,21 @@ import com.company.ticket_service.payment.Payment;
 import com.company.ticket_service.ticket.Ticket;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "users")
 public class Account extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
     @Column(name = "first_name", nullable = false, length = 50)
@@ -27,6 +28,7 @@ public class Account extends BaseEntity {
     @NotNull
     @Column(name = "password", nullable = false)
     private String password;
+
     @NotBlank(message = "Last name is required")
     @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
     @Column(name = "last_name", nullable = false, length = 50)
@@ -52,5 +54,4 @@ public class Account extends BaseEntity {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Payment> payments = new ArrayList<>();
-
 }

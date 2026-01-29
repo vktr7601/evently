@@ -16,12 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/accounts")
 public class AccountController {
 
-    private final AccountsService userService;
+    private final AccountsService accountsService;
 
     @PostMapping
     public ResponseEntity<AccountDto> create(@Valid @RequestBody AccountRequest request) {
-        var user = userService.create(request);
-
+        var user = accountsService.create(request);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 }

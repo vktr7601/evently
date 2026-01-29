@@ -10,9 +10,8 @@ public interface AccountRepository extends BaseRepository<Account> {
 
     @Override
     default String getEntityName() {
-        return "User";
+        return "Account";
     }
-
 
     Optional<Account> findByEmail(String email);
 
