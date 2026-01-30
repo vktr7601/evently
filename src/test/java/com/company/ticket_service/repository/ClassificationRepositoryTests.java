@@ -23,16 +23,17 @@ public class ClassificationRepositoryTests {
     private ClassificationRepository classificationRepository;
     @Autowired
     private TestEntityManager entityManager;
-    private Classification category;
+    private Classification classification;
 
     @BeforeEach
     public void beforeEach() {
-        category = Classification.builder().name("Electronics").build();
+        classification = new Classification();
+        classification.setName("Electronics");
     }
 
     @Test
     void recordSuccessfullyCreated_when_saveMethodInvoked() {
-        Classification saved = classificationRepository.save(category);
+        Classification saved = classificationRepository.save(classification);
 
         assertNotNull(saved.getId(), "Saved Category should not be null");
         assertEquals("Electronics", saved.getName(), "Saved Category should be equal to");
@@ -42,12 +43,12 @@ public class ClassificationRepositoryTests {
 
     @Test
     void findByIdOrThrowReturnCategory_when_categoryExists() {
-        entityManager.persistAndFlush(category);
+        entityManager.persistAndFlush(classification);
 
-        Classification found = classificationRepository.findByIdOrThrow(category.getId());
+        Classification found = classificationRepository.findByIdOrThrow(classification.getId());
 
         assertNotNull(found, "Category is expected to be found, but it was not");
-        assertEquals(category.getId(), found.getId(), "Id should be equal to");
+        assertEquals(classification.getId(), found.getId(), "Id should be equal to");
     }
 
     @Test
@@ -57,8 +58,8 @@ public class ClassificationRepositoryTests {
 
     @Test
     void deleteByIdRemovesCategory_when_categoryExists() {
-        entityManager.persistAndFlush(category);
-        long id = category.getId();
+        entityManager.persistAndFlush(classification);
+        long id = classification.getId();
 
         classificationRepository.deleteById(id);
         entityManager.flush();
@@ -88,15 +89,15 @@ public class ClassificationRepositoryTests {
 
     @Test
     void toDtoReturnsCategoryDto_when_entityProvided() {
-        entityManager.persistAndFlush(category);
+        entityManager.persistAndFlush(classification);
 
-        ClassificationDto dto = mapper.toDto(category);
+        ClassificationDto dto = mapper.toDto(classification);
 
         assertNotNull(dto, "Category Dto is expected to be not null, but it was");
-        assertEquals(category.getId(), dto.id(), "Id should be equal to");
-        assertEquals(category.getName(), dto.name(), "Name should be equal to");
-        assertEquals(category.getCreatedAt(), dto.createdAt(), "Created Date should be equal to");
-        assertEquals(category.getUpdatedAt(), dto.updatedAt(), "Updated Date should be equal to");
+        assertEquals(classification.getId(), dto.id(), "Id should be equal to");
+        assertEquals(classification.getName(), dto.name(), "Name should be equal to");
+        assertEquals(classification.getCreatedAt(), dto.createdAt(), "Created Date should be equal to");
+        assertEquals(classification.getUpdatedAt(), dto.updatedAt(), "Updated Date should be equal to");
     }
 
     @Test
