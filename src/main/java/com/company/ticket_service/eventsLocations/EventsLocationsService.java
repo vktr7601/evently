@@ -1,8 +1,8 @@
 package com.company.ticket_service.eventsLocations;
 
 import com.company.ticket_service.event.Event;
-import com.company.ticket_service.event.dto.EventLocationData;
-import com.company.ticket_service.event.dto.EventsLocationMapper;
+import com.company.ticket_service.event.entities.EventLocationData;
+import com.company.ticket_service.event.entities.EventsLocationMapper;
 import com.company.ticket_service.eventsLocations.entities.EventLocationsDto;
 import com.company.ticket_service.eventsLocations.entities.EventOccurrenceDTO;
 import com.company.ticket_service.location.Location;

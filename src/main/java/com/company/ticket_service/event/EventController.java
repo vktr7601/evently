@@ -1,7 +1,7 @@
 package com.company.ticket_service.event;
 
-import com.company.ticket_service.event.dto.EventRequestDto;
-import com.company.ticket_service.event.dto.EventResponseDto;
+import com.company.ticket_service.event.entities.EventRequestDto;
+import com.company.ticket_service.event.entities.EventResponseDto;
 import com.company.ticket_service.eventsLocations.EventsLocationsService;
 import com.company.ticket_service.eventsLocations.entities.EventOccurrenceDTO;
 import lombok.RequiredArgsConstructor;

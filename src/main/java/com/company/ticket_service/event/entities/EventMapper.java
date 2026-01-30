@@ -1,6 +1,6 @@
-package com.company.ticket_service.event;
+package com.company.ticket_service.event.entities;
 
-import com.company.ticket_service.event.dto.EventRequestDto;
+import com.company.ticket_service.event.Event;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

@@ -1,7 +1,6 @@
-package com.company.ticket_service.account;
+package com.company.ticket_service.account.entities;
 
-import com.company.ticket_service.account.entities.AccountDto;
-import com.company.ticket_service.account.entities.AccountRequest;
+import com.company.ticket_service.account.Account;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

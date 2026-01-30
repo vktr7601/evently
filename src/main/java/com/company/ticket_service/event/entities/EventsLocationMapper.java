@@ -1,4 +1,4 @@
-package com.company.ticket_service.event.dto;
+package com.company.ticket_service.event.entities;
 
 import com.company.ticket_service.event.Event;
 import com.company.ticket_service.eventsLocations.EventsLocations;

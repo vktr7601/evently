@@ -1,6 +1,7 @@
 package com.company.ticket_service.account;
 
 import com.company.ticket_service.account.entities.AccountDto;
+import com.company.ticket_service.account.entities.AccountMapper;
 import com.company.ticket_service.account.entities.AccountRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
