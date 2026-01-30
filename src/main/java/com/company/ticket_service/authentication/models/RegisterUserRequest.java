@@ -1,4 +1,4 @@
-package com.company.ticket_service.auth.models;
+package com.company.ticket_service.authentication.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -33,3 +33,7 @@ logging:
             sql:
               BasicBinder: TRACE
               BasicExtractor: TRACE
+
+jwt:
+  secret: 3vK8kF9mN2pQ7rT4wX6yZ1aB5cD8eH0jL3nM9oP2sU6vY8zA1bC4dE7fG0hI3jK6lN9mO2pR5sT8uV1wX4yZ7aB0cD3eF6gH9iJ2kL5mN8oP1qR4sT7uV0wX3yZ6aB9cD2eF5gH8iJ1kL4mN7oP0qR3sT6uV9wX2yZ5aB8cD1eF4gH7i
+  expiration: 86400000

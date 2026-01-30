@@ -1,4 +1,4 @@
-package com.company.ticket_service.auth.models;
+package com.company.ticket_service.authentication.models;
 
 public record LoginRequest(String email, String password) {
 }

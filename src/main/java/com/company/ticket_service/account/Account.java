@@ -1,6 +1,8 @@
 package com.company.ticket_service.account;
 
+import com.company.ticket_service.accountPreferences.AccountPreferences;
 import com.company.ticket_service.core.BaseEntity;
+import com.company.ticket_service.notifications.Notification;
 import com.company.ticket_service.payment.Payment;
 import com.company.ticket_service.ticket.Ticket;
 import jakarta.persistence.*;
@@ -16,10 +18,6 @@ import java.util.List;
 @Setter
 @Table(name = "users")
 public class Account extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
     @Column(name = "first_name", nullable = false, length = 50)
@@ -54,4 +52,10 @@ public class Account extends BaseEntity {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Payment> payments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<AccountPreferences> accountPreferences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<Notification> notifications = new ArrayList<>();
 }

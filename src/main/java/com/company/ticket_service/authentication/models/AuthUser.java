@@ -1,4 +1,4 @@
-package com.company.ticket_service.auth.models;
+package com.company.ticket_service.authentication.models;
 
 import com.company.ticket_service.account.AccountRoles;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class AuthUser implements UserDetails {
+    private long id;
     private String email;
     private String password;
     private AccountRoles roles;
