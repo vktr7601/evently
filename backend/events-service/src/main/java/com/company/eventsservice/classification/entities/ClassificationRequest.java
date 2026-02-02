@@ -1,0 +1,12 @@
+package com.company.eventsservice.classification.entities;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record ClassificationRequest(
+        @NotBlank(message = "Category name cannot be empty")
+        @Size(min = 3, max = 64, message = "Name should be between 5 and 64 characters in length")
+        @JsonProperty(value = "name")
+        String name) {
+}
