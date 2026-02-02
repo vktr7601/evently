@@ -1,4 +1,4 @@
-package com.company.eventsservice.classification;
+package com.company.eventsservice.category;
 
 import org.springframework.stereotype.Repository;
 import utils.BaseRepository;
@@ -6,10 +6,10 @@ import utils.BaseRepository;
 import java.util.List;
 
 @Repository
-public interface ClassificationRepository extends BaseRepository<Classification> {
+public interface CategoryRepository extends BaseRepository<Category> {
     boolean existsByName(String name);
 
-    List<Classification> findAllByNameIn(List<String> names);
+    List<Category> findAllByNameIn(List<String> names);
 
     default String getEntityName() {
         return "Classification";
