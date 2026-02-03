@@ -18,5 +18,5 @@ public class UserPreferences extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Long classificationId;
+    private Long eventCategoryId;
 }

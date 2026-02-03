@@ -1,6 +1,9 @@
 spring:
   application:
     name: events-service
+  sql:
+    init:
+      mode: always
   datasource:
     url: jdbc:postgresql://localhost:5432/events_db
     username: ${POSTGRES_USER}
