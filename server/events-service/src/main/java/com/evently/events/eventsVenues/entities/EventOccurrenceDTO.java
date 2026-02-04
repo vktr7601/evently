@@ -1,4 +1,4 @@
-package com.evently.events.eventLocations.entities;
+package com.evently.events.eventsVenues.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -4,4 +4,5 @@ public class Tickets {
     private long userId;
     private long paymentId;
     private long eventLocationId;
+    
 }

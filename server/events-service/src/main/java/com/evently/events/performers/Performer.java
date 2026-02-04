@@ -20,6 +20,8 @@ public class Performer extends BaseEntity {
     public String name;
     @Column(name = "bio")
     public String bio;
+    @Column(name = "image_url")
+    public String imageUrl;
     @OneToMany(mappedBy = "performer")
     public List<Event> events;
 }

@@ -1,7 +1,7 @@
-package com.evently.events.eventLocations;
+package com.evently.events.eventsVenues;
 
 import com.evently.events.event.Event;
-import com.evently.events.locations.Location;
+import com.evently.events.venues.Venue;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "events_locations", indexes = {@Index(name = "idx_event_id", columnList = "event_id"), @Index(name = "idx_classification_idd", columnList = "location_id")})
-public class EventsLocations extends BaseEntity {
+@Table(name = "events_venues", indexes = {@Index(name = "idx_event_id", columnList = "event_id"), @Index(name = "idx_classification_idd", columnList = "location_id")})
+public class EventsVenues extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "location_id")
-    private Location location;
+    @JoinColumn(name = "venue_id")
+    private Venue venue;
 
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
@@ -41,7 +41,7 @@ public class EventsLocations extends BaseEntity {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private EventLocationStatus eventLocationStatus;
+    private EventsVenuesStatus eventsVenuesStatus;
 
     @Override
     public void onCreate() {
