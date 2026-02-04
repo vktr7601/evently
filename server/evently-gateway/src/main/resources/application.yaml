@@ -1,0 +1,15 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: evently-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: events-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/events/**
