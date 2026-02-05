@@ -1,0 +1,11 @@
+.brand-logo-simple {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+.nav-link.active {
+    color: #0d6efd !important;
+    font-weight: bold;
+}

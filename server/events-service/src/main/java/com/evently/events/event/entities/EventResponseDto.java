@@ -1,6 +1,6 @@
 package com.evently.events.event.entities;
 
-import com.evently.events.eventLocations.entities.EventLocationsDto;
+import com.evently.events.eventsVenues.entities.EventsVenuesDto;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ public record EventResponseDto(
         String name,
         String description,
         List<String> categories,
-        List<EventLocationsDto> eventLocationsDtos
+        List<EventsVenuesDto> eventsVenuesDtos
 ){}

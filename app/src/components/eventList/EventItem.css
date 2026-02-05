@@ -1,0 +1,24 @@
+.event-container {
+    font-family: sans-serif;
+    max-width: 400px;
+    color: #333;
+}
+
+.event-card {
+    border: 1px solid #eee;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+h2 {
+    margin-top: 0;
+    color: #111;
+}
+
+h3 {
+    margin-bottom: 0;
+    font-weight: normal;
+    color: #666;
+}
