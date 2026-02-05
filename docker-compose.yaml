@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:latest # Added version tag (best practice)
+    image: postgres:latest
     container_name: postgres-microservices
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -32,7 +32,7 @@ services:
       - "8082:8082"
     environment:
       - EUREKA_SERVER=http://eureka:8761/eureka/
-      - POSTGRES_USER=${POSTGRES_USER} # Pass these through
+      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - eureka
