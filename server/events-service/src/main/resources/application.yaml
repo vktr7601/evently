@@ -5,9 +5,9 @@ spring:
     init:
       mode: always
   datasource:
-    url: jdbc:postgresql://localhost:5432/events_db
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://postgres:5432/events_db
+    username: admin
+    password: adminPassword
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -25,3 +25,7 @@ eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+      instance:
+        prefer-ip-address: true
