@@ -2,16 +2,16 @@ name: Lint Code Base
 
 on:
   push:
-    branches: [ '**' ]
+    branches: ['**']
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Validate YAML files
-      uses: ibiqlik/action-yamllint@v3
-      with:
-        file_or_dir: '.'
+      - name: Validate YAML files
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: '.'
