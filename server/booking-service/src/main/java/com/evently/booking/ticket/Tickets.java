@@ -3,6 +3,4 @@ package com.evently.booking.ticket;
 public class Tickets {
     private long userId;
     private long paymentId;
-    private long eventLocationId;
-    
-}
+    private long eventLocationId;}
