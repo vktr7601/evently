@@ -16,4 +16,12 @@ public class UserPreferences extends BaseEntity {
     private User user;
     @Column(name = "event_category_id")
     private Long eventCategoryId;
+
+    @Override
+    public String toString() {
+        return "UserPreferences{" +
+            "user=" + user.getId() +
+            ", eventCategoryId=" + eventCategoryId +
+            '}';
+    }
 }

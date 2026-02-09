@@ -27,11 +27,11 @@ public class UserPreferencesService {
                 up.setEventCategoryId(prefId);
                 return up;
             })
-            .peek(up -> log.debug("Mapped UserPreference: {}", up))
+            .peek(up -> log.info("Mapped UserPreference: {} created", up))
             .toList();
 
         List<UserPreferences> userPreferences = userPreferencesRepository.saveAll(list);
-        log.debug("Saved UserPreferences: {}", userPreferences);
+        log.info("Saved UserPreferences: {}", userPreferences);
 
         return userPreferences;
     }

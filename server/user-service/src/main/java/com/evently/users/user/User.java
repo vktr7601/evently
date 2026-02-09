@@ -39,4 +39,16 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     public List<UserPreferences> userPreferencesList;
+
+    @Override
+    public String toString() {
+        return "User{" +
+            "firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", age=" + age +
+            ", email='" + email + '\'' +
+            ", userRole=" + userRole +
+            ", userPreferencesList=" + userPreferencesList +
+            '}';
+    }
 }

@@ -1,10 +1,12 @@
 package com.evently.users.user;
 
+import com.evently.users.exceptions.EmailAlreadyExistsException;
 import com.evently.users.user.entities.UserMapper;
 import com.evently.users.user.entities.UserRequest;
 import com.evently.users.userPreferences.UserPreferencesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,15 +17,28 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserPreferencesService userPreferencesService;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User registerUserWithPreferences(UserRequest userRequest) {
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new EmailAlreadyExistsException(userRequest.getEmail());
+        }
         User user = userMapper.toEntity(userRequest);
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         log.info("User  {} has been registered successfully", user);
         userPreferencesService.linkUserToPreferences(user, userRequest.getPreferences());
 
         return user;
+    }
+
+    public User updateUserInformation(UserRequest userRequest) {
+        User user = userMapper.toEntity(userRequest);
+        if (userRequest.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        userRepository.save(user);
+        log.info("User  {} has been updated successfully", user);
     }
 }
