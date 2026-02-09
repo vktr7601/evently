@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -18,12 +17,12 @@ import java.util.Set;
 public class NotificationConsumer {
     private final NotificationService notificationService;
     private final NotificationContentRepository notificationContentRepository;
-    private final UsersClient usersClient;
+    private final UserPreferencesClient userPreferencesClient;
 
     @KafkaListener(topics = "event-created")
     public void consumeMessage(EventCreated message) {
         log.info("Received Kafka message: {}", message);
-        Set<Long> userIds = usersClient.fetchUserIds(message.getCategories());
+        List<Long> userIds = userPreferencesClient.fetchUserIds(message.getCategories());
         String template = generateSimpleHtml(message);
         NotificationContent notificationContent = new NotificationContent();
         notificationContent.setHtmlBody(template);

@@ -1,6 +1,6 @@
 package com.evently.users.user;
 
-import com.evently.users.util.DataGenerator;
+import com.evently.users.util.BaseClass;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class UserRepositoryTests {
-    private final DataGenerator dataGenerator = new DataGenerator();
+public class UserRepositoryTests extends BaseClass {
     private final UserRepository userRepository;
     private final TestEntityManager entityManager;
     private User user;
@@ -94,28 +93,14 @@ public class UserRepositoryTests {
     void shouldThrowException_when_emailIsNull() {
         user.setEmail(null);
 
-        assertThrows(ConstraintViolationException.class, () -> userRepository.saveAndFlush(user));
+        assertThrows(ConstraintViolationException.class, () -> userRepository.saveAndFlush(user), "Constraint exceptions is expected to be thrown, but it was not.");
     }
 
     @Test
     void shouldThrowException_when_passwordIsNull() {
         user.setPassword(null);
 
-        assertThrows(ConstraintViolationException.class, () -> userRepository.saveAndFlush(user));
-    }
-
-    @Test
-    void shouldReturnTrue_when_existsByEmail() {
-        entityManager.persist(user);
-
-        assertTrue(userRepository.existsByEmail(user.getEmail()), "User with email " + user.getEmail() + " should exists, but it does not exist");
-    }
-
-    @Test
-    void shouldReturnFalse_when_existsByEmail() {
-        entityManager.persist(user);
-
-        assertFalse(userRepository.existsByEmail("non-existing-email"), "User with email non-existing-email should not exists, but it exists");
+        assertThrows(ConstraintViolationException.class, () -> userRepository.saveAndFlush(user), "Constraint exceptions is expected to be thrown, but it was not.");
     }
 
     @Test

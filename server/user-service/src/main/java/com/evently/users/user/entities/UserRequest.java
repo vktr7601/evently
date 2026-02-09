@@ -15,6 +15,8 @@ public class UserRequest {
     private String lastName;
     @JsonProperty("email")
     private String email;
+    @JsonProperty("age")
+    private int age;
     @JsonProperty("password")
     private String password;
     @JsonProperty("events_preferences")

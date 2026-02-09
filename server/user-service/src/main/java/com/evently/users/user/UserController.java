@@ -2,32 +2,25 @@ package com.evently.users.user;
 
 import com.evently.users.user.entities.UserRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
-
     private final UserService userService;
 
-
-    @PostMapping("/internal/getUsers")
-    public Set<Long> getUsersByPrefences(@RequestBody List<Long> preferences) {
-        var userIds = userService.getUserPreferences(preferences);
-        return userIds;
-    }
-
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody UserRequest user) {
-        userService.createUser(user);
-        return null;
+    public ResponseEntity<Map<String, String>> createUser(@RequestBody UserRequest user) {
+        userService.registerUserWithPreferences(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User registered successfully"));
     }
 }

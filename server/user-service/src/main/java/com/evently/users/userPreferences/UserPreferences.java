@@ -12,7 +12,7 @@ import utils.BaseEntity;
 @Table(name = "user_preferences")
 public class UserPreferences extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @Column(name = "event_category_id")
     private Long eventCategoryId;

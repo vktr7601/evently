@@ -9,8 +9,10 @@ import java.util.List;
 
 @Repository
 public interface UserPreferencesRepository extends BaseRepository<UserPreferences> {
-    @Query(value = """
-        SELECT up.eventCategoryId FROM UserPreferences  as up WHERE  up.eventCategoryId=:eventCategoryId
+    @Query("""
+            SELECT DISTINCT up.user.id
+            FROM UserPreferences up
+            WHERE up.eventCategoryId IN :preferences
         """)
-    List<Long> getUserPreferencesByEventCategoryId(@Param("eventCategoryId") Long eventCategoryId);
+    List<Long> findUserIdsByEventCategory(@Param("eventCategoryId") List<Long> preferencesd);
 }
