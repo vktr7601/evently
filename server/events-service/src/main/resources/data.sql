@@ -1,6 +1,7 @@
 INSERT INTO performers (name, bio, updated_at, created_at, image_url)
 VALUES ('The Midnight Echo', 'An indie-synthwave band known for cinematic soundscapes and 80s nostalgia.', now(),
         now(), 'https://evently-spring.s3.eu-north-1.amazonaws.com/Abel-Tesfaye-The-Weeknd-hurry-up-tomorrow-051425-tout-85e96d2443a94312beed6480f6d1fa20.jpg'),
+      ('Taylor Swift', 'adasda', now(), now(),'https://evently-spring.s3.eu-north-1.amazonaws.com/Abel-Tesfaye-The-Weeknd-hurry-up-tomorrow-051425-tout-85e96d2443a94312beed6480f6d1fa20.jpg' ),
        ('Dr. Sarah Jenkins', 'Renowned neuroscientist and keynote speaker on the future of AI and human ethics.', now(),
         now(),'https://evently-spring.s3.eu-north-1.amazonaws.com/Abel-Tesfaye-The-Weeknd-hurry-up-tomorrow-051425-tout-85e96d2443a94312beed6480f6d1fa20.jpg'),
        ('Velocity Dance Crew', 'Award-winning contemporary dance troupe specializing in urban-classical fusion.', now(),

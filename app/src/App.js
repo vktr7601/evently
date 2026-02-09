@@ -9,6 +9,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import Venues from './components/Venues';
 import VenueDetails from './components/VenueDetails'
 import Performers from './components/Performers'
+import Register from './components/Register'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TermsOfService from "./components/TermsOfService";
@@ -26,6 +27,7 @@ function App() {
                         <Route path="/privacy" element={<PrivacyPolicy/>}/>
                         <Route path="/terms" element={<TermsOfService/>}/>
                         <Route path="/venues" element={<Venues/>}/>
+                        <Route path="/register" element={<Register/>}/>
                         <Route path="/venues/:venueId" element={<VenueDetails/>}/>
                     </Routes>
                 </div>

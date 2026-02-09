@@ -5,4 +5,5 @@ import utils.BaseRepository;
 
 @Repository
 public interface PerformerRepository extends BaseRepository<Performer> {
+    Performer findByName(String name);
 }

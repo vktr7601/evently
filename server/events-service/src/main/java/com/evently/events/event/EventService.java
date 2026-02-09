@@ -12,9 +12,14 @@ import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsVenues.EventsVenuesService;
 import com.evently.events.eventsVenues.entities.EventsVenuesDto;
 import com.evently.events.performers.Performer;
+import com.evently.events.performers.PerformerRepository;
+import dtos.CreateTicketsDto;
+import dtos.EventCreated;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +33,25 @@ public class EventService {
     private final EventsVenuesService eventsVenuesService;
     private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
+    private final PerformerRepository performerRepository;
+    private final TicketClient ticketClient;
+    private final KafkaTemplate<String, EventCreated> kafkaTemplate;
+
 
     @Transactional
     //  @CachePut(value = "events", key = "'id:' + #result.getId()")
     public EventResponseDto create(EventRequestDto request) {
         Event event = eventMapper.toEntity(request);
+        Performer performer = performerRepository.findByName(request.getPerformer());
+        event.setPerformer(performer);
         eventRepository.save(event);
-        eventsCategoriesService.categorize(event, request.getCategories());
+        var res = eventsCategoriesService.categorize(event, request.getCategories());
         List<EventsVenuesDto> list = eventsVenuesService.create(event, request.getEventLocationData());
+        List<CreateTicketsDto> list1 = list.stream().map(x -> new CreateTicketsDto(x.venueId(), x.totalTickets(), x.date())).toList();
+        // ticketClient.createTickets(list1);
+        List<Long> categoriesIds = res.stream().map(BaseEntity::getId).toList();
+        EventCreated eventCreated = EventCreated.of(event.getId(), categoriesIds, performer.getId(), event.getName());
+        kafkaTemplate.send("event-created", eventCreated);
 
         return eventMapper.toResponseDto(event, request.getCategories(), list);
     }

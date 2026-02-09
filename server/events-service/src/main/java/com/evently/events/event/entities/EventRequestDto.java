@@ -17,4 +17,6 @@ public class EventRequestDto {
     public List<EventLocationData> eventLocationData;
     @JsonProperty("categories")
     List<String> categories;
+    @JsonProperty("performer")
+    String performer;
 }

@@ -17,7 +17,7 @@ public class EventsCategoriesService {
     private final CategoryRepository categoryRepository;
     private final EventsCategoriesMapper eventsCategoriesMapper;
 
-    public void categorize(Event event, List<String> categories) {
+    public List<Category> categorize(Event event, List<String> categories) {
         List<Category> fetchedCategories = categoryRepository.findAllByNameIn(categories);
         if (fetchedCategories.size() != categories.size())
             throw new ResourceNotFoundException("Category not found");
@@ -25,5 +25,7 @@ public class EventsCategoriesService {
         List<EventsCategories> mapping = fetchedCategories.stream().map(x -> eventsCategoriesMapper.toEventsCategories(event, x)).toList();
 
         eventsCategoriesRepository.saveAll(mapping);
+
+        return fetchedCategories;
     }
 }

@@ -16,6 +16,7 @@ public interface EventsLocationMapper {
 
     @Mapping(source = "venue.name", target = "venue")
     @Mapping(source = "event.name", target = "eventName")
+    @Mapping(source = "venue.id", target = "venueId")
     EventsVenuesDto toDto(EventsVenues eventsVenues);
 
     default EventsVenues toDto(Event event, EventLocationData data, Venue venue) {

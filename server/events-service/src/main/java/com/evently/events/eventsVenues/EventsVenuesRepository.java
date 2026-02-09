@@ -59,17 +59,18 @@ public interface EventsVenuesRepository extends BaseRepository<EventsVenues> {
     List<EventDto> findAllByVenueId(@Param("id") long venueId);
 
     @Query(value = """
-            SELECT new  com.evently.events.eventsVenues.entities.EventsVenuesDto(
-            e.name,
-            loc.name,
-            el.date,
-            el.price,
-            el.totalTickets)
-            FROM EventsVenues  el
-                      JOIN el.event e
-                      JOIN el.venue loc
-                      WHERE e.id = :id
-            """)
+        SELECT new  com.evently.events.eventsVenues.entities.EventsVenuesDto(
+        e.name,
+        loc.name,
+        el.date,
+        el.price,
+        el.totalTickets,
+                    loc.id)
+        FROM EventsVenues  el
+                  JOIN el.event e
+                  JOIN el.venue loc
+                  WHERE e.id = :id
+        """)
     List<EventsVenuesDto> findAllByEventId(@Param("id") long id);
 
     @Override

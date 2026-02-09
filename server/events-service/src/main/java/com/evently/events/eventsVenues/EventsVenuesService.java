@@ -26,10 +26,10 @@ public class EventsVenuesService {
     private final EventsLocationMapper eventsLocationMapper;
 
     public List<EventsVenuesDto> create(Event event, List<EventLocationData> eventLocationData) {
-        List<String> locationsNames = eventLocationData.stream().map(EventLocationData::getLocation).toList();
+        List<String> locationsNames = eventLocationData.stream().map(EventLocationData::getVenue).toList();
         Map<String, Venue> map = venueRepository.findAllByNameIn(locationsNames).stream().collect(Collectors.toMap(Venue::getName, Function.identity()));
 
-        List<EventsVenues> list = eventLocationData.stream().map(data -> eventsLocationMapper.toDto(event, data, map.get(data.getLocation()))).toList();
+        List<EventsVenues> list = eventLocationData.stream().map(data -> eventsLocationMapper.toDto(event, data, map.get(data.getVenue()))).toList();
 
         eventsVenuesRepository.saveAll(list);
 
