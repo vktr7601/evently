@@ -13,6 +13,8 @@ import Register from './components/Register'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TermsOfService from "./components/TermsOfService";
+import Login from './components/Login';
+import Mail from './components/Mail'
 
 function App() {
     return (
@@ -28,7 +30,9 @@ function App() {
                         <Route path="/terms" element={<TermsOfService/>}/>
                         <Route path="/venues" element={<Venues/>}/>
                         <Route path="/register" element={<Register/>}/>
+                        <Route path="/login" element={<Login/>}/>
                         <Route path="/venues/:venueId" element={<VenueDetails/>}/>
+                        <Route path="/mail" element={<Mail/>}/>
                     </Routes>
                 </div>
             </main>

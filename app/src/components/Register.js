@@ -2,18 +2,15 @@ import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
 
-// Defined outside to prevent re-creation on every render
-const EVENT_CATEGORIES = [
-  "Live Music", "Comedy", "Theater", "Festivals", "Workshops", "Art Gallery"
-];
+// // Defined outside to prevent re-creation on every render
+// const EVENT_CATEGORIES = [
+//   "Live Music", "Comedy", "Theater", "Festivals", "Workshops", "Art Gallery"
+// ];
 
 const Register = () => {
-  // Initial state including the previously missing selectedCategories array
-
   const [categories, setCategories] = useState([]);
-
   useEffect(() => {
-    axios.get("http://localhost:9000/events")
+    axios.get("http://localhost:8082/categories")
       .then(res => {
         const data = Array.isArray(res.data) ? res.data : res.data?.content || [];
         setCategories(data);
@@ -23,8 +20,8 @@ const Register = () => {
       });
   }, []);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     age: '',
     email: '',
     password: '',
@@ -36,24 +33,42 @@ const Register = () => {
     setFormData({...formData, [name]: value});
   };
 
-  // Specialized handler for the category toggle buttons
   const handleCategoryToggle = (category) => {
     setFormData(prev => {
-      const isSelected = prev.selectedCategories.includes(category);
+      const isSelected = prev.selectedCategories.some(c => c.id === category.id);
       return {
         ...prev,
         selectedCategories: isSelected
-          ? prev.selectedCategories.filter(c => c !== category)
-          : [...prev.selectedCategories, category]
+          ? prev.selectedCategories.filter(c => c.id !== category.id) // Remove if exists
+          : [...prev.selectedCategories, category] // Add if new
       };
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Registration Submission:", formData);
-
-    // Integrate your axios.post here
+    const payload = {
+      first_name: formData.firstName, // Map firstName to first_name
+      last_name: formData.lastName,   // Usually if one is snake_case, the others are too
+      age: formData.age,
+      email: formData.email,
+      password: formData.password,
+      // Sending just the IDs is usually what Spring Boot expects for Relationships
+      events_preferences: formData.selectedCategories.map(cat => cat.id)
+    };
+    console.log(payload);
+    // 1. Send the formData object as the second argument
+    axios.post("http://localhost:8085/user/register", payload)
+      .then(res => {
+        console.log("Registration successful:", res.data);
+        alert("Account created successfully!");
+        // 2. Optional: Redirect the user to login using a hook like useNavigate()
+        // navigate('/login');
+      })
+      .catch(err => {
+        console.error("Registration error:", err.response?.data || err.message);
+        alert("Registration failed. Please try again.");
+      });
   };
 
   return (
@@ -123,7 +138,6 @@ const Register = () => {
                   />
                 </div>
 
-                {/* Password */}
                 <div className="mb-4">
                   <label className="form-label small fw-bold text-uppercase"
                          style={{fontSize: '0.75rem', letterSpacing: '0.5px'}}>Password</label>
@@ -144,22 +158,17 @@ const Register = () => {
                     <i className="bi bi-bell-fill me-2"></i>Notify me about:
                   </label>
                   <div className="d-flex flex-wrap gap-2">
-                    {EVENT_CATEGORIES.map((cat) => {
+                    {categories.map((cat) => {
                       const isActive = formData.selectedCategories.includes(cat);
                       return (
                         <button
-                          key={cat}
+                          key={cat.id}
                           type="button"
                           onClick={() => handleCategoryToggle(cat)}
-                          className={`btn btn-sm rounded-pill px-3 transition-all ${
-                            isActive ? 'btn-dark' : 'btn-outline-secondary text-muted'
-                          }`}
-                          style={{
-                            borderStyle: isActive ? 'solid' : 'dashed',
-                            fontSize: '0.8rem'
-                          }}
+                          className={`btn btn-sm rounded-pill px-3 ${isActive ? 'btn-dark' : 'btn-outline-secondary'}`}
                         >
-                          {cat} {isActive && <i className="bi bi-check-lg ms-1"></i>}
+                          {cat.categoryName || cat.name} {/* Check which key your Java model uses */}
+                          {isActive && <i className="bi bi-check-lg ms-1"></i>}
                         </button>
                       );
                     })}

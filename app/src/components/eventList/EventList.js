@@ -80,7 +80,6 @@ const EventItem = ({event}) => {
             )}
 
             <div className="card-body d-flex flex-column p-4">
-                {/* Categories Badge Row */}
                 <div className="d-flex flex-wrap gap-2 mb-3">
                     {event.categories?.map((x) => (
                         <Link
