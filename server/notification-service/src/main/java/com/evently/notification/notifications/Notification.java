@@ -11,18 +11,23 @@ import utils.BaseEntity;
 @Setter
 @Table(name = "notifications")
 public class Notification extends BaseEntity {
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
     @ManyToOne
     @JoinColumn(name = "content_id")
     private NotificationContent content;
-    @Column(name = "isRead")
+
+    @Column(name = "is_read")
     private boolean isRead;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
     @Override
     public void onCreate() {
         super.onCreate();
         isRead = false;
+        isDeleted = false;
     }
 }

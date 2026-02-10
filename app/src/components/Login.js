@@ -32,8 +32,8 @@ const Login = () => {
                 // 1. Save the token
                 localStorage.setItem("userToken", token);
                 
-                // 2. Redirect to the Inbox/Mail page
-                navigate("/mail");
+
+                navigate("/");
             }
         } catch (err) {
             console.error("Login error:", err);

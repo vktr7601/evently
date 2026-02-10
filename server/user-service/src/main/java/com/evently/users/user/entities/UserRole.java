@@ -1,4 +1,4 @@
-package com.evently.users.user;
+package com.evently.users.user.entities;
 
 public enum UserRole {
     ADMIN,

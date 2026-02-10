@@ -1,7 +1,7 @@
 package com.evently.users.util;
 
 import com.evently.users.user.User;
-import com.evently.users.user.UserRole;
+import com.evently.users.user.entities.UserRole;
 import net.datafaker.Faker;
 
 public class DataGenerator {

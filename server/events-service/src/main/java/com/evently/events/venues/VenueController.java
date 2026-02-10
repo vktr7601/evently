@@ -2,12 +2,11 @@ package com.evently.events.venues;
 
 import com.evently.events.venues.entities.VenueDetailsDto;
 import com.evently.events.venues.entities.VenueDto;
+import com.evently.events.venues.entities.VenueRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +25,11 @@ public class VenueController {
     @GetMapping("/{id}")
     public ResponseEntity<VenueDetailsDto> getVenueDetails(@PathVariable long id) {
         return ResponseEntity.ok(venueService.getVenueEvents(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<VenueDto> create(@ModelAttribute VenueRequest venueRequest) {
+        VenueDto venueDto = venueService.saveVanue(venueRequest);
+        return new ResponseEntity<>(venueDto, HttpStatus.CREATED);
     }
 }

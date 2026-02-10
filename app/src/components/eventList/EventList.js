@@ -8,7 +8,7 @@ const EventList = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get("http://localhost:9000/events")
+        axios.get("http://localhost:8082/events")
             .then(res => {
                 const data = Array.isArray(res.data) ? res.data : res.data?.content || [];
                 setEvents(data);

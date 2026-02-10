@@ -26,13 +26,20 @@ spring:
 
 server:
   port: 8082
+aws:
+  s3:
+    bucket-name: events-service-bucket
+    region: us-east-1
+    access-key: AKIA4HB7X5DXB45HRBQ7
+    secret-key: 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
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      #      defaultZone: http://eureka:8761/eureka/
-      defaultZone: http://localhost:8761/eureka/
-      instance:
-        prefer-ip-address: true
+#
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      #      defaultZone: http://eureka:8761/eureka/
+#      defaultZone: http://localhost:8761/eureka/
+#      instance:
+#        prefer-ip-address: true

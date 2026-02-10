@@ -1,4 +1,6 @@
 package com.evently.notification.notifications;
 
-public class NotificationDto {
+import java.time.Instant;
+
+public record NotificationDto(long id, String title, String message, boolean isRead, Instant createdAt) {
 }

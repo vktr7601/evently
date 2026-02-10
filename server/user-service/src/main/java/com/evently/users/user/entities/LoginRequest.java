@@ -1,4 +1,4 @@
-package com.evently.users.user;
+package com.evently.users.user.entities;
 
 import lombok.Getter;
 import lombok.Setter;

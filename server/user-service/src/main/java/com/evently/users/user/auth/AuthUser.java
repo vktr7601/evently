@@ -1,5 +1,7 @@
-package com.evently.users.user;
+package com.evently.users.user.auth;
 
+import com.evently.users.user.entities.UserRole;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +11,8 @@ import java.util.List;
 
 
 @Setter
-public class UserSecurityData implements UserDetails {
+@Getter
+public class AuthUser implements UserDetails {
     private long id;
     private String emaiil;
     private String password;

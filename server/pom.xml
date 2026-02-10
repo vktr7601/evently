@@ -26,7 +26,6 @@
     </properties>
 
     <modules>
-        <module>authentication-service</module>
         <module>events-service</module>
         <module>booking-service</module>
         <module>payment-service</module>

@@ -7,7 +7,7 @@ const Venues = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get("http://localhost:9000/venues")
+        axios.get("http://localhost:8082/venues")
             .then(res => {
                 const data = Array.isArray(res.data) ? res.data : res.data?.content || [];
                 setVenues(data);

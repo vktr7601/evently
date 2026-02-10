@@ -1,6 +1,7 @@
 package com.evently.users.user;
 
-import com.evently.users.exceptions.EmailAlreadyExistsException;
+import com.evently.users.config.KakfaProducer;
+import com.evently.users.exceptions.DuplicateEmailException;
 import com.evently.users.user.entities.UserMapper;
 import com.evently.users.user.entities.UserRequest;
 import com.evently.users.userPreferences.UserPreferencesService;
@@ -18,27 +19,22 @@ public class UserService {
     private final UserPreferencesService userPreferencesService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final KakfaProducer kafkaProducer;
 
     @Transactional
     public User registerUserWithPreferences(UserRequest userRequest) {
-        if (userRepository.existsByEmail(userRequest.getEmail())) {
-            throw new EmailAlreadyExistsException(userRequest.getEmail());
-        }
+        if (userRepository.existsByEmail(userRequest.getEmail()))
+            throw new DuplicateEmailException(userRequest.getEmail());
+
+
         User user = userMapper.toEntity(userRequest);
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         log.info("User  {} has been registered successfully", user);
         userPreferencesService.linkUserToPreferences(user, userRequest.getPreferences());
+        kafkaProducer.sendUserRegisteredEvent(userMapper.toUserRegisteredEvent(user));
 
         return user;
-    }
-
-    public User updateUserInformation(UserRequest userRequest) {
-        User user = userMapper.toEntity(userRequest);
-        if (userRequest.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        userRepository.save(user);
-        log.info("User  {} has been updated successfully", user);
     }
 }

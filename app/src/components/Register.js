@@ -2,11 +2,6 @@ import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
 
-// // Defined outside to prevent re-creation on every render
-// const EVENT_CATEGORIES = [
-//   "Live Music", "Comedy", "Theater", "Festivals", "Workshops", "Art Gallery"
-// ];
-
 const Register = () => {
   const [categories, setCategories] = useState([]);
   useEffect(() => {

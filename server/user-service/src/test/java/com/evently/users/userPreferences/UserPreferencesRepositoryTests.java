@@ -40,7 +40,7 @@ public class UserPreferencesRepositoryTests extends BaseClass {
         entityManager.persistAndFlush(prefs);
         entityManager.clear();
 
-        List<Long> result = userPreferencesRepository.getUserPreferencesByEventCategoryId(categoryId);
+        List<Long> result = userPreferencesRepository.findUserIdsByEventCategory(List.of(categoryId));
 
         assertThat(result).isNotEmpty();
         assertThat(result).hasSize(1);
@@ -49,7 +49,7 @@ public class UserPreferencesRepositoryTests extends BaseClass {
 
     @Test
     void shouldReturnEmptyList_WhenNoPreferencesExistForId() {
-        List<Long> result = userPreferencesRepository.getUserPreferencesByEventCategoryId(999L);
+        List<Long> result = userPreferencesRepository.findUserIdsByEventCategory(List.of(999L));
 
         assertThat(result).isEmpty();
     }

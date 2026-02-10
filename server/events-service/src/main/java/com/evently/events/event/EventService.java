@@ -3,6 +3,7 @@ package com.evently.events.event;
 
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.category.entities.CategoryMapper;
+import com.evently.events.config.KafkaProducer;
 import com.evently.events.event.entities.EventDto;
 import com.evently.events.event.entities.EventMapper;
 import com.evently.events.event.entities.EventRequestDto;
@@ -34,7 +35,8 @@ public class EventService {
     private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
     private final PerformerRepository performerRepository;
-    private final TicketClient ticketClient;
+    //   private final TicketClient ticketClient;
+    private final KafkaProducer kafkaProducer;
     private final KafkaTemplate<String, EventCreated> kafkaTemplate;
 
 
@@ -51,7 +53,8 @@ public class EventService {
         // ticketClient.createTickets(list1);
         List<Long> categoriesIds = res.stream().map(BaseEntity::getId).toList();
         EventCreated eventCreated = EventCreated.of(event.getId(), categoriesIds, performer.getId(), event.getName());
-        kafkaTemplate.send("event-created", eventCreated);
+        kafkaProducer.sendEventCreatedMessage( eventCreated);
+
 
         return eventMapper.toResponseDto(event, request.getCategories(), list);
     }

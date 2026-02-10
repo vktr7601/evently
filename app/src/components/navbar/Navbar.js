@@ -36,6 +36,12 @@ const Navbar = () => {
             <li className="nav-item">
               <NavLink to="/venues" className="nav-link px-3">Venues</NavLink>
             </li>
+            <li>
+              <NavLink to="/admin/events" className="nav-link px-3">Create Events</NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/performer" className="nav-link px-3">Create Performer</NavLink>
+            </li>
 
 
             {isAuthenticated ? (
