@@ -16,7 +16,7 @@ import TermsOfService from "./components/TermsOfService";
 import Login from './components/Login';
 import Mail from './components/Mail'
 import EventsAdmin from './components/EventsAdmin';
-import CreatePerformerForm from './components/performer/CreatePerformerForm';
+// import CreatePerformerForm from './components/artist/CreatePerformerForm';
 
 function App() {
     return (
@@ -36,7 +36,7 @@ function App() {
                         <Route path="/venues/:venueId" element={<VenueDetails />} />
                         <Route path="/mail" element={<Mail />} />
                         <Route path="/admin/events" element={<EventsAdmin />} />
-                        <Route path="/admin/performer" element= {<CreatePerformerForm />} />
+                        {/* <Route path="/admin/artist" element= {<CreatePerformerForm />} /> */}
                     </Routes>
                 </div>
             </main>

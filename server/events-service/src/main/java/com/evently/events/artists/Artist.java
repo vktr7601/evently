@@ -1,4 +1,4 @@
-package com.evently.events.performers;
+package com.evently.events.artists;
 
 import com.evently.events.event.Event;
 import jakarta.persistence.Column;
@@ -14,14 +14,14 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "performers")
-public class Performer extends BaseEntity {
+@Table(name = "artists")
+public class Artist extends BaseEntity {
     @Column(name = "name")
     public String name;
     @Column(name = "bio")
     public String bio;
     @Column(name = "image_url")
     public String imageUrl;
-    @OneToMany(mappedBy = "performer")
+    @OneToMany(mappedBy = "artist")
     public List<Event> events;
 }

@@ -6,7 +6,7 @@ const Performers = () => {
     const [performers, setPerformers] = useState([]);
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/performers`)
+        axios.get(`http://localhost:8082/artists`)
             .then(res => {
                 const data = Array.isArray(res.data) ? res.data : res.data?.content || [];
                 console.log(data);

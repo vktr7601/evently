@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {useState, useEffect} from 'react';
-import {Link} from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './EventItem.css';
 
 const EventList = () => {
@@ -40,7 +40,7 @@ const EventList = () => {
             <div className="row">
                 {events.map(event => (
                     <div key={event.id} className="col-12 col-md-6 col-lg-4 mb-4">
-                        <EventItem event={event}/>
+                        <EventItem event={event} />
                     </div>
                 ))}
             </div>
@@ -48,36 +48,21 @@ const EventList = () => {
     );
 };
 
-const EventItem = ({event}) => {
-    const hasImage = event.imageUrl && event.imageUrl.trim() !== "";
-
+const EventItem = ({ event }) => {
+    const hasImage = event.imageUrl
+    console.log(event.imageUrl);
     return (
         <div className="card h-100 shadow-sm border-0 transition-hover">
-            {hasImage ? (
-                <img
-                    src={event.imageUrl}
-                    className="card-img-top"
-                    alt={event.name}
-                    style={{height: '180px', objectFit: 'cover'}}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://placehold.co/600x400?text=Event+Image";
-                    }}
-                />
-            ) : (
-                <div
-                    className="card-img-top"
-                    style={{
-                        height: '180px',
-                        background: 'linear-gradient(45deg, #0d6efd, #6610f2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    <i className="bi bi-calendar-event text-white fs-1"></i>
-                </div>
-            )}
+            <img
+                src={event.imageUrl}
+                className="card-img-top"
+                alt={event.name}
+                style={{ height: '180px', objectFit: 'cover' }}
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = event.image_url;
+                }}
+            />
 
             <div className="card-body d-flex flex-column p-4">
                 <div className="d-flex flex-wrap gap-2 mb-3">
@@ -86,7 +71,7 @@ const EventItem = ({event}) => {
                             key={x.id}
                             to={`/events?category=${encodeURIComponent(x.name)}`}
                             className="badge bg-light text-primary border border-primary-subtle text-decoration-none"
-                            style={{fontSize: '0.75rem'}}
+                            style={{ fontSize: '0.75rem' }}
                         >
                             {x.name || 'General'}
                         </Link>
@@ -94,11 +79,6 @@ const EventItem = ({event}) => {
                 </div>
 
                 <h5 className="card-title fw-bold mb-1">{event.name}</h5>
-
-                <p className="text-muted small mb-3">
-                    <i className="bi bi-person-fill me-2 text-primary"></i>
-                    {event.performer || 'TBA'}
-                </p>
 
                 {/* Optional: Add a short description if your event has one */}
                 {event.description && (

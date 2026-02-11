@@ -7,10 +7,10 @@ const EventsAdmin = () => {
     const [formData, setFormData] = useState({
         event_name: '',
         description: '',
-        performer: '',
+        artist: '',
         categories: '', // We'll split this string into an array on submit
         locations: [
-            { venue: '', date: '', available_tickets: 0, price: 0.0 }
+            { location: '', date: '', available_tickets: 0, price: 0.0 }
         ]
     });
 
@@ -31,7 +31,7 @@ const EventsAdmin = () => {
     const addLocation = () => {
         setFormData({
             ...formData,
-            locations: [...formData.locations, { venue: '', date: '', available_tickets: 0, price: 0.0 }]
+            locations: [...formData.locations, { location: '', date: '', available_tickets: 0, price: 0.0 }]
         });
     };
 
@@ -66,7 +66,7 @@ const EventsAdmin = () => {
             <div className="card shadow-sm p-4">
                 <h2 className="mb-4 fw-bold">Create New Event</h2>
                 <form onSubmit={handleSubmit}>
-                    
+
                     <div className="mb-3">
                         <label className="form-label">Event Name</label>
                         <input name="event_name" className="form-control" onChange={handleChange} required placeholder="e.g. Taylor Swift - Eras Tour" />
@@ -80,7 +80,7 @@ const EventsAdmin = () => {
                     <div className="row">
                         <div className="col-md-6 mb-3">
                             <label className="form-label">Performer</label>
-                            <input name="performer" className="form-control" onChange={handleChange} required />
+                            <input name="artist" className="form-control" onChange={handleChange} required />
                         </div>
                         <div className="col-md-6 mb-3">
                             <label className="form-label">Categories (comma separated)</label>
@@ -96,7 +96,7 @@ const EventsAdmin = () => {
                             <div className="row g-3">
                                 <div className="col-md-6">
                                     <label className="small fw-bold">Venue</label>
-                                    <input name="venue" className="form-control form-control-sm" onChange={(e) => handleLocationChange(index, e)} required />
+                                    <input name="location" className="form-control form-control-sm" onChange={(e) => handleLocationChange(index, e)} required />
                                 </div>
                                 <div className="col-md-6">
                                     <label className="small fw-bold">Date & Time</label>

@@ -16,6 +16,9 @@ public class Category extends BaseEntity {
     @Column(name = "name", nullable = false, length = 64)
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
     @OneToMany(mappedBy = "category")
     public List<EventsCategories> eventsCategories;
 }

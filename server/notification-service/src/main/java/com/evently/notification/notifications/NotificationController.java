@@ -30,7 +30,6 @@ public class NotificationController {
 
     @PutMapping("/{notificationId}")
     public void markNotificationAsRead(@PathVariable long notificationId) {
-        System.out.println();
         notificationService.markNotificationAsRead(notificationId);
     }
 

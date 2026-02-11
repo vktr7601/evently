@@ -18,5 +18,5 @@ public class EventRequestDto {
     @JsonProperty("categories")
     List<String> categories;
     @JsonProperty("performer")
-    String performer;
+    String artist;
 }

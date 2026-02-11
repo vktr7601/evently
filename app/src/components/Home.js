@@ -6,7 +6,6 @@ const Home = () => {
   return (
     <div className="home-wrapper bg-white min-vh-100">
       
-      {/* --- MINIMALIST HERO --- */}
       <section className="py-5 mb-5 border-bottom bg-light bg-gradient">
         <div className="container py-5">
           <div className="row justify-content-center text-center">

@@ -48,9 +48,20 @@ const NotificationPage = () => {
         fetchNotifications();
     }, []);
 
-    const onClick = (e) => {
-        axios.put('http://localhost:8080/notifications/' + e.id);
-    }
+    const onClick = (notif) => {
+        axios.put(`http://api-gateway/notifications/${notif.id}`)
+            .then(() => {
+                // 2. АКО заявката е успешна, ъпдейтваме САМО локалния стейт
+                setNotifications(prevNotifications =>
+                    prevNotifications.map(n =>
+                        n.id === notif.id ? { ...n, isRead: true } : n
+                    )
+                );
+            })
+            .catch(err => console.error("Error updating notification:", err));
+    };
+
+
 
     if (loading) return <div className="p-5 text-center">Loading inbox...</div>;
 

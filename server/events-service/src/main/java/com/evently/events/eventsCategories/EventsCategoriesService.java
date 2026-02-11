@@ -2,13 +2,17 @@ package com.evently.events.eventsCategories;
 
 import com.evently.events.category.Category;
 import com.evently.events.category.CategoryRepository;
+import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.Event;
+import com.evently.events.eventsCategories.entities.EventCategoriesDto;
 import com.evently.events.eventsCategories.entities.EventsCategoriesMapper;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +31,17 @@ public class EventsCategoriesService {
         eventsCategoriesRepository.saveAll(mapping);
 
         return fetchedCategories;
+    }
+
+    public Map<Long, List<CategoryDto>> findAllCategoriesByEventIds(List<Long> eventIds) {
+        List<EventCategoriesDto> eventCategoriesDtos = eventsCategoriesRepository.findAllCategoriesByEventIds(eventIds);
+
+        Map<Long, List<CategoryDto>> categoriesByEvent = eventCategoriesDtos.stream().collect(Collectors.groupingBy(EventCategoriesDto::getEventId, Collectors.mapping(eventsCategoriesMapper::toCategoryDto, Collectors.toList())));
+
+        return categoriesByEvent;
+    }
+
+    public List<CategoryDto> getEventCategories(long eventId) {
+        return eventsCategoriesRepository.findEventCategoriesByEventId(eventId);
     }
 }

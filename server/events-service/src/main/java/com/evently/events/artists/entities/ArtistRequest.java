@@ -1,4 +1,4 @@
-package com.evently.events.venues.entities;
+package com.evently.events.artists.entities;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,7 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-public class VenueRequest {
+public class ArtistRequest {
     private String name;
-    MultipartFile imageUrl;
+    private String bio;
+    MultipartFile image;
 }

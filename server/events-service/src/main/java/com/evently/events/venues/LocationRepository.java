@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Set;
 
 @Repository
-public interface VenueRepository extends BaseRepository<Venue> {
+public interface LocationRepository extends BaseRepository<Location> {
 
-    Set<Venue> findAllByNameIn(Collection<String> names);
+    Set<Location> findAllByNameIn(Collection<String> names);
 }

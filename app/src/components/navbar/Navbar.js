@@ -40,7 +40,7 @@ const Navbar = () => {
               <NavLink to="/admin/events" className="nav-link px-3">Create Events</NavLink>
             </li>
             <li>
-              <NavLink to="/admin/performer" className="nav-link px-3">Create Performer</NavLink>
+              <NavLink to="/admin/artist" className="nav-link px-3">Create Performer</NavLink>
             </li>
 
 
