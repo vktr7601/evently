@@ -3,7 +3,7 @@ package com.evently.events.eventsLocations.entities;
 import com.evently.events.event.Event;
 import com.evently.events.event.entities.EventLocationData;
 import com.evently.events.eventsLocations.EventsLocations;
-import com.evently.events.venues.Location;
+import com.evently.events.locations.Location;
 import org.mapstruct.Mapper;
 
 import static com.evently.events.eventsLocations.entities.EventsLocationsStataus.AVAILABLE;

@@ -2,21 +2,19 @@ package com.evently.events.eventsLocations;
 
 
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
-import com.evently.events.eventsLocations.entities.EventsLocationMapper;
-import com.evently.events.venues.LocationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class EventsLocationsService {
     private final EventsLocationsRepository eventsVenuesRepository;
-    private final LocationRepository locationRepository;
-    private final EventsLocationMapper eventsLocationMapper;
 
 //    public List<EventsVenuesDto> create(Event event, List<EventLocationData> eventLocationData) {
 //        List<String> locationsNames = eventLocationData.stream().map(EventLocationData::getVenue).toList();
@@ -33,7 +31,21 @@ public class EventsLocationsService {
 //        return eventsVenuesRepository.finaAllByLocationName(location);
 //    }
 
-    public List<EventsLocationsDto> findUpcomingVenuesByEventId(long eventId) {
-        return eventsVenuesRepository.findUpcomingVenuesByEventId(eventId);
+    public List<EventsLocationsDto> findUpcomingEventLocationsByEventId(long eventId) {
+        log.info("Fetching upcoming locations for event ID: {}", eventId);
+
+        List<EventsLocationsDto> locations = eventsVenuesRepository.findUpcomingEventLocationsByEventId(eventId);
+
+        log.info("Found upcoming locations for event ID: {}", eventId);
+
+        return locations;
+    }
+
+    public List<EventsLocationsDto> findAllUpcomingEventsByLocationId(long locationId) {
+        log.info("Fetching all upcoming events for location ID: {}", locationId);
+
+        List<EventsLocationsDto> events = eventsVenuesRepository.findAllUpcomingEventsByLocationId(locationId);
+
+        return events;
     }
 }

@@ -33,7 +33,7 @@ public class EventsController {
     public ResponseEntity<EventDetailsDto> getEventDetails(@PathVariable Long id) {
         log.info("Request received: Fetching details for event ID: {}", id);
 
-        EventDetailsDto eventDetailsDto = eventService.findById(id);
+        EventDetailsDto eventDetailsDto = eventService.findEventDetailsById(id);
 
         log.info("Response sent: Successfully fetched details for event: {}", eventDetailsDto.getName());
         return ResponseEntity.ok(eventDetailsDto);

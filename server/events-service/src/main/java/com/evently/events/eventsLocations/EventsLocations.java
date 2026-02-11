@@ -2,7 +2,7 @@ package com.evently.events.eventsLocations;
 
 import com.evently.events.event.Event;
 import com.evently.events.eventsLocations.entities.EventsLocationsStataus;
-import com.evently.events.venues.Location;
+import com.evently.events.locations.Location;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

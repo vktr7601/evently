@@ -1,4 +1,4 @@
-package com.evently.events.venues;
+package com.evently.events.locations;
 
 import com.evently.events.eventsLocations.EventsLocations;
 import jakarta.persistence.*;

@@ -78,7 +78,7 @@ public class EventService {
         return events;
     }
 
-    public EventDetailsDto findById(Long id) {
+    public EventDetailsDto findEventDetailsById(Long id) {
         log.info("Attempting to find details for event ID: {}", id);
 
         EventDetailsDto event = eventRepository.findEventDtoById(id).orElseThrow(() -> {
@@ -92,7 +92,7 @@ public class EventService {
         event.setCategoryDtoList(eventCategories);
         log.info("Fetched {} categories for event ID: {}", eventCategories.size(), id);
 
-        List<EventsLocationsDto> locationsByEventId = eventsVenuesService.findUpcomingVenuesByEventId(event.getId());
+        List<EventsLocationsDto> locationsByEventId = eventsVenuesService.findUpcomingEventLocationsByEventId(event.getId());
         event.setEventLocationData(locationsByEventId);
         log.info("Fetched {} upcoming locations/venues for event ID: {}", locationsByEventId.size(), id);
 

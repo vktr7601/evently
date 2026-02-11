@@ -1,4 +1,4 @@
-package com.evently.events.venues.entities;
+package com.evently.events.locations.entities;
 
 import lombok.Getter;
 import lombok.Setter;
