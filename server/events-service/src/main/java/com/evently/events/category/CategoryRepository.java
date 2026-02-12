@@ -10,7 +10,7 @@ public interface CategoryRepository extends BaseRepository<Category> {
     boolean existsByName(String name);
 
     List<Category> findAllByNameIn(List<String> names);
-
+    
     default String getEntityName() {
         return "Classification";
     }

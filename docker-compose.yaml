@@ -44,3 +44,9 @@ services:
       - "3000:3000"
     depends_on:
       - events-service
+
+  kafka:
+    image: apache/kafka
+    container_name: message-broker
+    ports:
+      - "9092:9092"

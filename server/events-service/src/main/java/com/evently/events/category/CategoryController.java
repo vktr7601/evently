@@ -1,10 +1,13 @@
 package com.evently.events.category;
 
+import com.evently.events.category.entities.CategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
@@ -13,7 +16,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
-        return null;
+    public ResponseEntity<List<CategoryDto>> getAll() {
+        List<CategoryDto> categories = categoryService.findAll();
+        return ResponseEntity.ok(categories);
     }
 }

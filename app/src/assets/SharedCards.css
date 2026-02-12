@@ -1,0 +1,47 @@
+.content-grid {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px; /* Wider for a full page */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.standard-card {
+    border: 1px solid #eee;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #fafafa;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+.standard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    margin-top: 0;
+    color: #111;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-subtitle {
+    margin-bottom: 8px;
+    font-weight: normal;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.brand-logo-simple {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+.nav-link.active {
+    color: #0d6efd !important;
+    font-weight: bold;
+}

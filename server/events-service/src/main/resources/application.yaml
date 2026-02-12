@@ -1,11 +1,17 @@
 spring:
   application:
     name: events-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
   sql:
     init:
       mode: always
   datasource:
-    url: jdbc:postgresql://postgres:5432/events_db
+    url: jdbc:postgresql://localhost:5432/events_db
     username: admin
     password: adminPassword
   jpa:
@@ -20,12 +26,20 @@ spring:
 
 server:
   port: 8082
+aws:
+  s3:
+    bucket-name: events-service-bucket
+    region: us-east-1
+    access-key: AKIA4HB7X5DXB45HRBQ7
+    secret-key: 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
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://eureka:8761/eureka/
-      instance:
-        prefer-ip-address: true
+#
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      #      defaultZone: http://eureka:8761/eureka/
+#      defaultZone: http://localhost:8761/eureka/
+#      instance:
+#        prefer-ip-address: true

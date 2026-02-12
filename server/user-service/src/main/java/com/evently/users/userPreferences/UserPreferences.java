@@ -1,10 +1,7 @@
 package com.evently.users.userPreferences;
 
 import com.evently.users.user.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import utils.BaseEntity;
@@ -15,8 +12,16 @@ import utils.BaseEntity;
 @Table(name = "user_preferences")
 public class UserPreferences extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
+    @Column(name = "event_category_id")
     private Long eventCategoryId;
+
+    @Override
+    public String toString() {
+        return "UserPreferences{" +
+            "user=" + user.getId() +
+            ", eventCategoryId=" + eventCategoryId +
+            '}';
+    }
 }

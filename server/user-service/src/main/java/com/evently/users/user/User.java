@@ -1,5 +1,6 @@
 package com.evently.users.user;
 
+import com.evently.users.user.entities.UserRole;
 import com.evently.users.userPreferences.UserPreferences;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -39,4 +40,23 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     public List<UserPreferences> userPreferencesList;
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        userRole = UserRole.USER;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+            "firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", age=" + age +
+            ", email='" + email + '\'' +
+            ", userRole=" + userRole +
+            ", userPreferencesList=" + userPreferencesList +
+            '}';
+    }
 }

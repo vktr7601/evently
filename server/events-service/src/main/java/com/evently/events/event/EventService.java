@@ -2,60 +2,90 @@ package com.evently.events.event;
 
 
 import com.evently.events.category.entities.CategoryDto;
-import com.evently.events.category.entities.CategoryMapper;
-import com.evently.events.event.entities.EventDto;
-import com.evently.events.event.entities.EventMapper;
-import com.evently.events.event.entities.EventRequestDto;
-import com.evently.events.event.entities.EventResponseDto;
-import com.evently.events.eventsCategories.EventsCategoriesRepository;
+import com.evently.events.event.entities.EventDetailDto;
+import com.evently.events.event.entities.EventListItemDto;
 import com.evently.events.eventsCategories.EventsCategoriesService;
-import com.evently.events.eventsVenues.EventsVenuesService;
-import com.evently.events.eventsVenues.entities.EventsVenuesDto;
-import com.evently.events.performers.Performer;
+import com.evently.events.eventsCategories.entities.EventCategoriesDto;
+import com.evently.events.eventsLocations.EventsLocationsService;
+import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventService {
     private final EventsCategoriesService eventsCategoriesService;
-    private final EventsCategoriesRepository eventsCategoriesRepository;
-    private final EventMapper eventMapper;
-    private final EventsVenuesService eventsVenuesService;
+    private final EventsLocationsService eventsLocationsService;
     private final EventRepository eventRepository;
-    private final CategoryMapper categoryMapper;
+
 
     @Transactional
     //  @CachePut(value = "events", key = "'id:' + #result.getId()")
-    public EventResponseDto create(EventRequestDto request) {
-        Event event = eventMapper.toEntity(request);
-        eventRepository.save(event);
-        eventsCategoriesService.categorize(event, request.getCategories());
-        List<EventsVenuesDto> list = eventsVenuesService.create(event, request.getEventLocationData());
-
-        return eventMapper.toResponseDto(event, request.getCategories(), list);
-    }
-
-    public List<EventDto> findAll() {
-        var events = eventRepository.findAll();
-        List<EventDto> eventDtos = new ArrayList<>();
-        for (var event : events) {
-            Performer performer = event.getPerformer();
-            List<CategoryDto> categories = eventsCategoriesRepository.findCategoriesByEventId(event.getId()).stream().map(categoryMapper::toDto).toList();
-            eventDtos.add(new EventDto(event.getName(), categories, performer.name, event.getId()));
-        }
-
-        return eventDtos;
-    }
-    // @Cacheable(value = "events", key = "'id:' + #id")
-//    public EventResponseDto getById(long id) {
-//        Event event = eventRepository.findByIdOrThrow(id);
-//        List<EventsVenuesDto> locationsBy = eventsVenuesService.getLocationsBy(id);
-//        List<String> cat = eventsClassificationsService.getEventCategories(id);
-//        return EventResponseDto.of(event, cat, locationsBy);
+//    public EventResponseDto create(EventRequestDto request) {
+//        Event event = eventMapper.toEntity(request);
+//        Artist artist = artistsRepository.findByName(request.getArtist());
+//        event.setArtist(artist);
+//        eventRepository.save(event);
+//        var res = eventsCategoriesService.categorize(event, request.getCategories());
+//        List<EventsVenuesDto> list = eventsVenuesService.create(event, request.getEventLocationData());
+//        List<CreateTicketsDto> list1 = list.stream().map(x -> new CreateTicketsDto(x.venueId(), x.totalTickets(), x.date())).toList();
+//        // ticketClient.createTickets(list1);
+//        List<Long> categoriesIds = res.stream().map(BaseEntity::getId).toList();
+//        EventCreated eventCreated = EventCreated.of(event.getId(), categoriesIds, artist.getId(), event.getName());
+//        kafkaProducer.sendEventCreatedMessage(eventCreated);
+//
+//
+//        return eventMapper.toResponseDto(event, request.getCategories(), list);
 //    }
+
+    public List<EventListItemDto> findAllEventsByCategoryName(String categoryName) {
+        List<EventCategoriesDto> allEventsByCategoryId = eventsCategoriesService.getEventsByCategoryName(categoryName);
+
+        List<Long> eventsIds = allEventsByCategoryId.stream().map(EventCategoriesDto::getEventId).toList();
+
+        List<EventListItemDto> eventsListItems = eventRepository.findAllByEventsIdsIn(eventsIds);
+
+        eventsCategoriesService.addCategoriesToEventListItems(eventsListItems);
+
+        return eventsListItems;
+    }
+
+    @Transactional
+    public List<EventListItemDto> findAllEventsSortedByDateDesc() {
+        log.info("Starting process to fetch all events sorted by date.");
+
+        List<EventListItemDto> events = eventRepository.findAllEventsSortedByDateDesc();
+
+        log.info("Fetching categories for {} events in bulk.", events.size());
+
+        eventsCategoriesService.addCategoriesToEventListItems(events);
+
+        log.info("Successfully processed and enriched {} events with categories.", events.size());
+        return events;
+    }
+
+    public EventDetailDto findEventDetailsById(Long id) {
+        log.info("Attempting to find details for event ID: {}", id);
+
+        EventDetailDto event = eventRepository.findEventDetailsById(id).orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+
+        log.debug("Event found: {}. Fetching additional data (categories and venues).", event.getName());
+
+        List<CategoryDto> eventCategories = eventsCategoriesService.getEventCategories(event.getId());
+        event.setCategoryDtoList(eventCategories);
+        log.info("Fetched {} categories for event ID: {}", eventCategories.size(), id);
+
+        List<EventsLocationsDto> locationsByEventId = eventsLocationsService.findUpcomingEventLocationsByEventId(event.getId());
+        event.setEventLocationData(locationsByEventId);
+        log.info("Fetched {} upcoming locations/venues for event ID: {}", locationsByEventId.size(), id);
+
+        log.info("Successfully assembled full details for event: {}", event.getName());
+        return event;
+    }
 }
