@@ -34,7 +34,7 @@ public class UserPreferencesServiceTests extends BaseClass {
 
     @Test
     void shouldReturnEmptyList_WhenPreferencesListIsEmpty() {
-        List<UserPreferences> result = userPreferencesService.linkUserToPreferences(user, Collections.emptyList());
+        List<UserPreferences> result = userPreferencesService.addPreferences(user, Collections.emptyList());
 
         Assertions.assertTrue(result.isEmpty(), "Empty list should be returned, but it was not empty");
     }
@@ -43,7 +43,7 @@ public class UserPreferencesServiceTests extends BaseClass {
     void shouldMapAndSave_WhenPreferencesListIsPopulated() {
         List<Long> categoryIds = List.of(101L, 102L);
 
-        List<UserPreferences> result = userPreferencesService.linkUserToPreferences(user, categoryIds);
+        List<UserPreferences> result = userPreferencesService.addPreferences(user, categoryIds);
 
         // Assert
 

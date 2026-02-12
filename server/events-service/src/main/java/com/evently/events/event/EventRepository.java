@@ -1,7 +1,7 @@
 package com.evently.events.event;
 
-import com.evently.events.event.entities.EventDetailsDto;
-import com.evently.events.event.entities.EventListDto;
+import com.evently.events.event.entities.EventDetailDto;
+import com.evently.events.event.entities.EventListItemDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +15,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByName(String name);
 
     @Query(value = """
-            SELECT new com.evently.events.event.entities.EventDetailsDto(
+            SELECT new com.evently.events.event.entities.EventDetailDto(
                 e.id,
                 e.name,
                 e.description,
@@ -26,10 +26,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             JOIN Artist a ON e.artist.id = a.id
             WHERE e.id = :id
         """)
-    Optional<EventDetailsDto> findEventDtoById(@Param("id") Long id);
+    Optional<EventDetailDto> findEventDetailsById(@Param("id") Long id);
 
     @Query(value = """
-            SELECT new com.evently.events.event.entities.EventListDto(
+            SELECT new com.evently.events.event.entities.EventListItemDto(
                 e.id,
                 e.name,
                 e.description,
@@ -40,5 +40,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             JOIN Artist a ON e.artist.id = a.id
             ORDER BY e.createdAt DESC
         """)
-    List<EventListDto> findAllEventsSortedByDateDesc();
+    List<EventListItemDto> findAllEventsSortedByDateDesc();
+    @Query(value = """
+            SELECT new com.evently.events.event.entities.EventListItemDto(
+                e.id,
+                e.name,
+                e.description,
+                e.imageUrl,
+                a
+            )
+            FROM Event e
+            JOIN Artist a ON e.artist.id = a.id
+            WHERE e.id IN :ids
+            ORDER BY e.createdAt DESC
+        """)
+    List<EventListItemDto> findAllByEventsIdsIn(List<Long> ids);
 }

@@ -16,7 +16,7 @@ public class UserPreferencesService {
     private final UserPreferencesRepository userPreferencesRepository;
 
     @Transactional
-    public List<UserPreferences> linkUserToPreferences(User user, List<Long> preferences) {
+    public List<UserPreferences> addPreferences(User user, List<Long> preferences) {
         if (preferences.isEmpty()) {
             return Collections.emptyList();
         }

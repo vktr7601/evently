@@ -1,5 +1,6 @@
 package com.evently.notification.notifications;
 
+import com.evently.notification.notifications.entities.NotificationListItemDto;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends BaseRepository<Notification> {
     @Query("""
-        SELECT new com.evently.notification.notifications.NotificationDto(
+        SELECT new com.evently.notification.notifications.entities.NotificationListItemDto(
             n.id,
             nc.title,
             nc.htmlBody,
@@ -22,10 +23,10 @@ public interface NotificationRepository extends BaseRepository<Notification> {
         FROM Notification n
         INNER JOIN NotificationContent nc ON n.content.id = nc.id
         WHERE n.userId = :userId
-        AND n.isDeleted = false
+          AND n.isDeleted = false
         ORDER BY n.createdAt DESC
         """)
-    List<NotificationDto> findNotificationsByUserId(@Param("userId") Long userId);
+    List<NotificationListItemDto> findAllByUserId(@Param("userId") Long userId);
 
     @Modifying
     @Transactional

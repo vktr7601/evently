@@ -1,11 +1,13 @@
 package com.evently.events.artists;
 
-import com.evently.events.artists.entities.ArtistsDto;
-import com.evently.events.artists.entities.ArtistRequest;
+import com.evently.events.artists.entities.ArtistDetailsdDto;
+import com.evently.events.artists.entities.ArtistListItem;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -16,14 +18,15 @@ public class ArtistsController {
     private final ArtistsService artistsService;
 
     @GetMapping
-    public ResponseEntity<List<ArtistsDto>> getAllPerformers() {
-        List<ArtistsDto> artistsDtos = artistsService.findAll();
-        return ResponseEntity.ok(artistsDtos);
+    public ResponseEntity<List<ArtistListItem>> getAllPerformers() {
+        List<ArtistListItem> artistListItems = artistsService.findAllArtistsSortedByDateDesc();
+        return ResponseEntity.ok(artistListItems);
     }
 
-    @PostMapping
-    public ResponseEntity<ArtistsDto> create(@ModelAttribute ArtistRequest request) {
-        ArtistsDto artistsDto = artistsService.savePerformer(request);
-        return new ResponseEntity<>(artistsDto, HttpStatus.CREATED);
+    @GetMapping("/{id}")
+    public ResponseEntity<ArtistDetailsdDto> getArtistDetails(@PathVariable Long id) {
+        ArtistDetailsdDto artistDetailsdDto = artistsService.findArtistDetails(id);
+
+        return ResponseEntity.ok(artistDetailsdDto);
     }
 }

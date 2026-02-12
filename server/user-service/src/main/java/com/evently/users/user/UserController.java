@@ -27,9 +27,9 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> createUser(@RequestBody UserRequest user) {
+    public ResponseEntity<Map<String, String>> createUser(@RequestBody UserRequest userRequest) {
 
-        userService.registerUserWithPreferences(user);
+        userService.createUser(userRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User registered successfully"));
     }

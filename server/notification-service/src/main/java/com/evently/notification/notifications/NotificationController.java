@@ -1,5 +1,6 @@
 package com.evently.notification.notifications;
 
+import com.evently.notification.notifications.entities.NotificationListItemDto;
 import jwt.JWTUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,17 @@ public class NotificationController {
 //        return ResponseEntity.ok(notificationService.getAllUserNotifications(userId));
 //    }
 
-    @GetMapping
-    public ResponseEntity<List<NotificationDto>> getUserNotification(@RequestHeader("Authorization") String authHeader) {
-        System.out.println();
-        String token = authHeader.replace("Bearer ", "");
-        long l = jwtUtility.extractUserId(token);
-        return ResponseEntity.ok(notificationService.getAllUserNotifications(l));
+//    @GetMapping
+//    public ResponseEntity<List<NotificationDto>> getUserNotification(@RequestHeader("Authorization") String authHeader) {
+//        System.out.println();
+//        String token = authHeader.replace("Bearer ", "");
+//        long l = jwtUtility.extractUserId(token);
+//        return ResponseEntity.ok(notificationService.findAllByUserId(l));
+//    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<NotificationListItemDto>> getUserNotification(@PathVariable long id) {
+        return ResponseEntity.ok(notificationService.findAllByUserId(id));
     }
 
     @PutMapping("/{notificationId}")

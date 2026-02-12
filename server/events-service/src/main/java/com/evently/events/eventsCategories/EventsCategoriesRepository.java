@@ -11,17 +11,13 @@ import java.util.List;
 
 @Repository
 public interface EventsCategoriesRepository extends BaseRepository<EventsCategories> {
-//    @Query(value = """
-//        SELECT c.name
-//        FROM EventsCategories ec
-//        JOIN ec.category c
-//        WHERE ec.event.id = :eventId
-//        """)
-//    List<String> findClassificationNamesByEventId(@Param("eventId") Long eventId);
-
-
-//    @Query("SELECT ec.event FROM EventsCategories ec WHERE ec.category.id = :categoryId")
-//    List<Event> findEventsByCategoryId(@Param("categoryId") Long categoryId);
+    @Query(value = """
+        SELECT new com.evently.events.eventsCategories.entities.EventCategoriesDto(ec.event.id, c)
+        FROM EventsCategories ec
+        JOIN ec.category c
+        WHERE c.name= :categoryName
+        """)
+    List<EventCategoriesDto> findAllEventsByCategoryName(@Param("categoryName") String categoryName);
 
     @Query(value = """
           SELECT new com.evently.events.category.entities.CategoryDto(ec.name, ec.id)

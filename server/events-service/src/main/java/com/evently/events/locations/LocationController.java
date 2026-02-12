@@ -34,10 +34,4 @@ public class LocationController {
     public ResponseEntity<LocationDetailsDto> getLocationDetails(@PathVariable Long id) {
         return ResponseEntity.ok(locationService.findLocationDetailsById(id));
     }
-//
-//    @PostMapping
-//    public ResponseEntity<LocationListItemDto> create(@ModelAttribute LocationRequest locationRequest) {
-//        LocationListItemDto locationListItemDto = locationService.saveVanue(locationRequest);
-//        return new ResponseEntity<>(locationListItemDto, HttpStatus.CREATED);
-//    }
 }

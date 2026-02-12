@@ -1,8 +1,9 @@
 package com.evently.events.event.entities;
 
-import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.artists.Artist;
+import com.evently.events.category.entities.CategoryDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public abstract class AbstractEventDto {
     @JsonIgnoreProperties("events")
     private Artist artist;
     @Setter(AccessLevel.PUBLIC)
+    @JsonProperty("categories")
     private List<CategoryDto> categoryDtoList;
 
     public AbstractEventDto(long id, String name, String description, String imageUrl, Artist artist) {

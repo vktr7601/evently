@@ -37,7 +37,7 @@ public class UserServiceTests {
 
         User user = new User();
         user.setFirstName("firstName");
-        var result = userService.registerUserWithPreferences(userRequest);
+        var result = userService.persistUser(userRequest);
 
 
         Assertions.assertNotNull(user, "User should not be null");

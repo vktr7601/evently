@@ -77,6 +77,26 @@ public interface EventsLocationsRepository extends BaseRepository<EventsLocation
             )
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
+            JOIN el.event.artist a ON a.id = e.artist.id
+            JOIN el.location loc ON loc.id = el.location.id
+            WHERE  el.event.artist.id = :artistId AND el.date > CURRENT_DATE
+            ORDER BY el.date ASC
+        """)
+    List<EventsLocationsDto> findAllUpcomingEventsByArtistId(@Param("artistId") long artistId);
+
+    @Query(value = """
+            SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                el.id,
+                e.id,
+                loc.id,
+                e.name,
+                loc.name,
+                el.date,
+                el.price,
+                el.eventsLocationsStataus
+            )
+            FROM EventsLocations el
+            JOIN el.event e ON e.id = el.event.id
             JOIN el.location loc ON loc.id = el.location.id
             WHERE loc.id = :locationId AND el.date > CURRENT_DATE
             ORDER BY el.date ASC

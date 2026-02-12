@@ -22,17 +22,18 @@ public class UserService {
     private final KakfaProducer kafkaProducer;
 
     @Transactional
-    public User registerUserWithPreferences(UserRequest userRequest) {
+    public User createUser(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.getEmail()))
             throw new DuplicateEmailException(userRequest.getEmail());
 
-
         User user = userMapper.toEntity(userRequest);
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+
         log.info("User  {} has been registered successfully", user);
-        userPreferencesService.linkUserToPreferences(user, userRequest.getPreferences());
+
+        userPreferencesService.addPreferences(user, userRequest.getPreferences());
+
         kafkaProducer.sendUserRegisteredEvent(userMapper.toUserRegisteredEvent(user));
 
         return user;

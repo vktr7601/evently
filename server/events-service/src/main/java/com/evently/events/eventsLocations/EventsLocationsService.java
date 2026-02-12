@@ -48,4 +48,13 @@ public class EventsLocationsService {
 
         return events;
     }
+
+
+    public List<EventsLocationsDto> findAllUpcomingEventsByArtistId(long artistId) {
+        log.info("Fetching all upcoming events for artist ID: {}", artistId);
+
+        List<EventsLocationsDto> events = eventsVenuesRepository.findAllUpcomingEventsByArtistId(artistId);
+
+        return events;
+    }
 }

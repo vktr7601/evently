@@ -1,5 +1,6 @@
 package com.evently.notification.notifications;
 
+import com.evently.notification.notifications.entities.NotificationListItemDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,12 @@ public class NotificationService {
         notificationRepository.saveAll(notificationList);
     }
 
-    public List<NotificationDto> getAllUserNotifications(long userId) {
-        return notificationRepository.findNotificationsByUserId(userId);
+    public List<NotificationListItemDto> findAllByUserId(long userId) {
+
+        List<NotificationListItemDto> allByUserId = notificationRepository.findAllByUserId(userId);
+        log.info("Find all notifications by userId: {}", allByUserId);
+
+        return allByUserId;
     }
 
     public void markNotificationAsRead(long notificationId) {

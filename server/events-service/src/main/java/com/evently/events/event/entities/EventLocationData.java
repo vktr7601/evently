@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class EventLocationData {
-    @JsonProperty("venue")
-    private String venue;
+    @JsonProperty("location")
+    private String location;
     @JsonProperty("date")
     private LocalDateTime date;
     @JsonProperty("available_tickets")

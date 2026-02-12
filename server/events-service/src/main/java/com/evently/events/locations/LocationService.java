@@ -18,7 +18,6 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final EventsLocationsService eventsLocationsService;
 
-
     public List<LocationListItemDto> findAllLocationItems() {
         log.info("Starting process to fetch all locations.");
 

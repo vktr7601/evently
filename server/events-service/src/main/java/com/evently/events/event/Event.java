@@ -1,7 +1,7 @@
 package com.evently.events.event;
 
-import com.evently.events.eventsLocations.EventsLocations;
 import com.evently.events.artists.Artist;
+import com.evently.events.eventsLocations.EventsLocations;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "events")
 public class Event extends BaseEntity {
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event")
     public List<EventsLocations> eventsVenues;
     @Column(name = "name", unique = true, nullable = false, length = 256)
     private String name;

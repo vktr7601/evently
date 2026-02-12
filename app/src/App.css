@@ -36,3 +36,47 @@
     transform: rotate(360deg);
   }
 }
+/* Hero Styles */
+.hero-gradient {
+    background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%);
+}
+
+.hero-accent {
+    background-image: radial-gradient(circle at 20% 30%, #0d6efd 0%, transparent 20%);
+}
+
+.underline-svg {
+    height: 8px;
+    z-index: -1;
+}
+
+/* Typography & Helpers */
+.fw-black { font-weight: 900; }
+.tracking-wider { letter-spacing: 1.5px; }
+.tracking-tight { letter-spacing: -1px; }
+.max-w-650 { max-width: 650px; }
+
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.15) !important;
+}
+
+.btn-white {
+    background: white;
+    color: #212529;
+}
+body {
+  background-color: #f8f9fa; /* Soft Studio White */
+  color: #212529; /* Deep charcoal text for readability */
+  font-family: 'Inter', sans-serif; /* A clean font helps too */
+}
+
+/* Make sure your cards stay white so they stand out against the gray */
+.card {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.05); /* Very subtle border */
+}
