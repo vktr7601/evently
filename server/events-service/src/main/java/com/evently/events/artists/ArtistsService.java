@@ -40,13 +40,10 @@ public class ArtistsService {
     }
 
 
-    public Artist findArtistByName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Artist name cannot be null or empty");
-        }
+    public Artist findById(Long id) {
 
-        Artist artist = artistsRepository.findByName(name)
-            .orElseThrow(() -> new ResourceNotFoundException("Artist with name " + name + " not found"));
+        Artist artist = artistsRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Artist with id " + id + " not found"));
 
         log.info("Found {} artist", artist.getName());
 

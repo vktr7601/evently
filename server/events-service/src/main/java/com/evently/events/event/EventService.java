@@ -1,17 +1,18 @@
 package com.evently.events.event;
 
 
+import com.evently.events.artists.Artist;
 import com.evently.events.artists.ArtistsRepository;
 import com.evently.events.artists.ArtistsService;
 import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
-import com.evently.events.event.entities.EventDetailDto;
-import com.evently.events.event.entities.EventListItemDto;
-import com.evently.events.event.entities.EventRequestDto;
+import com.evently.events.event.entities.*;
 import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
 import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import com.evently.events.locations.Location;
+import com.evently.events.locations.LocationService;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,6 +32,8 @@ public class EventService {
     private final ArtistsService artistsService;
     private final ArtistsRepository artistsRepository;
     private final CategoryService categoryService;
+    private final EventMapper eventMapper;
+    private final LocationService locationService;
 
 
     @Transactional
@@ -96,13 +100,19 @@ public class EventService {
         return event;
     }
 
-    public void createEvent(EventRequestDto eventRequestDto) {
-        //create event
-        var event = new Event();
-        artistsService.findArtistByName(eventRequestDto.getArtistName());
-        eventsCategoriesService.categorize(event, eventRequestDto.getCategories());
-        // put all categories of the event
-        // create all events locations
-        //sned message to kafka
+    @Transactional
+    public EventDetailDto createEvent(EventRequestDto eventRequestDto) {
+        Event event = eventMapper.toEntity(eventRequestDto);
+        Artist artist = artistsService.findById(eventRequestDto.getArtistId());
+        event.setArtist(artist);
+        eventRepository.save(event);
+        List<CategoryDto> assignedDto = eventsCategoriesService.categorize(event, eventRequestDto.getCategories());
+        Map<Long, Location> map = locationService.findAllByIdIn(eventRequestDto.eventLocations.stream().map(EventLocationData::getLocationId).toList());
+        List<EventsLocationsDto> eventsLocations = eventsLocationsService.addLocationDetails(event, eventRequestDto.getEventLocations(), map);
+
+
+        EventDetailDto eventDetailDto = eventMapper.toDetailDto(event,  eventsLocations, assignedDto);
+
+        return eventDetailDto;
     }
 }

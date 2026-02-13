@@ -1,5 +1,6 @@
 package com.evently.events.locations;
 
+import com.evently.events.event.Event;
 import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.locations.entities.LocationDetailsDto;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,6 +48,12 @@ public class LocationService {
         return locationDetailsDto;
     }
 
+    public void addLocations(Event event, List<EventsLocationsDto> eventsLocationsDtos) {
+        List<Long> locationsId = eventsLocationsDtos.stream().map(EventsLocationsDto::getLocationId).toList();
+        Map<Long, Location> locationMap = findAllByIdIn(locationsId);
+
+    }
+
     @Transactional
     public List<Location> findAllByNameIn(List<String> locationNames) {
         if (locationNames.isEmpty()) {
@@ -58,6 +68,25 @@ public class LocationService {
         }
 
         return locations;
+    }
+
+
+    public Map<Long, Location> findAllByIdIn(List<Long> locationIds) {
+        if (locationIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        List<Location> locations = locationRepository.findAllByIdIn(locationIds);
+
+        if (locations.size() != locationIds.size()) {
+            log.warn("Some locations were not found for the provided IDs: {}", locationIds);
+            throw new ResourceNotFoundException("Some locations were not found for the provided IDs: " + locationIds);
+        }
+
+        Map<Long, Location> locationMap = locations.stream()
+            .collect(Collectors.toMap(Location::getId, location -> location));
+
+        return locationMap;
     }
 
 //    public LocationDetailsDto getVenueEvents(long id) {

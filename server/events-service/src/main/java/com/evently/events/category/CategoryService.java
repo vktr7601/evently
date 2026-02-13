@@ -52,4 +52,18 @@ public class CategoryService {
 
         return existingCategories;
     }
+
+    public List<Category> findAllByIdIn(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Category> existingCategories = categoryRepository.findAllByIdIn(ids);
+
+        if (existingCategories.isEmpty() || ids.size() != existingCategories.size()) {
+            throw new ResolutionException("Invalid request");
+        }
+
+        return existingCategories;
+    }
 }

@@ -2,8 +2,10 @@ package com.evently.events.event;
 
 import com.evently.events.event.entities.EventDetailDto;
 import com.evently.events.event.entities.EventListItemDto;
+import com.evently.events.event.entities.EventRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +41,15 @@ public class EventsController {
     @GetMapping("/filter")
     public ResponseEntity<List<EventListItemDto>> listAllEventsByCategory(@RequestParam(required = false) String category) {
         return ResponseEntity.ok(eventService.findAllEventsByCategoryName(category));
+    }
+
+    @PostMapping
+    public ResponseEntity<EventDetailDto> createEvent(@RequestBody EventRequestDto eventRequestDto) {
+        EventDetailDto createdEvent = eventService.createEvent(eventRequestDto);
+
+        log.info("Response sent: Successfully created event: {}", createdEvent.getName());
+
+        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
     }
 
 

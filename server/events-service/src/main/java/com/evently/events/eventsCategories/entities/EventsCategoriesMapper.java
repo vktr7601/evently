@@ -18,4 +18,6 @@ public interface EventsCategoriesMapper {
     @Mapping(source = "category.id", target = "id")
     @Mapping(source = "category.name", target = "name")
     CategoryDto toCategoryDto(EventCategoriesDto eventCategoriesDto);
+
+    CategoryDto toCategoryDto(Category categoryDto);
 }

@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Setter
 public class EventLocationData {
     @JsonProperty("location")
-    private String location;
+    private long locationId;
     @JsonProperty("date")
     private LocalDateTime date;
-    @JsonProperty("available_tickets")
-    private int availableTickets;
+    @JsonProperty("tickets")
+    private int tickets;
     @JsonProperty("price")
     private BigDecimal price;
 }

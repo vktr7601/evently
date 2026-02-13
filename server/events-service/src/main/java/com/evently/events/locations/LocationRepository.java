@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import utils.BaseRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,4 +43,11 @@ public interface LocationRepository extends BaseRepository<Location> {
             WHERE l.id = :id
         """)
     Optional<LocationDetailsDto> findLocationDtoById(@Param("id") Long id);
+
+    @Query("""
+            SELECT l
+            FROM Location l
+            WHERE l.id  IN (:ids)
+        """)
+    List<Location> findAllByIdIn(Collection<Long> ids);
 }

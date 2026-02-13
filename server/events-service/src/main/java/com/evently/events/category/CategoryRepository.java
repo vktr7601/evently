@@ -22,4 +22,12 @@ public interface CategoryRepository extends BaseRepository<Category> {
     default String getEntityName() {
         return "Classification";
     }
+
+
+    @Query("""
+        SELECT cat
+        FROM Category cat
+        WHERE cat.id IN (:ids)
+        """)
+    List<Category> findAllByIdIn(@Param("ids") List<Long> ids);
 }

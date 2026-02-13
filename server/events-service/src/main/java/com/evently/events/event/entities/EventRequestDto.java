@@ -13,10 +13,10 @@ public class EventRequestDto {
     public String name;
     @JsonProperty("description")
     public String description;
-    @JsonProperty("locations")
-    public List<EventLocationData> eventLocationData;
+    @JsonProperty("eventLocations")
+    public List<EventLocationData> eventLocations;
     @JsonProperty("categories")
-    List<String> categories;
-    @JsonProperty("artist_name")
-    String artistName;
+    List<Long> categories;
+    @JsonProperty("artist_id")
+    long artistId;
 }

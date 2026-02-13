@@ -25,14 +25,14 @@ public class EventsCategoriesService {
     private final CategoryService categoryService;
 
     @Transactional
-    public List<Category> categorize(Event event, List<String> categories) {
-        List<Category> fetchedCategories = categoryService.findAllByNameIn(categories);
+    public List<CategoryDto> categorize(Event event, List<Long> categories) {
+        List<Category> fetchedCategories = categoryService.findAllByIdIn(categories);
 
         List<EventsCategories> mapped = fetchedCategories.stream().map(cat -> eventsCategoriesMapper.toEventsCategories(event, cat)).toList();
 
         eventsCategoriesRepository.saveAll(mapped);
-
-        return fetchedCategories;
+        
+        return fetchedCategories.stream().map(eventsCategoriesMapper::toCategoryDto).toList();
     }
 
     @Transactional
