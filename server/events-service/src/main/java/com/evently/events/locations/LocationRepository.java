@@ -7,15 +7,18 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import utils.BaseRepository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface LocationRepository extends BaseRepository<Location> {
 
-    Set<Location> findAllByNameIn(Collection<String> names);
+    @Query("""
+        SELECT loc
+        FROM Location loc
+        WHERE loc.name IN :names
+        """)
+    List<Location> findAllByNameIn(@Param("names") List<String> names);
 
     @Query("""
             SELECT new com.evently.events.locations.entities.LocationListItemDto(

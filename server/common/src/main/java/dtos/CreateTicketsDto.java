@@ -3,7 +3,7 @@ package dtos;
 import java.time.LocalDateTime;
 
 public record CreateTicketsDto(
-    long eventVenueId,
+    long eventLocationId,
     long ticketsCount,
     LocalDateTime dateTime
 ) {

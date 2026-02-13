@@ -8,23 +8,21 @@ import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ArtistsService {
-    private static final Logger log = LoggerFactory.getLogger(ArtistsService.class);
     private final ArtistsRepository artistsRepository;
     private final S3BucketService s3BucketService;
     private final ArtistMapper mapper;
     private final EventsLocationsService eventsLocationsService;
 
     public ArtistDetailsdDto findArtistDetails(long id) {
-
         ArtistDetailsdDto artistDetailsdDto = artistsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Artist with id " + id + " not found"));
         List<EventsLocationsDto> allUpcomingEventsByArtistId = eventsLocationsService.findAllUpcomingEventsByArtistId(artistDetailsdDto.getId());
 
@@ -39,6 +37,20 @@ public class ArtistsService {
         log.info("Found {} artists sorted", allArtistsSortedByDateDesc.size());
 
         return allArtistsSortedByDateDesc;
+    }
+
+
+    public Artist findArtistByName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Artist name cannot be null or empty");
+        }
+
+        Artist artist = artistsRepository.findByName(name)
+            .orElseThrow(() -> new ResourceNotFoundException("Artist with name " + name + " not found"));
+
+        log.info("Found {} artist", artist.getName());
+
+        return artist;
     }
 
 //    public ArtistsDto savePerformer(ArtistRequest artistRequest) {

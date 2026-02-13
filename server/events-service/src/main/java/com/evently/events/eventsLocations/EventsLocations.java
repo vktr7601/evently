@@ -30,9 +30,6 @@ public class EventsLocations extends BaseEntity {
     @Column(name = "total_tickets", nullable = false)
     private int totalTickets;
 
-    @Column(name = "booked_tickets")
-    private int bookedTickets = 0;
-
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 

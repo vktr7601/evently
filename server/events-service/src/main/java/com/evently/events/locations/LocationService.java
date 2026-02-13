@@ -8,7 +8,9 @@ import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -40,6 +42,22 @@ public class LocationService {
         locationDetailsDto.setEventlocationsdto(eventlocationsdto);
 
         return locationDetailsDto;
+    }
+
+    @Transactional
+    public List<Location> findAllByNameIn(List<String> locationNames) {
+        if (locationNames.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Location> locations = locationRepository.findAllByNameIn(locationNames);
+
+        if (locations.size() != locationNames.size()) {
+            log.warn("Some locations were not found for the provided names: {}", locationNames);
+            throw new ResourceNotFoundException("Some locations were not found for the provided names: " + locationNames);
+        }
+
+        return locations;
     }
 
 //    public LocationDetailsDto getVenueEvents(long id) {

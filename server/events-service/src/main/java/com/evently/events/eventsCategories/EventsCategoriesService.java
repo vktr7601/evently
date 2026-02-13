@@ -2,12 +2,12 @@ package com.evently.events.eventsCategories;
 
 import com.evently.events.category.Category;
 import com.evently.events.category.CategoryRepository;
+import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.Event;
 import com.evently.events.event.entities.EventListItemDto;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
 import com.evently.events.eventsCategories.entities.EventsCategoriesMapper;
-import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +22,15 @@ public class EventsCategoriesService {
     private final EventsCategoriesRepository eventsCategoriesRepository;
     private final CategoryRepository categoryRepository;
     private final EventsCategoriesMapper eventsCategoriesMapper;
+    private final CategoryService categoryService;
 
+    @Transactional
     public List<Category> categorize(Event event, List<String> categories) {
-        List<Category> fetchedCategories = categoryRepository.findAllByNameIn(categories);
-        if (fetchedCategories.size() != categories.size())
-            throw new ResourceNotFoundException("Category not found");
+        List<Category> fetchedCategories = categoryService.findAllByNameIn(categories);
 
-        List<EventsCategories> mapping = fetchedCategories.stream().map(x -> eventsCategoriesMapper.toEventsCategories(event, x)).toList();
+        List<EventsCategories> mapped = fetchedCategories.stream().map(cat -> eventsCategoriesMapper.toEventsCategories(event, cat)).toList();
 
-        eventsCategoriesRepository.saveAll(mapping);
+        eventsCategoriesRepository.saveAll(mapped);
 
         return fetchedCategories;
     }
@@ -40,9 +40,7 @@ public class EventsCategoriesService {
         List<Long> eventIds = events.stream().map(EventListItemDto::getId).toList();
         Map<Long, List<CategoryDto>> eventCategoryMap = findAllCategoriesByEventIds(eventIds);
 
-        events.forEach(e -> e.setCategoryDtoList(
-            eventCategoryMap.getOrDefault(e.getId(), List.of())
-        ));
+        events.forEach(e -> e.setCategoryDtoList(eventCategoryMap.getOrDefault(e.getId(), List.of())));
     }
 
     public List<EventCategoriesDto> getEventsByCategoryName(String categoryName) {

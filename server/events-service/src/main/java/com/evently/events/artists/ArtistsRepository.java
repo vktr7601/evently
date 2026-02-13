@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface ArtistsRepository extends BaseRepository<Artist> {
-    Artist findByName(String name);
+    Optional<Artist> findByName(String name);
 
     @Query(value = """
         SELECT  new com.evently.events.artists.entities.ArtistDetailsdDto(\

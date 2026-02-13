@@ -1,5 +1,7 @@
 package com.evently.events.category;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import utils.BaseRepository;
 
@@ -9,8 +11,14 @@ import java.util.List;
 public interface CategoryRepository extends BaseRepository<Category> {
     boolean existsByName(String name);
 
-    List<Category> findAllByNameIn(List<String> names);
-    
+    @Query("""
+        SELECT cat
+        FROM Category cat
+        WHERE cat.name IN :names
+        """)
+    List<Category> findAllByNameIn(@Param("names") List<String> names);
+
+
     default String getEntityName() {
         return "Classification";
     }

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,18 +18,11 @@ public class TicketController {
 
     @PostMapping("/create-tickets")
     public boolean createTickets(@RequestBody List<CreateTicketsDto> data) {
-        for (CreateTicketsDto ticket : data) {
-            List<Ticket> tickets = new ArrayList<>();
-            for (int i = 0; i < ticket.ticketsCount(); i++) {
-                Ticket ticket1 = new Ticket();
-                ticket1.setEventVenueId(ticket.eventVenueId());
-                ticket1.setDateTime(ticket.dateTime());
-                tickets.add(ticket1);
-            }
-            
-            ticketRepository.saveAll(tickets);
-        }
-
         return true;
+    }
+
+    @PostMapping("/check-availability")
+    public void checkAvailability(@RequestBody CheckAvailabilityRequest checkAvailabilityRequest) {
+
     }
 }

@@ -107,20 +107,20 @@ VALUES (1, 'Vasko Vassilev: Cinema Violin',
         'https://evently-spring.s3.eu-north-1.amazonaws.com/artists/vesko_vasiliev.jpg',
         'An exclusive seaside performance under the stars.', 1, now(), now());
 
-INSERT INTO events_locations (event_id, location_id, date, total_tickets, booked_tickets, price, status, updated_at,
+INSERT INTO events_locations (event_id, location_id, date, total_tickets, price, status, updated_at,
                               created_at)
-VALUES (1, 1, '2026-03-15 20:00:00', 15000, 4500, 85.00, 'AVAILABLE', now(), now()),
-       (1, 7, '2026-03-22 19:30:00', 600, 600, 120.00, 'SOLD_OUT', now(), now()),
-       (2, 1, '2026-04-10 21:00:00', 18000, 16200, 150.00, 'AVAILABLE', now(), now()),
-       (3, 2, '2026-05-05 20:00:00', 3000, 1200, 65.00, 'AVAILABLE', now(), now()),
-       (4, 9, '2026-05-20 19:00:00', 1500, 1450, 40.00, 'AVAILABLE', now(), now()),
-       (4, 3, '2026-05-28 20:00:00', 4000, 2100, 55.00, 'AVAILABLE', now(), now()),
-       (5, 4, '2026-07-15 23:00:00', 1000, 850, 45.00, 'AVAILABLE', now(), now()),
-       (5, 10, '2026-02-28 22:00:00', 2000, 0, 35.00, 'AVAILABLE', now(), now()),
-       (6, 5, '2026-04-18 20:30:00', 5000, 1200, 45.00, 'AVAILABLE', now(), now()),
-       (7, 10, '2026-03-05 23:30:00', 2000, 1950, 50.00, 'AVAILABLE', now(), now()),
-       (7, 8, '2026-03-12 22:00:00', 8000, 3000, 40.00, 'AVAILABLE', now(), now()),
-       (8, 6, '2026-08-20 20:30:00', 1200, 1200, 100.00, 'SOLD_OUT', now(), now());
+VALUES (1, 1, '2026-03-15 20:00:00', 15000, 85.00, 'AVAILABLE', now(), now()),
+       (1, 7, '2026-03-22 19:30:00', 600, 120.00, 'SOLD_OUT', now(), now()),
+       (2, 1, '2026-04-10 21:00:00', 18000, 150.00, 'AVAILABLE', now(), now()),
+       (3, 2, '2026-05-05 20:00:00', 3000, 65.00, 'AVAILABLE', now(), now()),
+       (4, 9, '2026-05-20 19:00:00', 1500, 40.00, 'AVAILABLE', now(), now()),
+       (4, 3, '2026-05-28 20:00:00', 4000, 55.00, 'AVAILABLE', now(), now()),
+       (5, 4, '2026-07-15 23:00:00', 1000, 45.00, 'AVAILABLE', now(), now()),
+       (5, 10, '2026-02-28 22:00:00', 2000, 35.00, 'AVAILABLE', now(), now()),
+       (6, 5, '2026-04-18 20:30:00', 5000, 45.00, 'AVAILABLE', now(), now()),
+       (7, 10, '2026-03-05 23:30:00', 2000, 50.00, 'AVAILABLE', now(), now()),
+       (7, 8, '2026-03-12 22:00:00', 8000, 40.00, 'AVAILABLE', now(), now()),
+       (8, 6, '2026-08-20 20:30:00', 1200, 100.00, 'SOLD_OUT', now(), now());
 INSERT INTO events_categories (event_id, category_id, active, updated_at, created_at)
 VALUES (1, 1, true, now(), now()),
        (1, 3, true, now(), now()),

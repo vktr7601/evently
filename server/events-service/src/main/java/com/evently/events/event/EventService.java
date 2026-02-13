@@ -1,9 +1,13 @@
 package com.evently.events.event;
 
 
+import com.evently.events.artists.ArtistsRepository;
+import com.evently.events.artists.ArtistsService;
+import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.entities.EventDetailDto;
 import com.evently.events.event.entities.EventListItemDto;
+import com.evently.events.event.entities.EventRequestDto;
 import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
 import com.evently.events.eventsLocations.EventsLocationsService;
@@ -23,6 +27,9 @@ public class EventService {
     private final EventsCategoriesService eventsCategoriesService;
     private final EventsLocationsService eventsLocationsService;
     private final EventRepository eventRepository;
+    private final ArtistsService artistsService;
+    private final ArtistsRepository artistsRepository;
+    private final CategoryService categoryService;
 
 
     @Transactional
@@ -87,5 +94,15 @@ public class EventService {
 
         log.info("Successfully assembled full details for event: {}", event.getName());
         return event;
+    }
+
+    public void createEvent(EventRequestDto eventRequestDto) {
+        //create event
+        var event = new Event();
+        artistsService.findArtistByName(eventRequestDto.getArtistName());
+        eventsCategoriesService.categorize(event, eventRequestDto.getCategories());
+        // put all categories of the event
+        // create all events locations
+        //sned message to kafka
     }
 }

@@ -1,6 +1,8 @@
 package com.evently.events.eventsLocations;
 
 
+import com.evently.events.event.Event;
+import com.evently.events.event.entities.EventLocationData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,18 +16,15 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class EventsLocationsService {
-    private final EventsLocationsRepository eventsVenuesRepository;
+    private final EventsLocationsRepository eventsLocationsRepository;
 
-//    public List<EventsVenuesDto> create(Event event, List<EventLocationData> eventLocationData) {
-//        List<String> locationsNames = eventLocationData.stream().map(EventLocationData::getVenue).toList();
-//        Map<String, Venue> map = venueRepository.findAllByNameIn(locationsNames).stream().collect(Collectors.toMap(Venue::getName, Function.identity()));
-//
-//        List<EventsVenues> list = eventLocationData.stream().map(data -> eventsLocationMapper.toDto(event, data, map.get(data.getVenue()))).toList();
-//
-//        eventsVenuesRepository.saveAll(list);
-//
-//        return list.stream().map(eventsLocationMapper::toDto).toList();
-//    }
+    public List<EventLocationData> addLocations(Event event, List<EventLocationData> eventLocationData) {
+        List<String> locationsNames = eventLocationData.stream().map(EventLocationData::getLocation).toList();
+
+return  null;
+
+
+    }
 
 //    public List<EventOccurrenceDTO> getEventsByLocation(String location) {
 //        return eventsVenuesRepository.finaAllByLocationName(location);
@@ -34,7 +33,7 @@ public class EventsLocationsService {
     public List<EventsLocationsDto> findUpcomingEventLocationsByEventId(long eventId) {
         log.info("Fetching upcoming locations for event ID: {}", eventId);
 
-        List<EventsLocationsDto> locations = eventsVenuesRepository.findUpcomingEventLocationsByEventId(eventId);
+        List<EventsLocationsDto> locations = eventsLocationsRepository.findUpcomingEventLocationsByEventId(eventId);
 
         log.info("Found upcoming locations for event ID: {}", eventId);
 
@@ -44,7 +43,7 @@ public class EventsLocationsService {
     public List<EventsLocationsDto> findAllUpcomingEventsByLocationId(long locationId) {
         log.info("Fetching all upcoming events for location ID: {}", locationId);
 
-        List<EventsLocationsDto> events = eventsVenuesRepository.findAllUpcomingEventsByLocationId(locationId);
+        List<EventsLocationsDto> events = eventsLocationsRepository.findAllUpcomingEventsByLocationId(locationId);
 
         return events;
     }
@@ -53,7 +52,7 @@ public class EventsLocationsService {
     public List<EventsLocationsDto> findAllUpcomingEventsByArtistId(long artistId) {
         log.info("Fetching all upcoming events for artist ID: {}", artistId);
 
-        List<EventsLocationsDto> events = eventsVenuesRepository.findAllUpcomingEventsByArtistId(artistId);
+        List<EventsLocationsDto> events = eventsLocationsRepository.findAllUpcomingEventsByArtistId(artistId);
 
         return events;
     }
