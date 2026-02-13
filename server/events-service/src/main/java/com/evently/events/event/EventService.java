@@ -112,7 +112,7 @@ public class EventService {
 
 
         EventDetailDto eventDetailDto = eventMapper.toDetailDto(event,  eventsLocations, assignedDto);
-
+    //invoke kafka event created
         return eventDetailDto;
     }
 }

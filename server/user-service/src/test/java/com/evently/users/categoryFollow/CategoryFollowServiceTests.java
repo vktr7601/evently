@@ -1,4 +1,4 @@
-package com.evently.users.userPreferences;
+package com.evently.users.categoryFollow;
 
 import com.evently.users.user.User;
 import com.evently.users.util.BaseClass;
@@ -17,12 +17,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
 @ExtendWith(MockitoExtension.class)
-public class UserPreferencesServiceTests extends BaseClass {
+public class CategoryFollowServiceTests extends BaseClass {
     @Mock
-    private UserPreferencesRepository userPreferencesRepository;
+    private CategoryFollowRepository userPreferencesRepository;
 
     @InjectMocks
-    private UserPreferencesService userPreferencesService;
+    private CategoryFollowService userPreferencesService;
     private User user;
 
 
@@ -34,7 +34,7 @@ public class UserPreferencesServiceTests extends BaseClass {
 
     @Test
     void shouldReturnEmptyList_WhenPreferencesListIsEmpty() {
-        List<UserPreferences> result = userPreferencesService.addPreferences(user, Collections.emptyList());
+        List<CategoryFollow> result = userPreferencesService.addPreferences(user, Collections.emptyList());
 
         Assertions.assertTrue(result.isEmpty(), "Empty list should be returned, but it was not empty");
     }
@@ -43,7 +43,7 @@ public class UserPreferencesServiceTests extends BaseClass {
     void shouldMapAndSave_WhenPreferencesListIsPopulated() {
         List<Long> categoryIds = List.of(101L, 102L);
 
-        List<UserPreferences> result = userPreferencesService.addPreferences(user, categoryIds);
+        List<CategoryFollow> result = userPreferencesService.addPreferences(user, categoryIds);
 
         // Assert
 

@@ -18,7 +18,6 @@ public class NotificationService {
     }
 
     public List<NotificationListItemDto> findAllByUserId(long userId) {
-
         List<NotificationListItemDto> allByUserId = notificationRepository.findAllByUserId(userId);
         log.info("Find all notifications by userId: {}", allByUserId);
 

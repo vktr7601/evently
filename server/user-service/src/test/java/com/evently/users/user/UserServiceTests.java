@@ -2,7 +2,7 @@ package com.evently.users.user;
 
 import com.evently.users.user.entities.UserMapper;
 import com.evently.users.user.entities.UserRequest;
-import com.evently.users.userPreferences.UserPreferencesService;
+import com.evently.users.categoryFollow.CategoryFollowService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ public class UserServiceTests {
     @InjectMocks
     private UserService userService;
     @Mock
-    private UserPreferencesService userPreferencesService;
+    private CategoryFollowService userPreferencesService;
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 

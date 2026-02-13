@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const ArtistDetails = () => {
+    const isAuth = true;
     const { id } = useParams();
     const [artist, setArtist] = useState(null);
 
@@ -15,9 +16,9 @@ const ArtistDetails = () => {
                 console.error(err);
             });
     }, [id]);
-if (!artist) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
+    if (!artist) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
     return (
-        
+
         <div className="bg-white min-vh-100">
             <section className="py-5 bg-light border-bottom">
                 <div className="container">
@@ -32,7 +33,7 @@ if (!artist) return <div className="text-center py-5 mt-5"><div className="spinn
                         </div>
                         <div className="col-lg-8 ps-lg-5">
                             <h6 className="text-primary fw-bold text-uppercase tracking-wider">Featured Artist</h6>
-                            <h1 className="display-3 fw-black text-dark mb-3">{artist.name}</h1>
+
                             <p className="fs-5 text-secondary mb-4" style={{ lineHeight: '1.8' }}>
                                 {artist.bio}
                             </p>

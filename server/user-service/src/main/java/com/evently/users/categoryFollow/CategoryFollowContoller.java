@@ -1,4 +1,4 @@
-package com.evently.users.userPreferences;
+package com.evently.users.categoryFollow;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,8 +11,8 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/preferences")
-public class UserPreferencesContoller {
-    private final UserPreferencesService userPreferencesService;
+public class CategoryFollowContoller {
+    private final CategoryFollowService userPreferencesService;
 
     @PostMapping
     public List<Long> getUserIdForSpecificEventCategory(@RequestBody List<Long> preferencesIds) {

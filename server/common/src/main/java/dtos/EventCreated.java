@@ -18,13 +18,4 @@ public class EventCreated implements Serializable {
     long performer;
     @JsonProperty("event_name")
     String eventName;
-
-    public static EventCreated of(long eventId, List<Long> categories, long performer, String eventName) {
-        EventCreated eventCreated = new EventCreated();
-        eventCreated.setEventId(eventId);
-        eventCreated.setCategories(categories);
-        eventCreated.setPerformer(performer);
-        eventCreated.setEventName(eventName);
-        return eventCreated;
-    }
 }

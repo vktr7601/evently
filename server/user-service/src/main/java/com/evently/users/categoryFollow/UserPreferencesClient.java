@@ -1,4 +1,4 @@
-package com.evently.users.userPreferences;
+package com.evently.users.categoryFollow;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

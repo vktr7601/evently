@@ -3,7 +3,8 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem("userToken");
+  // const isAuthenticated = !!localStorage.getItem("userToken");
+  const isAuth = true;
 
   const handleSignOut = () => {
     localStorage.removeItem("userToken");
@@ -30,12 +31,29 @@ const Navbar = () => {
             <li className="nav-item">
               <NavLink to="/artists" className="nav-link px-3">Artists</NavLink>
             </li>
-            <li className="nav-item">
-              <NavLink to="/notification" className="nav-link px-3">Mail</NavLink>
-            </li>
+            {isAuth && (
+              <li className="nav-item">
+                <NavLink to="/notifications" className="nav-link px-3">Inbox</NavLink>
+              </li>
+            )}
+            {isAuth && (
+              <li className="nav-item">
+                <NavLink to="/notifications" className="nav-link px-3">My Profile</NavLink>
+              </li>
+            )}
+            
             <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
             </li>
+            {isAuth ? (
+              <li className="nav-item">
+                <NavLink to="/notifications" className="nav-link px-3">My Profile</NavLink>
+              </li>
+            ): (
+               <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
+                Sign In
+              </Link>
+            )}
             <li className="nav-item">
               <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
                 Sign In
