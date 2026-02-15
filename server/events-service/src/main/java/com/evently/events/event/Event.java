@@ -24,5 +24,14 @@ public class Event extends BaseEntity {
     private String imageUrl;
     @ManyToOne
     @JoinColumn(name = "artist_id", nullable = false)
-    public Artist artist;
+    private Artist artist;
+
+    @Column(name = "active")
+    private boolean isActive;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        isActive = false;
+    }
 }

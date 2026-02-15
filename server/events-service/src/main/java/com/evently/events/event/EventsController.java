@@ -3,6 +3,7 @@ package com.evently.events.event;
 import com.evently.events.event.entities.EventDetailDto;
 import com.evently.events.event.entities.EventListItemDto;
 import com.evently.events.event.entities.EventRequestDto;
+import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,6 @@ public class EventsController {
         return ResponseEntity.ok(eventService.findAllEventsByCategoryName(category));
     }
 
-
     @PostMapping
     public ResponseEntity<EventDetailDto> createEvent(@RequestBody EventRequestDto eventRequestDto) {
         EventDetailDto createdEvent = eventService.createEvent(eventRequestDto);
@@ -54,9 +54,11 @@ public class EventsController {
     }
 
 
-//    @PostMapping
-//    public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto eventDto) {
-//        EventResponseDto eventResponseDto = eventService.create(eventDto);
-//        return new ResponseEntity<>(eventResponseDto, HttpStatus.CREATED);
-//    }
+    @GetMapping("/{id}/location")
+    public ResponseEntity<EventsLocationsDto> getLocation(@PathVariable Long id) {
+        EventsLocationsDto eventsLocationsDto = eventService.getEventLocationData(id);
+        log.info("Response sent: Successfully fetched location details for event ID: {}", id);
+
+        return ResponseEntity.ok(eventsLocationsDto);
+    }
 }

@@ -105,9 +105,10 @@ const EventDetails = () => {
                                             {/* Action Column */}
                                             <div className="col-md-3 text-md-end mt-3 mt-md-0">
                                                 {loc.status === 'AVAILABLE' ? (
-                                                    <button className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                                                    
+                                                    <Link onClickto={`/eventLocations/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
                                                         Book Tickets
-                                                    </button>
+                                                    </Link>
                                                 ) : (
                                                     <button className="btn btn-secondary rounded-pill px-5 py-2 disabled" disabled>
                                                         Sold Out

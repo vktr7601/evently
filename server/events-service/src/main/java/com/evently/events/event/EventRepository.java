@@ -38,6 +38,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             )
             FROM Event e
             JOIN Artist a ON e.artist.id = a.id
+            WHERE e.isActive = true
             ORDER BY e.createdAt DESC
         """)
     List<EventListItemDto> findAllEventsSortedByDateDesc();

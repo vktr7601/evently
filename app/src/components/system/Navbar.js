@@ -35,7 +35,7 @@ const Navbar = () => {
               <li className="nav-item">
                 <NavLink to="/notifications" className="nav-link px-3">Inbox</NavLink>
               </li>
-            )}            
+            )}
             <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
             </li>
@@ -53,6 +53,12 @@ const Navbar = () => {
                 Sign In
               </Link>
             </li>
+              <li className="nav-item">
+                <Link to="/checkout" className="btn btn-success rounded-pill px-4 text-white">
+                  Checkout
+                </Link>
+              </li>
+
           </ul>
         </div>
       </div>

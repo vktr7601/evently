@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventCreated implements Serializable {
+public class EventAlive implements Serializable {
     @JsonProperty("event_id")
     long eventId;
     @JsonProperty("categories")
@@ -22,6 +22,4 @@ public class EventCreated implements Serializable {
     long performer;
     @JsonProperty("event_name")
     String eventName;
-    @JsonProperty("ticket_allocations")
-    List<TicketAllocation> ticketAllocations;
 }

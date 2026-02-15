@@ -10,11 +10,13 @@ import com.evently.events.config.KafkaProducer;
 import com.evently.events.event.entities.*;
 import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
+import com.evently.events.eventsLocations.EventsLocationsRepository;
 import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.locations.Location;
 import com.evently.events.locations.LocationService;
 import dtos.EventCreated;
+import dtos.TicketAllocation;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ public class EventService {
     private final EventMapper eventMapper;
     private final LocationService locationService;
     private final KafkaProducer kafkaProducer;
+    private final EventsLocationsRepository eventsLocationsRepository;
 
 
     @Transactional
@@ -115,12 +118,22 @@ public class EventService {
 
 
         EventDetailDto eventDetailDto = eventMapper.toDetailDto(event, eventsLocations, assignedDto);
+
+
+        List<TicketAllocation> ticketAllocations = eventsLocations.stream().map(x -> new TicketAllocation(x.getEventLocationId(), x.getTicketsCount(), x.getEventStartTime(), x.getPricePerTicket())).toList();
         var eventCreated = new EventCreated();
         eventCreated.setEventName(event.getName());
         eventCreated.setEventId(event.getId());
         eventCreated.setCategories(assignedDto.stream().map(CategoryDto::id).toList());
         eventCreated.setPerformer(artist.getId());
+        eventCreated.setTicketAllocations(ticketAllocations);
         kafkaProducer.sendEventCreatedMessage(eventCreated);
         return eventDetailDto;
+    }
+
+    public EventsLocationsDto getEventLocationData(Long eventId) {
+        var eventsLocations = eventsLocationsRepository.findByEventLocationId(eventId);
+        ;
+        return eventsLocations;
     }
 }

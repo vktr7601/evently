@@ -29,5 +29,6 @@ public interface EventsLocationMapper {
     @Mapping(source = "date", target = "eventStartTime")
     @Mapping(source = "price", target = "pricePerTicket")
     @Mapping(source = "eventsLocationsStataus", target = "status")
+    @Mapping(source = "totalTickets", target = "ticketsCount")
     EventsLocationsDto toDto(EventsLocations entity);
 }

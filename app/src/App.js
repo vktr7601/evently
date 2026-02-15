@@ -19,6 +19,8 @@ import EventDetails from './pages/event/EventDetails';
 import LocationDetails from './pages/location/LocationDetails';
 import NotificationsPage from './pages/notifications/ NotificationsPage';
 import ProfilePage from './components/system/Profile';
+import CheckoutPage from './components/system/Checkout';
+import EventLocationDetails from './pages/event/EventLocationDetails';
 
 function App() {
     return (
@@ -40,6 +42,8 @@ function App() {
                         <Route path="/events/:id" element={<EventDetails />} />
                         <Route path="/notifications" element={<NotificationsPage />} />
                         <Route path="/profile" element={< ProfilePage/>} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
+                        <Route path='/eventLocations/:id' element={<EventLocationDetails />} />
                     </Routes>
                 </div>
             </main>

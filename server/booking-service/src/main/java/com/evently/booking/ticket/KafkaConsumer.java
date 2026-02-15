@@ -1,30 +1,29 @@
 package com.evently.booking.ticket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dtos.EventCreated;
+import dtos.KafkaTopics;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class KafkaConsumer {
+    private final TicketService ticketService;
 
-//    @KafkaListener(topics = KafkaTopics.EVENT_CREATED)
-//    public void consumeMessage( userRegisteredTopic) {
-//        String htmlBody = String.format(
-//            "Welcome to the community, %s!" +
-//                "<p>Hi %s %s, we're thrilled to have you at <strong>Evently</strong>.</p>" +
-//                "<p>Start exploring local events, following your favorite performers, and booking venues today.</p>" +
-//                "<br/>" +
-//                "<p>Best regards,<br/>The Evently Team</p>",
-//            userRegisteredTopic.firstName(), userRegisteredTopic.firstName(), userRegisteredTopic.lastName()
-//        );
-//        log.info("Received Kafka message: {}", userRegisteredTopic);
-//        NotificationContent notificationContent = new NotificationContent();
-//        notificationContent.setTitle("Welcome to Evently!");
-//        notificationContent.setHtmlBody(htmlBody);
-//        notificationContentRepository.save(notificationContent);
-//
-//        Notification notification = new Notification();
-//        notification.setUserId(userRegisteredTopic.userId());
-//        notification.setContent(notificationContent);
-//        notificationService.save(notification);
-//
-//    }
+    @KafkaListener(topics = KafkaTopics.EVENT_CREATED)
+    public void consumeMessage(EventCreated eventCreated) {
+        ticketService.createTickets(eventCreated.getTicketAllocations());
+    }
+
+    @Bean
+
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper;
+    }
 }

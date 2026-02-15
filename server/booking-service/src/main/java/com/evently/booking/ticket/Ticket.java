@@ -6,6 +6,7 @@ import lombok.Setter;
 import utils.BaseEntity;
 import utils.NumberGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,6 +26,12 @@ public class Ticket extends BaseEntity {
     private LocalDateTime dateTime;
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
+    @Column(name = "reserved_until")
+    private LocalDateTime reservedUntil;
+    @Column(name = "active")
+    private boolean active;
+    @Column(name = "price")
+    private BigDecimal price;
 
     @Override
     public void onCreate() {

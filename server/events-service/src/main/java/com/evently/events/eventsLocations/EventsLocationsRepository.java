@@ -19,7 +19,8 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus
+                el.eventsLocationsStataus,
+                el.totalTickets
             )
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
@@ -38,7 +39,8 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus
+                el.eventsLocationsStataus,
+                el.totalTickets
             )
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
@@ -58,7 +60,8 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus
+                el.eventsLocationsStataus,
+                el.totalTickets
             )
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
@@ -67,4 +70,23 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
             ORDER BY el.date ASC
         """)
     List<EventsLocationsDto> findAllUpcomingEventsByLocationId(@Param("locationId") long id);
+
+    @Query(value = """
+            SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                el.id,
+                e.id,
+                loc.id,
+                e.name,
+                loc.name,
+                el.date,
+                el.price,
+                el.eventsLocationsStataus,
+                el.totalTickets
+            )
+            FROM EventsLocations el
+            JOIN el.event e ON e.id = el.event.id
+            JOIN el.location loc ON loc.id = el.location.id
+            WHERE el.id = :eventLocationId
+        """)
+    EventsLocationsDto findByEventLocationId(long eventLocationId);
 }

@@ -1,9 +1,9 @@
 package com.evently.users.user;
 
 import com.evently.users.artistFollow.ArtistFollow;
+import com.evently.users.categoryFollow.CategoryFollow;
 import com.evently.users.locationFollow.LocationFollow;
 import com.evently.users.user.entities.UserRole;
-import com.evently.users.categoryFollow.CategoryFollow;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
