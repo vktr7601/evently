@@ -2,7 +2,7 @@ package com.evently.events.eventsLocations;
 
 
 import com.evently.events.event.Event;
-import com.evently.events.event.entities.EventLocationData;
+import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationMapper;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.locations.Location;
@@ -22,7 +22,7 @@ public class EventsLocationsService {
     private final EventsLocationsRepository eventsLocationsRepository;
     private final EventsLocationMapper eventsLocationMapper;
 
-    public List<EventsLocationsDto> addLocationDetails(Event event, List<EventLocationData> eventLocationData, Map<Long, Location> locationMap) {
+    public List<EventsLocationsDto> addLocationDetails(Event event, List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) {
         List<EventsLocations> eventsLocationsList = eventLocationData.stream()
             .map(eventLocat -> eventsLocationMapper.toEntity(event, eventLocat, locationMap.get(eventLocat.getLocationId())))
             .toList();

@@ -1,5 +1,6 @@
 package com.evently.events.event.entities;
 
+import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ public class EventRequestDto {
     @JsonProperty("description")
     public String description;
     @JsonProperty("eventLocations")
-    public List<EventLocationData> eventLocations;
+    public List<EventsLocationsData> eventLocations;
     @JsonProperty("categories")
     List<Long> categories;
     @JsonProperty("artist_id")

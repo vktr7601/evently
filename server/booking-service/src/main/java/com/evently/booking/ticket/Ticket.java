@@ -1,5 +1,6 @@
 package com.evently.booking.ticket;
 
+import com.evently.booking.ticket.entities.TicketStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

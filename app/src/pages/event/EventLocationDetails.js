@@ -4,15 +4,17 @@ import axios from 'axios';
 
 const LocationDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [promoCode, setPromoCode] = useState("");
-    const [quantity, setQuantity] = useState(1); // Default to 1 ticketÍ
+    const [quantity, setQuantity] = useState(1);
     useEffect(() => {
         const fetchLocationDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:8082/events/${id}/location`);
+                console.log("Fetched event location details:", response.data);
                 setFormData(response.data);
             } catch (err) {
                 setError('Failed to load event location details.');
@@ -23,15 +25,39 @@ const LocationDetails = () => {
         fetchLocationDetails();
     }, [id]);
 
-    const handleBooking = () => {
-    //   axios.get(`http://localhost:8081/events/${id}/location`)
-    //     .then(res => {
-    //       const eventLocation = res.data;
-    //     // Here you would typically send this data to your backend to create a booking
-    }
+    const handleBooking = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8081/tickets/availability`, {
+                params: {
+                    eventLocationId: formData.eventLocationId,
+                    ticketsCount: quantity
+                }
+            });
+
+            // If the backend returns 204 No Content
+            if (response.status === 204) {
+                const checkoutUrl = `/checkout/${formData.eventLocationId}?qty=${quantity}`;
+                navigate(checkoutUrl);
+            } else {
+                // This handles cases where it's 200 OK but not the 204 we expected
+                setError('Unexpected response from server.');
+            }
+
+        } catch (err) {
+            // If the backend returns 404, 400, or 500, it lands here
+            if (err.response && err.response.status === 404) {
+                setError('Requested event location or tickets could not be found.');
+            } else if (err.response && err.response.status === 400) {
+                setError('Insufficient tickets available for this request.');
+            } else {
+                console.error("Connection Error:", err);
+                setError('Failed to reach the ticket service. Please try again later.');
+            }
+        }
+    };
 
 
-    // if (loading) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
+    if (loading) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
     // if (error) return <div className="alert alert-danger text-center m-5">{error}</div>;
 
     return (
@@ -39,7 +65,7 @@ const LocationDetails = () => {
             {/* Header Section */}
             <section className="py-5 bg-light border-bottom">
                 <div className="container">
-                    <h1 className="display-5 fw-black text-dark mb-2">{formData.eventName}</h1>
+                    {/* <h1 className="display-5 fw-black text-dark mb-2">{formData.eventName}</h1> */}
                     <p className="fs-5 text-primary fw-bold">
                         <i className="bi bi-geo-alt-fill me-2"></i>
                         {formData.locationName}
@@ -82,8 +108,8 @@ const LocationDetails = () => {
                                     onClick={handleBooking}
                                     disabled={formData.status !== 'AVAILABLE'}
                                     className={`btn btn-lg rounded-pill px-5 fw-bold ${formData.status === 'AVAILABLE'
-                                            ? 'btn-primary shadow'
-                                            : 'btn-secondary opacity-50'
+                                        ? 'btn-primary shadow'
+                                        : 'btn-secondary opacity-50'
                                         }`}
                                 >
                                     {formData.status === 'AVAILABLE' ? 'Book Now' : 'Sold Out'}

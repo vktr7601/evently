@@ -1,7 +1,6 @@
 package com.evently.events.eventsLocations.entities;
 
 import com.evently.events.event.Event;
-import com.evently.events.event.entities.EventLocationData;
 import com.evently.events.eventsLocations.EventsLocations;
 import com.evently.events.locations.Location;
 import org.mapstruct.Mapper;
@@ -18,7 +17,7 @@ public interface EventsLocationMapper {
     @Mapping(target = "eventsLocationsStataus", constant = "AVAILABLE")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    EventsLocations toEntity(Event event, EventLocationData data, Location location);
+    EventsLocations toEntity(Event event, EventsLocationsData data, Location location);
 
 
     @Mapping(source = "id", target = "eventLocationId")

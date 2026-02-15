@@ -106,7 +106,7 @@ const EventDetails = () => {
                                             <div className="col-md-3 text-md-end mt-3 mt-md-0">
                                                 {loc.status === 'AVAILABLE' ? (
                                                     
-                                                    <Link onClickto={`/eventLocations/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                                                    <Link to={`/eventLocations/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
                                                         Book Tickets
                                                     </Link>
                                                 ) : (

@@ -12,8 +12,7 @@ public class CheckAvailabilityRequest {
     public int tickets;
     @JsonProperty("eventsLocationsId")
     public int eventsLocationsId;
-    // public String promoCode;
-
+    
     public CheckAvailabilityRequest(int tickets, int eventsLocationsId) {
         setTickets(tickets);
         setEventsLocationsId(eventsLocationsId);

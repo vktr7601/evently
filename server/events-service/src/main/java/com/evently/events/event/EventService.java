@@ -12,6 +12,7 @@ import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
 import com.evently.events.eventsLocations.EventsLocationsRepository;
 import com.evently.events.eventsLocations.EventsLocationsService;
+import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.locations.Location;
 import com.evently.events.locations.LocationService;
@@ -113,7 +114,7 @@ public class EventService {
         event.setArtist(artist);
         eventRepository.save(event);
         List<CategoryDto> assignedDto = eventsCategoriesService.categorize(event, eventRequestDto.getCategories());
-        Map<Long, Location> map = locationService.findAllByIdIn(eventRequestDto.eventLocations.stream().map(EventLocationData::getLocationId).toList());
+        Map<Long, Location> map = locationService.findAllByIdIn(eventRequestDto.eventLocations.stream().map(EventsLocationsData::getLocationId).toList());
         List<EventsLocationsDto> eventsLocations = eventsLocationsService.addLocationDetails(event, eventRequestDto.getEventLocations(), map);
 
 

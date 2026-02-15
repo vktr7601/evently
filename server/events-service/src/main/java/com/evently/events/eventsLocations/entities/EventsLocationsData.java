@@ -1,4 +1,4 @@
-package com.evently.events.event.entities;
+package com.evently.events.eventsLocations.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class EventLocationData {
+public class EventsLocationsData {
     @JsonProperty("location")
     private long locationId;
     @JsonProperty("date")

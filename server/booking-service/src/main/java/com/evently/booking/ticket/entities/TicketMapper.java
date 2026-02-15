@@ -1,5 +1,6 @@
-package com.evently.booking.ticket;
+package com.evently.booking.ticket.entities;
 
+import com.evently.booking.ticket.Ticket;
 import dtos.TicketAllocation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

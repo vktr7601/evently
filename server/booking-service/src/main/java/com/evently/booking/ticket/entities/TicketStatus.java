@@ -1,4 +1,4 @@
-package com.evently.booking.ticket;
+package com.evently.booking.ticket.entities;
 
 public enum TicketStatus {
     AVAILABLE,
