@@ -6,6 +6,7 @@ import com.evently.events.artists.ArtistsRepository;
 import com.evently.events.artists.ArtistsService;
 import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
+import com.evently.events.config.KafkaProducer;
 import com.evently.events.event.entities.*;
 import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
@@ -13,6 +14,7 @@ import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.locations.Location;
 import com.evently.events.locations.LocationService;
+import dtos.EventCreated;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ public class EventService {
     private final CategoryService categoryService;
     private final EventMapper eventMapper;
     private final LocationService locationService;
+    private final KafkaProducer kafkaProducer;
 
 
     @Transactional
@@ -111,8 +114,13 @@ public class EventService {
         List<EventsLocationsDto> eventsLocations = eventsLocationsService.addLocationDetails(event, eventRequestDto.getEventLocations(), map);
 
 
-        EventDetailDto eventDetailDto = eventMapper.toDetailDto(event,  eventsLocations, assignedDto);
-    //invoke kafka event created
+        EventDetailDto eventDetailDto = eventMapper.toDetailDto(event, eventsLocations, assignedDto);
+        var eventCreated = new EventCreated();
+        eventCreated.setEventName(event.getName());
+        eventCreated.setEventId(event.getId());
+        eventCreated.setCategories(assignedDto.stream().map(CategoryDto::id).toList());
+        eventCreated.setPerformer(artist.getId());
+        kafkaProducer.sendEventCreatedMessage(eventCreated);
         return eventDetailDto;
     }
 }

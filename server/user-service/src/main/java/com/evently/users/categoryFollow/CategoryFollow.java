@@ -9,7 +9,7 @@ import utils.BaseEntity;
 @Entity
 @Getter
 @Setter
-@Table(name = "user_preferences")
+@Table(name = "user_categories")
 public class CategoryFollow extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

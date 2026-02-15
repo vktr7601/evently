@@ -33,7 +33,7 @@ public class UserServiceTests {
         userRequest.setEmail("email");
         userRequest.setAge(30);
         userRequest.setPassword("password");
-        userRequest.setPreferences(List.of(1L, 2L));
+        userRequest.setCategories(List.of(1L, 2L));
 
         User user = new User();
         user.setFirstName("firstName");

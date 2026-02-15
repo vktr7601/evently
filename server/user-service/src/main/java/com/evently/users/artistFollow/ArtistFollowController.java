@@ -28,9 +28,7 @@ public class ArtistFollowController {
     }
 
     @DeleteMapping("/{artistId}")
-    public ResponseEntity<Map<String, Object>> deleteFollow(
-        @RequestHeader("X-User-Id") Long userId,
-        @PathVariable Long artistId) {
+    public ResponseEntity<Map<String, Object>> deleteFollow(@RequestHeader("X-User-Id") Long userId, @PathVariable Long artistId) {
 
         followArtistService.unfollowArtist(userId, artistId);
 
@@ -39,5 +37,4 @@ public class ArtistFollowController {
             "status", "unfollowed"
         ));
     }
-
 }

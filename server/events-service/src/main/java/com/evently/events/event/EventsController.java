@@ -43,6 +43,7 @@ public class EventsController {
         return ResponseEntity.ok(eventService.findAllEventsByCategoryName(category));
     }
 
+
     @PostMapping
     public ResponseEntity<EventDetailDto> createEvent(@RequestBody EventRequestDto eventRequestDto) {
         EventDetailDto createdEvent = eventService.createEvent(eventRequestDto);

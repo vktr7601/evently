@@ -20,5 +20,5 @@ public class UserRequest {
     @JsonProperty("password")
     private String password;
     @JsonProperty("events_preferences")
-    private List<Long> preferences;
+    private List<Long> categories;
 }

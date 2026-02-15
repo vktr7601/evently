@@ -1,6 +1,5 @@
 package com.evently.users.artistFollow;
 
-import com.evently.users.user.User;
 import com.evently.users.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,10 +18,10 @@ public class ArtistFollowService {
             return;
         }
 
-        User user = userService.findById(userId);
+        //User user = userService(userId);
 
         ArtistFollow artistFollow = new ArtistFollow();
-        artistFollow.setUser(user);
+        artistFollow.setUser(null);
         artistFollow.setArtistId(artistId);
 
         artistFollowRepository.save(artistFollow);

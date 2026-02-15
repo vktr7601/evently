@@ -10,31 +10,35 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class NotificationEventListener {
     private final NotificationService notificationService;
     private final NotificationContentRepository notificationContentRepository;
-    //  private final UserPreferencesClient userPreferencesClient;
+    private final UserServiceClient userServiceClient;
 
-    @KafkaListener(topics = "event-created")
+    @KafkaListener(topics = KafkaTopics.EVENT_CREATED)
     public void consumeMessage(EventCreated message) {
-//        log.info("Received Kafka message: {}", message);
-////        List<Long> userIds = userPreferencesClient.fetchUserIds(message.getCategories());
-////        String template = generateSimpleHtml(message);
-//        NotificationContent notificationContent = new NotificationContent();
-//        notificationContent.setHtmlBody(template);
-//        notificationContentRepository.save(notificationContent);
-//        List<Notification> notifications = new ArrayList<>();
-//        for (Long userId : userIds) {
-//            Notification notification = new Notification();
-//            notification.setContent(notificationContent);
-//            notification.setUserId(userId);
-//            notifications.add(notification);
-//        }
-//
-//        notificationService.saveAll(notifications);
+        List<Long> userIds = userServiceClient.fetchUserIds(message.getCategories());
+        NotificationContent notificationContent = new NotificationContent();
+        notificationContent.setHtmlBody("HELLO");
+        notificationContent.setTitle("New event created: " + message.getEventName());
+
+        notificationContentRepository.save(notificationContent);
+
+        List<Notification> notifications = new ArrayList<>();
+        for (Long userId : userIds) {
+            Notification notification = new Notification();
+            notification.setContent(notificationContent);
+            notification.setUserId(userId);
+            notifications.add(notification);
+        }
+
+        notificationService.saveAll(notifications);
     }
 
 

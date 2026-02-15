@@ -5,7 +5,7 @@ VALUES ('John', 'Doe', 30, 'john.doe@email.com', 'password123', 'ADMIN', now(), 
        ('Emily', 'Chen', 28, 'emily.chen@email.com', 'password123', 'USER', now(), now()),
        ('Michael', 'Brown', 42, 'michael.brown@email.com', 'password123', 'ADMIN', now(), now());
 
-INSERT INTO user_preferences (user_id, event_category_id, updated_at, created_at)
+INSERT INTO user_categories (user_id, category_id, updated_at, created_at)
 VALUES (1, 1, now(), now()),
        (1, 2, now(), now()),
        (2, 1, now(), now()),
