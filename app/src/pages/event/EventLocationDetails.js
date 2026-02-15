@@ -36,6 +36,16 @@ const LocationDetails = () => {
 
             // If the backend returns 204 No Content
             if (response.status === 204) {
+
+                const responce2 = await axios.post("http://localhost:8081/order", {
+                    event_location_id: formData.eventLocationId,
+                    tickets_count: formData.quantity,
+                    date_time: formData.eventStartTime,
+                    promo_code: formData.promoCode
+                }
+                );
+                console.log("Order created successfully:", responce2.data);
+                //naviagtoe to order/iod
                 const checkoutUrl = `/checkout/${formData.eventLocationId}?qty=${quantity}`;
                 navigate(checkoutUrl);
             } else {

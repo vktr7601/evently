@@ -1,5 +1,5 @@
 package com.evently.events.eventsLocations.entities;
 
-public enum EventsLocationsStataus {
+public enum EventsLocationsStatus {
     CANCELLED, SOLD_OUT, AVAILABLE;
 }

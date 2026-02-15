@@ -2,8 +2,8 @@ package com.evently.events.eventsLocations;
 
 
 import com.evently.events.event.Event;
-import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationMapper;
+import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.locations.Location;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -60,5 +62,19 @@ public class EventsLocationsService {
         List<EventsLocationsDto> events = eventsLocationsRepository.findAllUpcomingEventsByArtistId(artistId);
 
         return events;
+    }
+
+    public Map<Long, EventsLocationsDto> findAllByIdsAsMap(List<Long> eventsLocationsIds) {
+        if (eventsLocationsIds.isEmpty()) {
+            return new HashMap<>();
+        }
+        var eventsLocations = eventsLocationsRepository.findAllInList(eventsLocationsIds);
+
+        Map<Long, EventsLocationsDto> locationMap = eventsLocations.stream()
+            .collect(Collectors.toMap(EventsLocationsDto::getEventLocationId,
+                eventLocationDto -> eventLocationDto
+            ));
+
+        return locationMap;
     }
 }

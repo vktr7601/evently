@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,5 +52,18 @@ public class TicketService {
         if (!available) {
             throw new InsufficientTicketException(locationEventsId, ticketCounts);
         }
+    }
+
+    public List<Ticket> getTicketsForEvent(long locationEventsId, int ticketCounts, LocalDateTime dateTime) {
+        var availableTickets = ticketRepository.findAvailableTicketsForEvent(locationEventsId, dateTime, ticketCounts);
+        if (availableTickets.size() < ticketCounts) {
+            throw new InsufficientTicketException(locationEventsId, ticketCounts);
+        }
+
+        return availableTickets;
+    }
+
+    public void save(List<Ticket> tickets) {
+        ticketRepository.saveAll(tickets);
     }
 }

@@ -19,9 +19,8 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus,
-                el.totalTickets
-            )
+                el.eventsLocationsStatus,
+                el.totalTickets)
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
             JOIN el.location loc ON loc.id = el.location.id
@@ -31,7 +30,7 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
     List<EventsLocationsDto> findUpcomingEventLocationsByEventId(@Param("eventId") long eventId);
 
     @Query(value = """
-            SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+   SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
                 el.id,
                 e.id,
                 loc.id,
@@ -39,9 +38,8 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus,
-                el.totalTickets
-            )
+                el.eventsLocationsStatus,
+                el.totalTickets)
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
             JOIN el.event.artist a ON a.id = e.artist.id
@@ -60,9 +58,8 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus,
-                el.totalTickets
-            )
+                el.eventsLocationsStatus,
+                el.totalTickets)
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
             JOIN el.location loc ON loc.id = el.location.id
@@ -70,6 +67,25 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
             ORDER BY el.date ASC
         """)
     List<EventsLocationsDto> findAllUpcomingEventsByLocationId(@Param("locationId") long id);
+
+    @Query(value = """
+             SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                el.id,
+                e.id,
+                loc.id,
+                e.name,
+                loc.name,
+                el.date,
+                el.price,
+                el.eventsLocationsStatus,
+                el.totalTickets)
+
+            FROM EventsLocations el
+            JOIN el.event e ON e.id = el.event.id
+            JOIN el.location loc ON loc.id = el.location.id
+            WHERE el.id = :eventLocationId
+        """)
+    EventsLocationsDto findByEventLocationId(long eventLocationId);
 
     @Query(value = """
             SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
@@ -80,13 +96,12 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
                 loc.name,
                 el.date,
                 el.price,
-                el.eventsLocationsStataus,
-                el.totalTickets
-            )
+                el.eventsLocationsStatus,
+                el.totalTickets)
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
             JOIN el.location loc ON loc.id = el.location.id
-            WHERE el.id = :eventLocationId
+            WHERE el.id in :eventLocationIds
         """)
-    EventsLocationsDto findByEventLocationId(long eventLocationId);
+    List<EventsLocationsDto> findAllInList(@Param("eventLocationIds") List<Long> eventLocationIds);
 }

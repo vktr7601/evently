@@ -16,11 +16,11 @@ public class EventsLocationsDto {
     private String eventName;
     private String locationName;
     private LocalDateTime eventStartTime;
+    private EventsLocationsStatus eventsLocationsStatus;
     private BigDecimal pricePerTicket;
-    private EventsLocationsStataus status;
     private long ticketsCount;
 
-    public EventsLocationsDto(long eventLocationId, long eventId, long locationId, String eventName, String locationName, LocalDateTime eventStartTime, BigDecimal pricePerTicket, EventsLocationsStataus status, long ticketsCount) {
+    public EventsLocationsDto(long eventLocationId, long eventId, long locationId, String eventName, String locationName, LocalDateTime eventStartTime, BigDecimal pricePerTicket, EventsLocationsStatus eventsLocationsStatus, long ticketsCount) {
         setEventLocationId(eventLocationId);
         setEventId(eventId);
         setLocationId(locationId);
@@ -28,7 +28,7 @@ public class EventsLocationsDto {
         setLocationName(locationName);
         setEventStartTime(eventStartTime);
         setPricePerTicket(pricePerTicket);
-        setStatus(status);
+        setEventsLocationsStatus(eventsLocationsStatus);
         setTicketsCount(ticketsCount);
     }
 }

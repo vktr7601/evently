@@ -1,5 +1,6 @@
 package com.evently.booking.ticket;
 
+import com.evently.booking.order.Order;
 import com.evently.booking.ticket.entities.TicketStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,11 +34,15 @@ public class Ticket extends BaseEntity {
     private boolean active;
     @Column(name = "price")
     private BigDecimal price;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @Override
     public void onCreate() {
         super.onCreate();
         number = NumberGenerator.generateUniqueNumber();
         status = TicketStatus.AVAILABLE;
+        active = false;
     }
 }

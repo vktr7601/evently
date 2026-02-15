@@ -14,7 +14,7 @@ public interface EventsLocationMapper {
     @Mapping(source = "data.price", target = "price")
     @Mapping(source = "event", target = "event")
     @Mapping(source = "location", target = "location")
-    @Mapping(target = "eventsLocationsStataus", constant = "AVAILABLE")
+    @Mapping(target = "eventsLocationsStatus", constant = "AVAILABLE")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     EventsLocations toEntity(Event event, EventsLocationsData data, Location location);
@@ -27,7 +27,7 @@ public interface EventsLocationMapper {
     @Mapping(source = "location.name", target = "locationName")
     @Mapping(source = "date", target = "eventStartTime")
     @Mapping(source = "price", target = "pricePerTicket")
-    @Mapping(source = "eventsLocationsStataus", target = "status")
+    @Mapping(source = "eventsLocationsStatus", target = "eventsLocationsStatus")
     @Mapping(source = "totalTickets", target = "ticketsCount")
     EventsLocationsDto toDto(EventsLocations entity);
 }

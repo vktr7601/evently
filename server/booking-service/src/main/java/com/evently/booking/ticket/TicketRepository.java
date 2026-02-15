@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -16,7 +17,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
         WHERE t.eventLocationsId = :eventLocationId
         AND t.status = 'AVAILABLE'
         """)
-    boolean hasAvailableSeats(@Param("eventLocationId") long eventLocationId, @Param("ticketsCount") long ticketsCount);
+    boolean hasAvailableSeats(
+        @Param("eventLocationId") long eventLocationId,
+        @Param("ticketsCount") long ticketsCount);
 
     @Query("""
         SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END
@@ -24,6 +27,15 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
         WHERE t.eventLocationsId = :eventLocationId
           AND t.dateTime = :startTime
         """)
-    boolean isPersisted(@Param("eventLocationId") long eventLocationId, @Param("startTime") LocalDateTime startTime
-    );
+    boolean isPersisted(@Param("eventLocationId") long eventLocationId, @Param("startTime") LocalDateTime startTime);
+
+    @Query(value = """
+        SELECT *
+        FROM tickets t
+        WHERE t.events_locations_id = :eventLocationId
+          AND t.date = :startTime
+          AND t.status = 'AVAILABLE'
+        LIMIT :ticketCount
+        """, nativeQuery = true)
+    List<Ticket> findAvailableTicketsForEvent(@Param("eventLocationId") long eventId, @Param("startTime") LocalDateTime startTime, @Param("ticketCount") int count);
 }
