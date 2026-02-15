@@ -18,6 +18,7 @@ import Locations from './pages/location/Locations'
 import EventDetails from './pages/event/EventDetails';
 import LocationDetails from './pages/location/LocationDetails';
 import NotificationsPage from './pages/notifications/ NotificationsPage';
+import ProfilePage from './components/system/Profile';
 
 function App() {
     return (
@@ -37,7 +38,8 @@ function App() {
                         <Route path="/artists" element={<Artists />} />
                         <Route path="/artists/:id" element={<ArtistDetails />} />                        
                         <Route path="/events/:id" element={<EventDetails />} />
-                        <Route path='/notifications' element={<NotificationsPage />} />
+                        <Route path="/notifications" element={<NotificationsPage />} />
+                        <Route path="/profile" element={< ProfilePage/>} />
                     </Routes>
                 </div>
             </main>

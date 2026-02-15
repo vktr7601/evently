@@ -35,19 +35,13 @@ const Navbar = () => {
               <li className="nav-item">
                 <NavLink to="/notifications" className="nav-link px-3">Inbox</NavLink>
               </li>
-            )}
-            {isAuth && (
-              <li className="nav-item">
-                <NavLink to="/notifications" className="nav-link px-3">My Profile</NavLink>
-              </li>
-            )}
-            
+            )}            
             <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
             </li>
             {isAuth ? (
               <li className="nav-item">
-                <NavLink to="/notifications" className="nav-link px-3">My Profile</NavLink>
+                <NavLink to="/profile" className="nav-link px-3">My Profile</NavLink>
               </li>
             ): (
                <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
