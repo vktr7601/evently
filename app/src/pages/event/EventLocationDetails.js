@@ -5,154 +5,171 @@ import axios from 'axios';
 const LocationDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState(null);
+    
+    // State management aligned with EventDetails style
+    const [occurrence, setOccurrence] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [promoCode, setPromoCode] = useState("");
+    
+    // User interaction state
     const [quantity, setQuantity] = useState(1);
+    const [promoCode, setPromoCode] = useState("");
+
     useEffect(() => {
-        const fetchLocationDetails = async () => {
+        const fetchDetails = async () => {
             try {
+                // Fetching from your event location endpoint
                 const response = await axios.get(`http://localhost:8082/events/${id}/location`);
-                console.log("Fetched event location details:", response.data);
-                setFormData(response.data);
+                setOccurrence(response.data);
             } catch (err) {
                 setError('Failed to load event location details.');
+                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchLocationDetails();
+        fetchDetails();
     }, [id]);
 
     const handleBooking = async () => {
+        setError(null);
         try {
-            const response = await axios.get(`http://localhost:8081/tickets/availability`, {
+            // 1. Check Availability
+            const availRes = await axios.get(`http://localhost:8081/tickets/availability`, {
                 params: {
-                    eventLocationId: formData.eventLocationId,
+                    eventLocationId: occurrence.eventLocationId,
                     ticketsCount: quantity
                 }
             });
 
-            // If the backend returns 204 No Content
-            if (response.status === 204) {
-
-                const responce2 = await axios.post("http://localhost:8081/order", {
-                    event_location_id: formData.eventLocationId,
-                    tickets_count: formData.quantity,
-                    date_time: formData.eventStartTime,
-                    promo_code: formData.promoCode
-                }
-                );
-                console.log("Order created successfully:", responce2.data);
-                //naviagtoe to order/iod
-                const checkoutUrl = `/checkout/${formData.eventLocationId}?qty=${quantity}`;
-                navigate(checkoutUrl);
-            } else {
-                // This handles cases where it's 200 OK but not the 204 we expected
-                setError('Unexpected response from server.');
+            // 2. Create Order (if 204 No Content)
+            if (availRes.status === 204) {
+                const orderRes = await axios.post("http://localhost:8081/order", {
+                    event_location_id: occurrence.eventLocationId,
+                    tickets_count: quantity,
+                    date_time: occurrence.eventStartTime,
+                    promo_code: promoCode
+                });
+                
+                // 3. Navigate to Payment
+                navigate(`/orderPayment/${orderRes.data.id}`);
             }
-
         } catch (err) {
-            // If the backend returns 404, 400, or 500, it lands here
-            if (err.response && err.response.status === 404) {
-                setError('Requested event location or tickets could not be found.');
-            } else if (err.response && err.response.status === 400) {
-                setError('Insufficient tickets available for this request.');
-            } else {
-                console.error("Connection Error:", err);
-                setError('Failed to reach the ticket service. Please try again later.');
-            }
+            const status = err.response?.status;
+            if (status === 400) setError('Insufficient tickets available.');
+            else if (status === 404) setError('Event or tickets not found.');
+            else setError('Service unavailable. Please try again later.');
         }
     };
 
+    if (loading) return (
+        <div className="text-center py-5 mt-5">
+            <div className="spinner-border text-primary"></div>
+        </div>
+    );
 
-    if (loading) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
-    // if (error) return <div className="alert alert-danger text-center m-5">{error}</div>;
+    const isAvailable = occurrence?.eventsLocationsStatus === 'AVAILABLE';
 
     return (
         <div className="bg-white min-vh-100">
-            {/* Header Section */}
+            {/* Hero Section - Matching EventDetails style */}
             <section className="py-5 bg-light border-bottom">
                 <div className="container">
-                    {/* <h1 className="display-5 fw-black text-dark mb-2">{formData.eventName}</h1> */}
+                    <div className="mb-2">
+                        <span className="badge bg-primary-subtle text-primary px-3 py-2 text-uppercase fw-bold small">
+                            {isAvailable ? 'Tickets Available' : 'Sold Out'}
+                        </span>
+                    </div>
+                    <h1 className="display-4 fw-black text-dark mb-2">{occurrence.eventName}</h1>
                     <p className="fs-5 text-primary fw-bold">
                         <i className="bi bi-geo-alt-fill me-2"></i>
-                        {formData.locationName}
+                        {occurrence.locationName}
                     </p>
                 </div>
             </section>
 
-            {/* Event Info Card */}
+            {/* Booking Action Card */}
             <section className="py-5">
                 <div className="container">
-                    <div className="card border-0 shadow-sm rounded-4 p-4">
-                        <div className="row align-items-center">
+                    {error && <div className="alert alert-danger mb-4 rounded-3">{error}</div>}
+
+                    <div className="card border-0 shadow-lg rounded-4 p-4 overflow-hidden">
+                        <div className="row align-items-center g-4">
+                            {/* Date Column */}
                             <div className="col-md-4 border-end-md">
-                                <label className="text-muted small fw-bold d-block mb-1">DATE & TIME</label>
-                                <p className="h5 fw-bold mb-0">
-                                    {new Date(formData.eventStartTime).toLocaleString(undefined, {
+                                <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Date & Time</label>
+                                <h4 className="fw-bold mb-0">
+                                    {new Date(occurrence.eventStartTime).toLocaleString(undefined, {
                                         weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                     })}
-                                </p>
+                                </h4>
                             </div>
-                            <div className="col-md-3 border-end-md mt-3 mt-md-0">
-                                <label className="text-muted small fw-bold d-block mb-1">PRICE</label>
-                                <p className="h5 fw-bold mb-0 text-success">${formData.pricePerTicket.toFixed(2)}</p>
+
+                            {/* Price Column */}
+                            <div className="col-md-3 border-end-md">
+                                <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Price</label>
+                                <h4 className="fw-bold mb-0 text-success">
+                                    ${occurrence.pricePerTicket.toFixed(2)}
+                                </h4>
                             </div>
-                            <div className="col-md-2 mt-3 mt-md-0">
-                                <label className="text-muted small fw-bold d-block mb-1">QUANTITY</label>
+
+                            {/* Quantity Selection */}
+                            <div className="col-md-2">
+                                <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Quantity</label>
                                 <select
-                                    className="form-select border-0 bg-light fw-bold"
+                                    className="form-select border-0 bg-light fw-bold py-2"
                                     value={quantity}
-                                    onChange={(e) => setQuantity(e.target.value)}
-                                    disabled={formData.status !== 'AVAILABLE'}
+                                    onChange={(e) => setQuantity(parseInt(e.target.value))}
+                                    disabled={!isAvailable}
                                 >
                                     {[1, 2, 3, 4, 5, 6].map(num => (
-                                        <option key={num} value={num}>{num}</option>
+                                        <option key={num} value={num}>{num} Tickets</option>
                                     ))}
                                 </select>
                             </div>
-                            <div className="col-md-3 text-md-end mt-4 mt-md-0">
+
+                            {/* CTA Button */}
+                            <div className="col-md-3 text-md-end">
                                 <button
                                     onClick={handleBooking}
-                                    disabled={formData.status !== 'AVAILABLE'}
-                                    className={`btn btn-lg rounded-pill px-5 fw-bold ${formData.status === 'AVAILABLE'
-                                        ? 'btn-primary shadow'
-                                        : 'btn-secondary opacity-50'
-                                        }`}
+                                    disabled={!isAvailable}
+                                    className={`btn btn-lg rounded-pill px-5 py-3 fw-bold transition-all w-100 ${
+                                        isAvailable ? 'btn-primary shadow' : 'btn-secondary opacity-50'
+                                    }`}
                                 >
-                                    {formData.status === 'AVAILABLE' ? 'Book Now' : 'Sold Out'}
+                                    {isAvailable ? 'Book Now' : 'Sold Out'}
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Just for fun: a small descriptive section */}
-                    <div className="mt-5">
-                        <h4 className="fw-bold">About this location</h4>
-                        <p className="text-secondary">
-                            Join us at the <strong>{formData.locationName}</strong> for an unforgettable experience with <strong>{formData.eventName}</strong>.
-                            Please arrive 30 minutes before the start time.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="mt-3">
-
-                    <div className="d-flex align-items-center animate__animated animate__fadeIn" style={{ maxWidth: '300px' }}>
-                        <input
-                            type="text"
-                            className="form-control form-control-sm border-0 bg-light me-2"
-                            placeholder="Enter code"
-                            value={promoCode}
-                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                        />
-                        <button
-                            className="btn btn-sm btn-outline-secondary rounded-pill"
-                        >
-                            Cancel
-                        </button>
+                    {/* Promo Code & Extra Info */}
+                    <div className="row mt-5 g-4">
+                        <div className="col-lg-8">
+                            <h4 className="fw-bold mb-3">Venue Information</h4>
+                            <p className="text-secondary fs-5" style={{ lineHeight: '1.8' }}>
+                                This event is hosted at <strong>{occurrence.locationName}</strong>. 
+                                We recommend arriving at least 30 minutes before the scheduled start time 
+                                of {new Date(occurrence.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+                                to ensure a smooth entry.
+                            </p>
+                        </div>
+                        
+                        <div className="col-lg-4">
+                            <div className="p-4 bg-light rounded-4 border">
+                                <h6 className="fw-bold mb-3">Have a promo code?</h6>
+                                <div className="d-flex gap-2">
+                                    <input
+                                        type="text"
+                                        className="form-control border-white shadow-sm"
+                                        placeholder="GIFT2026"
+                                        value={promoCode}
+                                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                    />
+                                    <button className="btn btn-dark rounded-3 px-3">Apply</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

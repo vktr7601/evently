@@ -32,6 +32,7 @@ public class Event extends BaseEntity {
     @Override
     public void onCreate() {
         super.onCreate();
-        isActive = false;
+        //todo: change to false
+        isActive = true;
     }
 }

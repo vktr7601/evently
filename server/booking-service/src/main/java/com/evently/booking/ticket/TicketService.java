@@ -32,6 +32,11 @@ public class TicketService {
             return x;
         }).toList();
 
+        if (list.isEmpty() || list.get(0) == null) {
+            log.warn("No new ticket allocations to create. All provided ticket allocations already exist in the database.");
+            return false; // No new tickets to create
+        }
+
         for (TicketAllocation ticketAllocation : list) {
 
             for (int i = 0; i < ticketAllocation.getTicketsCount(); i++) {

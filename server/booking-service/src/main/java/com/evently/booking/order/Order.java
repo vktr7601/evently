@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import utils.BaseEntity;
+import utils.NumberGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,10 @@ public class Order extends BaseEntity {
     private List<Ticket> tickets = new ArrayList<>();
     @Column(name = "expiration_time")
     private LocalDateTime expirationTime;
+    @Column(name = "number")
+    private Long number;
+    @Column(name = "active")
+    private boolean active;
 
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);
@@ -36,5 +41,6 @@ public class Order extends BaseEntity {
     public void onCreate() {
         super.onCreate();
         expirationTime = LocalDateTime.now().plusMinutes(10);
+        number = NumberGenerator.generateUniqueNumber();
     }
 }

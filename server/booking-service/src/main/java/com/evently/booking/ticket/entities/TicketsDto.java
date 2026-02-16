@@ -1,7 +1,18 @@
 package com.evently.booking.ticket.entities;
 
-public class TicketsDto {
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+public class TicketsDto implements Serializable {
     private long id;
-    private long eventLocationId;
     private String eventName;
+    private long eventLocationId;
+    private LocalDateTime eventDate;
+    private BigDecimal ticketPrice;
 }

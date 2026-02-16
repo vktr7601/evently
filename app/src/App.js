@@ -21,6 +21,7 @@ import NotificationsPage from './pages/notifications/ NotificationsPage';
 import ProfilePage from './components/system/Profile';
 import CheckoutPage from './components/system/Checkout';
 import EventLocationDetails from './pages/event/EventLocationDetails';
+import OrderPayment from './pages/payment/OrderPayment';
 
 function App() {
     return (
@@ -43,7 +44,8 @@ function App() {
                         <Route path="/notifications" element={<NotificationsPage />} />
                         <Route path="/profile" element={< ProfilePage/>} />
                         <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path='/eventLocations/:id' element={<EventLocationDetails />} />
+                        <Route path='/event-details/:id' element={<EventLocationDetails />} />
+                        <Route path="/orderPayment/:id" element={<OrderPayment />} /> {/* This is for the new checkout flow from EventLocationDetails */}
                     </Routes>
                 </div>
             </main>

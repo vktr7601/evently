@@ -70,10 +70,12 @@ public class EventsLocationsService {
         }
         var eventsLocations = eventsLocationsRepository.findAllInList(eventsLocationsIds);
 
+        System.out.println();
         Map<Long, EventsLocationsDto> locationMap = eventsLocations.stream()
             .collect(Collectors.toMap(EventsLocationsDto::getEventLocationId,
                 eventLocationDto -> eventLocationDto
             ));
+
 
         return locationMap;
     }

@@ -9,6 +9,7 @@ const EventDetails = () => {
     useEffect(() => {
         axios.get(`http://localhost:8082/events/${id}`)
             .then(res => {
+                console.log("Fetched event details:", res.data);
                 setEvent(res.data);
             })
             .catch(err => {
@@ -57,7 +58,7 @@ const EventDetails = () => {
                             </div>
 
                             <div className="d-flex gap-3">
-                                <a href="#dates" className="btn btn-primary btn-lg rounded-pill px-5">View Showtimes</a>
+                                <a href="#dates" className="btn btn-primary btn-lg rounded-pill px-5">View Calendar</a>
                             </div>
                         </div>
                     </div>
@@ -68,7 +69,7 @@ const EventDetails = () => {
             <section id="dates" className="py-5">
                 <div className="container">
                     <div className="mb-5">
-                        <h2 className="fw-bold h1">Showtimes & Venues</h2>
+                        <h2 className="fw-bold h1">Calendar</h2>
                         <div className="bg-primary rounded" style={{ height: '4px', width: '60px' }}></div>
                     </div>
 
@@ -104,9 +105,9 @@ const EventDetails = () => {
 
                                             {/* Action Column */}
                                             <div className="col-md-3 text-md-end mt-3 mt-md-0">
-                                                {loc.status === 'AVAILABLE' ? (
+                                                {loc.eventsLocationsStatus === 'AVAILABLE' ? (
                                                     
-                                                    <Link to={`/eventLocations/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                                                    <Link to={`/event-details/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
                                                         Book Tickets
                                                     </Link>
                                                 ) : (
