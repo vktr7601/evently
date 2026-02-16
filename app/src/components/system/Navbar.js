@@ -1,15 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useState } from 'react';
 
 const Navbar = () => {
   const navigate = useNavigate();
   // const isAuthenticated = !!localStorage.getItem("userToken");
   const isAuth = true;
+  const [activeOrder, setActiveOrder] = useState(false);
 
   const handleSignOut = () => {
     localStorage.removeItem("userToken");
     navigate("/login");
   };
+
+  useEffect(() => {
+    const headers = { "X-User-Id": 1 };
+    axios.get(`http://localhost:8081/orders/active`, { headers })
+      .then(res => {
+        console.log(res.data);
+        if(res.status === 200) {
+          setActiveOrder(true);
+        } else if (res.status === 204) {
+          console.log("No active order found (Status 204).");
+          setActiveOrder(false);
+        }
+        if (res.status === 204) {
+          console.log("No active order found (Status 204).");
+          setActiveOrder(false);
+          return; // Stop here since there is no data to set
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching order:", err);
+      });
+  }, []);
+
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
@@ -48,25 +74,28 @@ const Navbar = () => {
                 Sign In
               </Link>
             )}
-            <li className="nav-item">
-              <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
-                Sign In
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/checkout" className="btn btn-success rounded-pill px-4 text-white">
-                Checkout
-              </Link>
-            </li>
-
-               <li className="nav-item" >
-                <NavLink to="/order/active" className="nav-link px-3">My Orders</NavLink>
+            {activeOrder && (
+              <li className="nav-item"> {/* <--- Missing Opening Tag */}
+                <NavLink
+                  to="/order/active"
+                  className="btn btn-outline-primary rounded-pill px-4 shadow-sm fw-bold d-flex align-items-center gap-2"
+                >
+                  <span style={{
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: '#10b981',
+                    borderRadius: '50%',
+                    display: 'inline-block'
+                  }}></span>
+                  Active Order
+                </NavLink>
               </li>
+            )}
 
           </ul>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 };
 

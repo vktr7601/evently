@@ -29,13 +29,26 @@ public class OrderController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<OrderDto> getUserOrder(@RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity<OrderDto> getUserOrder(@RequestHeader(Headers.USER_ID) Long userId) {
+        var result = orderService.getActiveUserOrder(userId);
         return ResponseEntity.ok(orderService.getActiveUserOrder(userId));
+    }
+
+    @GetMapping
+    public ResponseEntity<OrderDto> getOrders(@RequestHeader(Headers.USER_ID) Long userId) {
+
     }
 
 //    @PutMapping("/expire")
 //    public ResponseEntity<?> expireActiveUserOrder(@RequestHeader("X-User-Id") Long userId) {
 //
 //    }
+
+    @DeleteMapping("/cancel")
+    public ResponseEntity<?> cancelOrder(@RequestHeader(Headers.USER_ID) Long userId) {
+        orderService.cancelActiveOrder(userId);
+
+        return ResponseEntity.ok().build();
+    }
 
 }

@@ -1,5 +1,4 @@
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {Route, Routes} from 'react-router-dom';
 
 import Navbar from './components/system/Navbar';
 import Footer from './components/system/Footer';
@@ -19,39 +18,38 @@ import EventDetails from './pages/event/EventDetails';
 import LocationDetails from './pages/location/LocationDetails';
 import NotificationsPage from './pages/notifications/ NotificationsPage';
 import ProfilePage from './components/system/Profile';
-import CheckoutPage from './components/system/Checkout';
 import EventLocationDetails from './pages/event/EventLocationDetails';
 import OrderPayment from './pages/payment/OrderPayment';
 
 function App() {
-    return (
-        <div className="d-flex flex-column min-vh-100 bg-light">
-            <Navbar />
-            <main className="flex-grow-1 container py-5">
-                <div className="row justify-content-center">
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/events" element={<Events />} />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="/terms" element={<TermsOfService />} />
-                        <Route path="/locations" element={<Locations />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/locations/:id" element={<LocationDetails />} />
-                        <Route path="/artists" element={<Artists />} />
-                        <Route path="/artists/:id" element={<ArtistDetails />} />                        
-                        <Route path="/events/:id" element={<EventDetails />} />
-                        <Route path="/notifications" element={<NotificationsPage />} />
-                        <Route path="/profile" element={< ProfilePage/>} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path='/event-details/:id' element={<EventLocationDetails />} />
-                        <Route path="/order/active" element={<OrderPayment />} /> {/* This is for the new checkout flow from EventLocationDetails */}
-                    </Routes>
-                </div>
-            </main>
-            <Footer />
+  return (
+    <div className="d-flex flex-column min-vh-100 bg-light">
+      <Navbar/>
+      <main className="flex-grow-1 container py-5">
+        <div className="row justify-content-center">
+          <Routes>
+            <Route path="/" element={<Home/>}/>
+            <Route path="/events" element={<Events/>}/>
+            <Route path="/privacy" element={<PrivacyPolicy/>}/>
+            <Route path="/terms" element={<TermsOfService/>}/>
+            <Route path="/locations" element={<Locations/>}/>
+            <Route path="/register" element={<Register/>}/>
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/locations/:id" element={<LocationDetails/>}/>
+            <Route path="/artists" element={<Artists/>}/>
+            <Route path="/artists/:id" element={<ArtistDetails/>}/>
+            <Route path="/events/:id" element={<EventDetails/>}/>
+            <Route path="/notifications" element={<NotificationsPage/>}/>
+            <Route path="/profile" element={< ProfilePage/>}/>
+            <Route path='/event-details/:id' element={<EventLocationDetails/>}/>
+            <Route path="/order/active"
+                   element={<OrderPayment/>}/> {/* This is for the new checkout flow from EventLocationDetails */}
+          </Routes>
         </div>
-    )
+      </main>
+      <Footer/>
+    </div>
+  )
 };
 
 export default App;

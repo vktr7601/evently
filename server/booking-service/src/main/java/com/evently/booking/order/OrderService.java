@@ -1,5 +1,6 @@
 package com.evently.booking.order;
 
+import com.evently.booking.exceptions.NoActiveOrderException;
 import com.evently.booking.order.entities.EventsLocationsDto;
 import com.evently.booking.order.entities.OrderDto;
 import com.evently.booking.order.entities.OrderRequest;
@@ -34,8 +35,7 @@ public class OrderService {
 
             Order order = activeOrder.get();
 
-            for (int i = 0; i < ticketList.size(); i++) {
-                Ticket ticket = ticketList.get(i);
+            for (Ticket ticket : ticketList) {
                 ticket.setUserId(userId);
                 ticket.setStatus(TicketStatus.PENDING_PAYMENT);
                 ticket.setReservedUntil(order.getExpirationTime());
@@ -72,7 +72,7 @@ public class OrderService {
     }
 
     public OrderDto getOrderDetails(long userId, long orderId) {
-        Order order = orderRepository.findOrderIfOwnedByUser(userId, orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = orderRepository.findOrderIfOwnedByUser(userId, orderId).orElseThrow(() -> new NoActiveOrderException(userId));
         List<Ticket> tickets = order.getTickets();
         List<Long> eventLocationsIds = tickets.stream().map(Ticket::getEventLocationsId).toList();
         Map<Long, EventsLocationsDto> locations = eventsLocationsClient.getLocations(eventLocationsIds);
@@ -101,7 +101,9 @@ public class OrderService {
 
 
     public OrderDto getActiveUserOrder(Long userId) {
-        var order = orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new RuntimeException("Order not found"));
+
+        var order = orderRepository.findPendingOrderByIdAndUserId(userId)
+            .orElseThrow(() -> new NoActiveOrderException(userId));
         List<Ticket> tickets = order.getTickets();
         List<Long> eventLocationsIds = tickets.stream().map(Ticket::getEventLocationsId).toList();
         Map<Long, EventsLocationsDto> locations = eventsLocationsClient.getLocations(eventLocationsIds);
@@ -126,6 +128,21 @@ public class OrderService {
         orderDto.setTicket(ticketsDtos);
         orderDto.setTotalPrice(totalPrice);
         return orderDto;
+    }
+
+    public void cancelActiveOrder(long userId) {
+        var order = orderRepository.findPendingOrderByIdAndUserId(userId)
+            .orElseThrow(() -> new RuntimeException("Order not found or does not belong to the user"));
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setActive(false);
+        List<Ticket> tickets = order.getTickets();
+        for (Ticket ticket : tickets) {
+            ticket.setStatus(TicketStatus.AVAILABLE);
+            ticket.setUserId(null);
+            ticket.setReservedUntil(null);
+            ticket.setOrder(null);
+        }
+        orderRepository.save(order);
     }
 
     @Transactional

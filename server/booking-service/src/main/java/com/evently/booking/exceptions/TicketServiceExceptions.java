@@ -22,4 +22,13 @@ public class TicketServiceExceptions {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(NoActiveOrderException.class)
+    public ResponseEntity<Object> handleNoActiveOrderException(NoActiveOrderException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("status", HttpStatus.NO_CONTENT.value());
+        body.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }
