@@ -40,11 +40,11 @@ const Navbar = () => {
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
             </li>
             {isAuth ? (
-              <li className="nav-item">
+              <li className="nav-item" >
                 <NavLink to="/profile" className="nav-link px-3">My Profile</NavLink>
               </li>
-            ): (
-               <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
+            ) : (
+              <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
                 Sign In
               </Link>
             )}
@@ -53,10 +53,14 @@ const Navbar = () => {
                 Sign In
               </Link>
             </li>
-              <li className="nav-item">
-                <Link to="/checkout" className="btn btn-success rounded-pill px-4 text-white">
-                  Checkout
-                </Link>
+            <li className="nav-item">
+              <Link to="/checkout" className="btn btn-success rounded-pill px-4 text-white">
+                Checkout
+              </Link>
+            </li>
+
+               <li className="nav-item" >
+                <NavLink to="/order/active" className="nav-link px-3">My Orders</NavLink>
               </li>
 
           </ul>

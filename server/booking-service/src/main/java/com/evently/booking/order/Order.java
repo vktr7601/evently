@@ -7,6 +7,7 @@ import lombok.Setter;
 import utils.BaseEntity;
 import utils.NumberGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class Order extends BaseEntity {
     @Column(name = "user_id")
     private long userId;
     @Column(name = "total_price")
-    private double totalPrice;
+    private BigDecimal totalPrice;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     @OneToMany(mappedBy = "order", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)

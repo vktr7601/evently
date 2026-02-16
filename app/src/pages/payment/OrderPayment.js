@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 const OrderPayment = () => {
-    const { id } = useParams();
     const [isProcessing, setIsProcessing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [order, setOrder] = useState(null);
@@ -17,14 +16,11 @@ const OrderPayment = () => {
         }, 2000);
     };
 
-
-    const handleModalOpen = () => {
-        setIsModalOpen(true);
-        console.log("Opening payment modal for order ID:", id);
-    }
-    // Your Response JSON
-    useEffect(() => {
-        axios.get(`http://localhost:8081/order/payment/${id}`)
+ useEffect(() => {
+        const headers = {
+            "X-User-Id": 1
+        };
+        axios.get(`http://localhost:8081/orders/active`, { headers })
             .then(res => {
 
                 console.log("Fetched order details:", res.data);
@@ -33,7 +29,13 @@ const OrderPayment = () => {
             .catch(err => {
                 console.error("Error fetching order:", err);
             });
-    }, [id]);
+    }, []);
+    const handleModalOpen = () => {
+        setIsModalOpen(true);
+        console.log("Opening payment modal for order ID:", order ? order.id : "No order");
+    }
+    // Your Response JSON
+   
 
     // Helper: Convert array [Y, M, D, H, m, s] to JS Date object
     const parseDateArray = (arr) => {
@@ -140,6 +142,10 @@ const OrderPayment = () => {
                                     <div style={{ flex: 1 }}>
                                         <label style={styles.label}>CVC</label>
                                         <input type="text" placeholder="123" style={styles.input} />
+                                    </div>
+                                     <div style={{ flex: 1 }}>
+                                        <label style={styles.label}>Amount</label>
+                                        <input type="text" placeholder="$0.00" style={order} />
                                     </div>
                                 </div>
 

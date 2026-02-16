@@ -5,12 +5,12 @@ import axios from 'axios';
 const LocationDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    
+
     // State management aligned with EventDetails style
     const [occurrence, setOccurrence] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     // User interaction state
     const [quantity, setQuantity] = useState(1);
     const [promoCode, setPromoCode] = useState("");
@@ -44,15 +44,20 @@ const LocationDetails = () => {
 
             // 2. Create Order (if 204 No Content)
             if (availRes.status === 204) {
-                const orderRes = await axios.post("http://localhost:8081/order", {
+                const orderRes = await axios.post("http://localhost:8081/orders", {
                     event_location_id: occurrence.eventLocationId,
                     tickets_count: quantity,
                     date_time: occurrence.eventStartTime,
                     promo_code: promoCode
+                }, {
+                    // This is your Config Object
+                    headers: {
+                        'X-User-Id': `1`,
+                    }
                 });
-                
+
                 // 3. Navigate to Payment
-                navigate(`/orderPayment/${orderRes.data.id}`);
+                navigate(`/order/active/`);
             }
         } catch (err) {
             const status = err.response?.status;
@@ -133,9 +138,8 @@ const LocationDetails = () => {
                                 <button
                                     onClick={handleBooking}
                                     disabled={!isAvailable}
-                                    className={`btn btn-lg rounded-pill px-5 py-3 fw-bold transition-all w-100 ${
-                                        isAvailable ? 'btn-primary shadow' : 'btn-secondary opacity-50'
-                                    }`}
+                                    className={`btn btn-lg rounded-pill px-5 py-3 fw-bold transition-all w-100 ${isAvailable ? 'btn-primary shadow' : 'btn-secondary opacity-50'
+                                        }`}
                                 >
                                     {isAvailable ? 'Book Now' : 'Sold Out'}
                                 </button>
@@ -148,13 +152,13 @@ const LocationDetails = () => {
                         <div className="col-lg-8">
                             <h4 className="fw-bold mb-3">Venue Information</h4>
                             <p className="text-secondary fs-5" style={{ lineHeight: '1.8' }}>
-                                This event is hosted at <strong>{occurrence.locationName}</strong>. 
-                                We recommend arriving at least 30 minutes before the scheduled start time 
-                                of {new Date(occurrence.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+                                This event is hosted at <strong>{occurrence.locationName}</strong>.
+                                We recommend arriving at least 30 minutes before the scheduled start time
+                                of {new Date(occurrence.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 to ensure a smooth entry.
                             </p>
                         </div>
-                        
+
                         <div className="col-lg-4">
                             <div className="p-4 bg-light rounded-4 border">
                                 <h6 className="fw-bold mb-3">Have a promo code?</h6>

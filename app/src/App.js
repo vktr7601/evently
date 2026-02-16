@@ -45,7 +45,7 @@ function App() {
                         <Route path="/profile" element={< ProfilePage/>} />
                         <Route path="/checkout" element={<CheckoutPage />} />
                         <Route path='/event-details/:id' element={<EventLocationDetails />} />
-                        <Route path="/orderPayment/:id" element={<OrderPayment />} /> {/* This is for the new checkout flow from EventLocationDetails */}
+                        <Route path="/order/active" element={<OrderPayment />} /> {/* This is for the new checkout flow from EventLocationDetails */}
                     </Routes>
                 </div>
             </main>
