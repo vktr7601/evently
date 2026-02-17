@@ -4,6 +4,8 @@ import com.evently.booking.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import utils.BaseEntity;
 import utils.NumberGenerator;
 
@@ -21,10 +23,10 @@ public class Order extends BaseEntity {
     @Column(name = "user_id")
     private long userId;
     @Column(name = "total_price")
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @OneToMany(mappedBy = "order", cascade = jakarta.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
     @Column(name = "expiration_time")
     private LocalDateTime expirationTime;
@@ -32,6 +34,11 @@ public class Order extends BaseEntity {
     private Long number;
     @Column(name = "active")
     private boolean active;
+    @Column(name = "audit")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String audit;
+    @Column(name = "transaction_id")
+    private String transactionId;
 
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);

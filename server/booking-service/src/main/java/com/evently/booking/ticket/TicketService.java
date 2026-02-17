@@ -1,7 +1,11 @@
 package com.evently.booking.ticket;
 
 import com.evently.booking.exceptions.InsufficientTicketException;
+import com.evently.booking.order.EventsLocationsClient;
+import com.evently.booking.order.entities.EventsLocationsDto;
+import com.evently.booking.ticket.entities.TicketListItem;
 import com.evently.booking.ticket.entities.TicketMapper;
+import com.evently.booking.ticket.entities.TicketStatus;
 import dtos.TicketAllocation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +23,11 @@ public class TicketService {
     private static final Logger log = LoggerFactory.getLogger(TicketService.class);
     private final TicketRepository ticketRepository;
     private final TicketMapper ticketMapper;
+    private final EventsLocationsClient eventsLocationsClient;
+
 
     public boolean createTickets(List<TicketAllocation> data) {
         List<Ticket> tickets = new ArrayList<>();
-
 
         List<TicketAllocation> list = data.stream().map(x -> {
             if (ticketRepository.isPersisted(x.getEventLocationId(), x.getDateTime())) {
@@ -71,4 +77,31 @@ public class TicketService {
     public void save(List<Ticket> tickets) {
         ticketRepository.saveAll(tickets);
     }
+
+
+    public List<TicketListItem> getTicketsByOrderId(long orderId) {
+        List<Ticket> tickets = ticketRepository.findAllByOrderId(orderId);
+        List<Long> eventLocationIds = tickets.stream().map(Ticket::getEventLocationsId).toList();
+
+        Map<Long, EventsLocationsDto> locations = eventsLocationsClient.getLocations(eventLocationIds);
+
+        List<TicketListItem> ticketListItems = tickets.stream().map(x -> {
+            var eventLocation = locations.get(x.getEventLocationsId());
+            return ticketMapper.toListItem(x, eventLocation.getEventName(), eventLocation.getLocationName());
+        }).toList();
+
+        log.info("Tickets for order ID {} has been saved", orderId);
+        return ticketListItems;
+    }
+
+    public void finalizeOrder(long orderId) {
+        List<Ticket> tickets = ticketRepository.findAllByOrderId(orderId);
+        for (Ticket ticket : tickets) {
+            ticket.setStatus(TicketStatus.BOOKED);
+            ticket.setReservedUntil(null);
+        }
+
+        ticketRepository.saveAll(tickets);
+    }
+
 }

@@ -1,11 +1,15 @@
 package com.evently.booking.order;
 
-import com.evently.booking.order.entities.OrderDto;
+import com.evently.booking.order.entities.FinishOrderRequest;
+import com.evently.booking.order.entities.OrderDetailsDto;
+import com.evently.booking.order.entities.OrderListItemDto;
 import com.evently.booking.order.entities.OrderRequest;
 import dtos.Headers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -21,7 +25,7 @@ public class OrderController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<OrderDto> getOrderItems(@RequestHeader(Headers.USER_ID) Long userId) {
+    public ResponseEntity<OrderDetailsDto> getActive(@RequestHeader(Headers.USER_ID) Long userId) {
         var result = orderService.getActiveUserOrder(userId);
         return ResponseEntity.ok(orderService.getActiveUserOrder(userId));
     }
@@ -37,6 +41,26 @@ public class OrderController {
         orderService.cancelActiveOrder(userId);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderListItemDto>> getUserOrders(@RequestHeader(Headers.USER_ID) Long userId) {
+        var orders = orderService.getUserOrders(userId);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/details/{number}")
+    public ResponseEntity<OrderDetailsDto> getOrderDetails(@RequestHeader(Headers.USER_ID) Long userId, @PathVariable Long number) {
+        var orderDetails = orderService.getOrderDetails(userId, number);
+        return ResponseEntity.ok(orderDetails);
+    }
+
+
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmPayment(@RequestHeader(Headers.USER_ID) Long userId, @RequestBody FinishOrderRequest finishOrderRequest) {
+        orderService.finishActiveUserOrder(userId, finishOrderRequest);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

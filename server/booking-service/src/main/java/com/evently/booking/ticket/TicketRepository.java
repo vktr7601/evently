@@ -38,4 +38,12 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
         LIMIT :ticketCount
         """, nativeQuery = true)
     List<Ticket> findAvailableTicketsForEvent(@Param("eventLocationId") long eventId, @Param("startTime") LocalDateTime startTime, @Param("ticketCount") int count);
+
+    @Query(value = """
+        SELECT t
+        FROM Ticket t
+        WHERE t.order.id = :orderId
+        """)
+    List<Ticket> findAllByOrderId(@Param("orderId") long orderId);
+
 }

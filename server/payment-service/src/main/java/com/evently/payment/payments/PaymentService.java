@@ -11,7 +11,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentGateway paymentGateway;
 
-    public void processPayment(Long userId, PaymentRequest paymentRequest) {
+    public String processPayment(Long userId, PaymentRequest paymentRequest) {
 
         PaymentGatewayResponse gatewayResponse = paymentGateway.charge(
             paymentRequest.getAmount(),
@@ -25,13 +25,15 @@ public class PaymentService {
         payment.setOrderId(paymentRequest.getOrderId());
 
         if (gatewayResponse.isSuccess()) {
+
             payment.setStatus(PaymentStatus.COMPLETED);
             payment.setTransactionId(gatewayResponse.getTransactionId());
         } else {
             payment.setStatus(PaymentStatus.FAILED);
         }
-
         paymentRepository.save(payment);
+
+        return  payment.getTransactionId();
     }
 
     public void getPaymentHistory(long userId) {

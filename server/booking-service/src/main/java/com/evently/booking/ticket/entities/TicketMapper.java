@@ -11,9 +11,16 @@ public interface TicketMapper {
     @Mapping(target = "price", source = "ticketPrice")
     @Mapping(target = "dateTime", source = "dateTime")
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "paymentId", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "number", ignore = true)
-    @Mapping(target = "active", constant = "true")
     Ticket convert(TicketAllocation dto);
+
+
+    @Mapping(target = "id", source = "ticket.id")
+    @Mapping(target = "number", source = "ticket.number")
+    @Mapping(target = "price", source = "ticket.price")
+    @Mapping(target = "eventDate", source = "ticket.dateTime")
+    @Mapping(target = "eventName", source = "eventName")
+    @Mapping(target = "eventLocationName", source = "locationName")
+    TicketListItem toListItem(Ticket ticket, String eventName, String locationName);
 }

@@ -62,9 +62,13 @@ const Navbar = () => {
                 <NavLink to="/notifications" className="nav-link px-3">Inbox</NavLink>
               </li>
             )}
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
-            </li>
+            </li> */}
+
+              { <li className="nav-item">
+              <NavLink to="/orders" className="nav-link px-3">Orders</NavLink>
+            </li> }
             {isAuth ? (
               <li className="nav-item" >
                 <NavLink to="/profile" className="nav-link px-3">My Profile</NavLink>

@@ -13,7 +13,6 @@ const LocationDetails = () => {
 
     // User interaction state
     const [quantity, setQuantity] = useState(1);
-    const [promoCode, setPromoCode] = useState("");
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -47,8 +46,7 @@ const LocationDetails = () => {
                 const orderRes = await axios.post("http://localhost:8081/orders", {
                     event_location_id: occurrence.eventLocationId,
                     tickets_count: quantity,
-                    date_time: occurrence.eventStartTime,
-                    promo_code: promoCode
+                    date_time: occurrence.eventStartTime
                 }, {
                     // This is your Config Object
                     headers: {
@@ -157,22 +155,6 @@ const LocationDetails = () => {
                                 of {new Date(occurrence.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 to ensure a smooth entry.
                             </p>
-                        </div>
-
-                        <div className="col-lg-4">
-                            <div className="p-4 bg-light rounded-4 border">
-                                <h6 className="fw-bold mb-3">Have a promo code?</h6>
-                                <div className="d-flex gap-2">
-                                    <input
-                                        type="text"
-                                        className="form-control border-white shadow-sm"
-                                        placeholder="GIFT2026"
-                                        value={promoCode}
-                                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                                    />
-                                    <button className="btn btn-dark rounded-3 px-3">Apply</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
