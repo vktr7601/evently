@@ -15,12 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateEventRequest implements Serializable {
-    @JsonProperty("eventId")
-    private long eventId;
     @JsonProperty("eventName")
     private String eventName;
-    @JsonProperty("artistId")
-    private long artistId;
     @JsonProperty("description")
     private String description;
     @JsonProperty("categories")

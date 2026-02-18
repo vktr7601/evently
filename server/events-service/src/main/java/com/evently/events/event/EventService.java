@@ -26,8 +26,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -54,7 +57,7 @@ public class EventService {
         return eventsListItems;
     }
 
-    @Cacheable(cacheNames = "events", key = "'allEventsSortedByDateDesc'")
+    @Cacheable(cacheNames = "events.list", key = "'allEventsSortedByDateDesc'")
     public List<EventListItemDto> findAllEventsSortedByDateDesc() {
         log.info("Starting process to fetch all events sorted by date.");
 
@@ -68,7 +71,7 @@ public class EventService {
         return events;
     }
 
-    @Cacheable(cacheNames = "eventDetails", key = "#id")
+    @Cacheable(cacheNames = "events.eventDetails", key = "#id")
     public EventDetailDto findEventDetailsById(Long id) {
         log.info("Attempting to find details for event ID: {}", id);
 
@@ -89,12 +92,13 @@ public class EventService {
     }
 
     @Transactional
-    @CachePut(cacheNames = "eventDetails", key = "#result.id")
-    @CacheEvict(cacheNames = "events", key = "'allEventsSortedByDateDesc'")
+    @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
+    @CacheEvict(cacheNames = "events.list", key = "'allEventsSortedByDateDesc'")
     public EventDetailDto createEvent(CreateEventRequest eventRequestDto) throws DuplicateResourceException {
         if (eventRepository.existsByName(eventRequestDto.getName())) {
             throw new DuplicateResourceException("Event with name: %s already exists".formatted(eventRequestDto.getName()));
         }
+        
         Event event = eventMapper.toEntity(eventRequestDto);
         Artist artist = artistsService.findById(eventRequestDto.getArtistId());
         event.setArtist(artist);
@@ -123,16 +127,45 @@ public class EventService {
 
 
     @Transactional
-    @CachePut(cacheNames = "eventDetails", key = "#result.id")
-    public void updateEvent(UpdateEventRequest updateEventRequest) {
-        Event event = eventRepository.findById(updateEventRequest.getEventId()).orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + updateEventRequest.getEventId()));
-        if (updateEventRequest.getEventName() != null) {
-            event.setName(updateEventRequest.getEventName());
+    @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
+    public EventDetailDto updateEvent(Long id, UpdateEventRequest updateEventRequest) {
+
+        updateEventRequest.getEventLocations().forEach(loc -> {
+            if (loc.getEventDate().isBefore(LocalDateTime.now().plusDays(2))) {
+                throw new IllegalArgumentException("Location at ID " + loc.getLocationId() + " must be at least 2 days in the future.");
+            }
+        });
+        Event event = eventRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
+        List<EventsLocationsDto> upcomingEventLocationsByEventId = eventsLocationsService.findUpcomingEventLocationsByEventId(id);
+        Set<Long> existingLocationIds = upcomingEventLocationsByEventId.stream()
+            .map(EventsLocationsDto::getLocationId)
+            .collect(Collectors.toSet());
+
+        List<EventsLocationsData> newLocations = updateEventRequest.getEventLocations().stream()
+            .filter(reqLoc -> !existingLocationIds.contains(reqLoc.getLocationId()))
+            .toList();
+        if (!newLocations.isEmpty()) {
+
+            List<EventsLocationsDto> eventsLocationsDtos = eventsLocationsService.addLocationDetails(event, newLocations, locationService.findAllByIdIn(newLocations.stream().map(EventsLocationsData::getLocationId).toList()));
+            List<Long> newLocationIds = newLocations.stream()
+                .map(EventsLocationsData::getLocationId)
+                .toList();
+            Map<Long, Location> allByIdIn = locationService.findAllByIdIn(newLocationIds);
+            List<TicketAllocation> ticketAllocations = eventsLocationsDtos.stream().map(x -> new TicketAllocation(x.getEventLocationId(), x.getTicketsCount(), x.getEventStartTime(), x.getPricePerTicket())).toList();
+            var eventCreated = new EventCreated();
+//            eventCreated.setEventName(event.getName());
+//            eventCreated.setEventId(event.getId());
+//            eventCreated.setCategories(assignedDto.stream().map(CategoryDto::id).toList());
+//            eventCreated.setPerformer(artist.getId());
+//            eventCreated.setTicketAllocations(ticketAllocations);
+//            kafkaProducer.sendEventCreatedMessage(eventCreated);
+            // eventsLocationsService.addLocationDetails(event, newLocations, allByIdIn);
         }
-        if (updateEventRequest.getDescription() != null) {
-            event.setDescription(updateEventRequest.getDescription());
-        }
+
         eventRepository.save(event);
+
+
+        return findEventDetailsById(id);
 
     }
 

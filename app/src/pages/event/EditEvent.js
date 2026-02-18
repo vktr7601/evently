@@ -5,17 +5,16 @@ import axios from 'axios';
 const EditEvent = () => {
     const { id } = useParams(); // Get the event ID from the URL
     const navigate = useNavigate();
-    
+
     const [eventData, setEventData] = useState({
-        event_name: '',
+        eventName: '',
         description: '',
-        artist_id: '',
+        artistName: '',
         categories: [],
-        eventLocations: [{ location: '', date: '', tickets: 1, price: 0 }]
+        eventLocations: [{ locationId: '', eventDate: '', tickets: 1, price: 0 }]
     });
-    
+
     const [locations, setLocations] = useState([]);
-    const [artists, setArtists] = useState([]);
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -23,13 +22,11 @@ const EditEvent = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
-                const [locRes, artRes, catRes] = await Promise.all([
+                const [locRes, catRes] = await Promise.all([
                     axios.get(`http://localhost:8082/locations`),
-                    axios.get(`http://localhost:8082/artists`),
                     axios.get(`http://localhost:8082/categories`)
                 ]);
                 setLocations(locRes.data);
-                setArtists(artRes.data);
                 setCategories(catRes.data);
             } catch (err) {
                 console.error("Error fetching master data:", err);
@@ -39,38 +36,34 @@ const EditEvent = () => {
     }, []);
 
     // 2. Preload Existing Event Data
-   useEffect(() => {
-    if (id) {
-        axios.get(`http://localhost:8082/events/${id}`)
-            .then(res => {
-                const data = res.data;
-                console.log("Mapping data for form:", data);
+    useEffect(() => {
+        if (id) {
+            axios.get(`http://localhost:8082/events/${id}`)
+                .then(res => {
+                    const data = res.data;
+                    console.log(res.data);
+                    console.log("Mapping data for form:", data);
 
-                setEventData({
-                    event_name: data.name,
-                    description: data.description,
-                    // Note: accessing nested artist object
-                    artist_id: data.artist ? data.artist.id : '', 
-                    // Mapping category objects to just IDs
-                    categories: data.categories ? data.categories.map(c => c.id) : [],
-                    // Mapping your specific eventLocations structure
-                    eventLocations: data.eventLocations.map(loc => ({
-                        location: loc.locationId,
-                        // Ensure the date format is yyyy-MM-ddThh:mm for the input
-                        date: loc.eventStartTime ? loc.eventStartTime.substring(0, 16) : '',
-                        tickets: loc.ticketsCount,
-                        price: loc.pricePerTicket
-                    }))
+                    setEventData({
+                        eventName: data.name,
+                        description: data.description,
+                        categories: data.categories ? data.categories.map(c => c.id) : [],
+                        eventLocations: data.eventLocations.map(loc => ({
+                            locationId: loc.locationId, // Keep this for the value
+                            eventDate: loc.eventStartTime ? loc.eventStartTime.substring(0, 16) : '', // Changed from date to eventDate
+                            tickets: loc.ticketsCount,
+                            price: loc.pricePerTicket
+                        }))
+                    });
+
+                    setIsLoading(false);
+                })
+                .catch(err => {
+                    console.error("Error fetching event details:", err);
+                    setIsLoading(false);
                 });
-                
-                setIsLoading(false);
-            })
-            .catch(err => {
-                console.error("Error fetching event details:", err);
-                setIsLoading(false);
-            });
-    }
-}, [id]);
+        }
+    }, [id]);
 
     const handleCategoryChange = (catId) => {
         setEventData(prev => ({
@@ -83,7 +76,7 @@ const EditEvent = () => {
 
     const updateLocation = (index, field, value) => {
         const newLocations = [...eventData.eventLocations];
-        newLocations[index][field] = (field === 'price' || field === 'tickets' || field === 'location') 
+        newLocations[index][field] = (field === 'price' || field === 'tickets' || field === 'locationId')
             ? Number(value) : value;
         setEventData({ ...eventData, eventLocations: newLocations });
     };
@@ -91,16 +84,17 @@ const EditEvent = () => {
     const addLocation = () => {
         setEventData({
             ...eventData,
-            eventLocations: [...eventData.eventLocations, { location: '', date: '', tickets: 1, price: 0 }]
+            eventLocations: [...eventData.eventLocations, { locationId: '', eventDate: '', tickets: 1, price: 0 }]
         });
     };
 
     const handleUpdate = () => {
         // Send as PUT request for editing
+        console.log(eventData);
         axios.put(`http://localhost:8082/events/${id}`, eventData)
             .then(() => {
                 alert("Event updated successfully!");
-                navigate(`/events/${id}`); // Redirect back to details
+                navigate(`/events/${id}`);
             })
             .catch(err => {
                 console.error("Update failed:", err);
@@ -108,14 +102,14 @@ const EditEvent = () => {
             });
     };
 
-    if (isLoading) return <div style={{textAlign: 'center', padding: '50px'}}>Loading event details...</div>;
+    if (isLoading) return <div style={{ textAlign: 'center', padding: '50px' }}>Loading event details...</div>;
 
     return (
         <div style={styles.page}>
             <div style={styles.container}>
                 <header style={styles.header}>
                     <h1 style={styles.title}>Edit Event</h1>
-                    <p style={styles.subtitle}>Modify the details for <strong>{eventData.event_name}</strong></p>
+                    <p style={styles.subtitle}>Modify the details for <strong>{eventData.eventName}</strong></p>
                 </header>
 
                 <form style={styles.formCard}>
@@ -124,42 +118,31 @@ const EditEvent = () => {
                         <h3 style={styles.sectionTitle}>1. Basic Information</h3>
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Event Title</label>
-                            <input 
-                                type="text" 
-                                style={styles.input} 
-                                value={eventData.event_name}
-                                onChange={(e) => setEventData({...eventData, event_name: e.target.value})}
+                            <input
+                                type="text"
+                                style={styles.input}
+                                value={eventData.eventName}
+                                onChange={(e) => setEventData({ ...eventData, eventName: e.target.value })}
                             />
                         </div>
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Description</label>
-                            <textarea 
-                                style={{...styles.input, height: '100px', resize: 'none'}} 
+                            <textarea
+                                style={{ ...styles.input, height: '100px', resize: 'none' }}
                                 value={eventData.description}
-                                onChange={(e) => setEventData({...eventData, description: e.target.value})}
+                                onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
                             />
                         </div>
                     </section>
 
                     {/* SECTION 2: TALENT & CATEGORY */}
                     <section style={styles.section}>
-                        <h3 style={styles.sectionTitle}>2. Talent & Classification</h3>
                         <div style={styles.grid2}>
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Artist / Performer</label>
-                                <select 
-                                    style={styles.input} 
-                                    value={eventData.artist_id}
-                                    onChange={(e) => setEventData({...eventData, artist_id: Number(e.target.value)})}
-                                >
-                                    {artists.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                                </select>
-                            </div>
                             <div style={styles.inputGroup}>
                                 <label style={styles.label}>Categories</label>
                                 <div style={styles.categoryPills}>
                                     {categories.map(cat => (
-                                        <button 
+                                        <button
                                             key={cat.id}
                                             type="button"
                                             onClick={() => handleCategoryChange(cat.id)}
@@ -173,47 +156,46 @@ const EditEvent = () => {
                         </div>
                     </section>
 
-                    {/* SECTION 3: LOGISTICS */}
                     <section style={styles.section}>
                         <h3 style={styles.sectionTitle}>3. Dates & Locations</h3>
                         {eventData.eventLocations.map((loc, index) => (
                             <div key={index} style={styles.locationRow}>
-                                <div style={{flex: 2}}>
+                                <div style={{ flex: 2 }}>
                                     <label style={styles.miniLabel}>Location</label>
-                                    <select 
-                                        style={styles.input} 
-                                        value={loc.location}
-                                        onChange={(e) => updateLocation(index, 'location', e.target.value)}
+                                    <select
+                                        style={styles.input}
+                                        value={loc.locationId} // Use locationId, not locationName
+                                        onChange={(e) => updateLocation(index, 'locationId', e.target.value)} // Map to locationId
                                     >
                                         <option value="">Select Location</option>
                                         {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                                     </select>
                                 </div>
-                                <div style={{flex: 2}}>
+                                <div style={{ flex: 2 }}>
                                     <label style={styles.miniLabel}>Date & Time</label>
-                                    <input 
-                                        type="datetime-local" 
-                                        style={styles.input} 
-                                        value={loc.date}
-                                        onChange={(e) => updateLocation(index, 'date', e.target.value)} 
+                                    <input
+                                        type="datetime-local"
+                                        style={styles.input}
+                                        value={loc.eventDate} // This matches the key in state now
+                                        onChange={(e) => updateLocation(index, 'eventDate', e.target.value)}
                                     />
                                 </div>
-                                <div style={{flex: 1}}>
+                                <div style={{ flex: 1 }}>
                                     <label style={styles.miniLabel}>Tickets</label>
-                                    <input 
-                                        type="number" 
-                                        style={styles.input} 
+                                    <input
+                                        type="number"
+                                        style={styles.input}
                                         value={loc.tickets}
-                                        onChange={(e) => updateLocation(index, 'tickets', e.target.value)} 
+                                        onChange={(e) => updateLocation(index, 'tickets', e.target.value)}
                                     />
                                 </div>
-                                <div style={{flex: 1}}>
+                                <div style={{ flex: 1 }}>
                                     <label style={styles.miniLabel}>Price (BGN)</label>
-                                    <input 
-                                        type="number" 
-                                        style={styles.input} 
+                                    <input
+                                        type="number"
+                                        style={styles.input}
                                         value={loc.price}
-                                        onChange={(e) => updateLocation(index, 'price', e.target.value)} 
+                                        onChange={(e) => updateLocation(index, 'price', e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -221,9 +203,9 @@ const EditEvent = () => {
                         <button type="button" onClick={addLocation} style={styles.addBtn}>+ Add Another Location</button>
                     </section>
 
-                    <button 
-                        type="button" 
-                        style={styles.submitBtn} 
+                    <button
+                        type="button"
+                        style={styles.submitBtn}
                         onClick={handleUpdate}
                     >
                         Save Changes

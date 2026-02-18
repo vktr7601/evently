@@ -48,11 +48,11 @@ public class EventsLocationsService {
     private void checkCollisions(List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) throws LocationCollisionException {
         List<String> collisions = new ArrayList<>();
         eventLocationData.forEach(x -> {
-            LocalDate date = x.getDate().toLocalDate();
+            LocalDate date = x.getEventDate().toLocalDate();
             LocalDateTime startOfDay = date.atStartOfDay();
             LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
             if (eventsLocationsRepository.hasEventForLocationInSpecificDate(x.getLocationId(), startOfDay, endOfDay)) {
-                collisions.add("Event already exists for location: " + locationMap.get(x.getLocationId()).getName() + " on date: " + x.getDate());
+                collisions.add("Event already exists for location: " + locationMap.get(x.getLocationId()).getName() + " on date: " + x.getEventDate());
             }
         });
 

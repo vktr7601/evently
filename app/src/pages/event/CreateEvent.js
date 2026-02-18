@@ -5,11 +5,11 @@ import ErrorModal from '../../components/system/ErrorModal';
 const CreateEvent = () => {
     const [errorState, setErrorState] = useState({ show: false, title: '', messages: [] });
     const [eventData, setEventData] = useState({
-        event_name: '',
+        eventName: '',
         description: '',
-        artist_id: '',
+        artistId: '',
         categories: [],
-        eventLocations: [{ location: '', date: '', tickets: 1, price: 0 }]
+        eventLocations: [{ locationId: '', eventDate: '', tickets: 1, price: 0 }]
     });
 
     const handleError = (err) => {
@@ -86,7 +86,7 @@ const CreateEvent = () => {
     const updateLocation = (index, field, value) => {
         const newLocations = [...eventData.eventLocations];
         console.log(`Updating index ${index}, field ${field} with value:`, value);
-        newLocations[index][field] = (field === 'price' || field === 'tickets' || field === 'location')
+        newLocations[index][field] = (field === 'price' || field === 'tickets' || field === 'locationId')
             ? Number(value) : value;
         setEventData({ ...eventData, eventLocations: newLocations });
     };
@@ -94,21 +94,24 @@ const CreateEvent = () => {
     const addLocation = () => {
         setEventData({
             ...eventData,
-            eventLocations: [...eventData.eventLocations, { location: '', date: '', tickets: 1, price: 0 }]
+            eventLocations: [...eventData.eventLocations, { locationId: '', eventDate: '', tickets: 1, price: 0 }]
         });
     };
 
     const createEvent = () => {
         const payload = {
-            ...eventData,
+            eventName: eventData.eventName,
+            description: eventData.description,
+            categories: eventData.categories,
+            artistId: eventData.artistId, // 
             eventLocations: eventData.eventLocations.map(loc => ({
-                location: loc.location,
-                date: loc.date,
+                locationId: loc.locationId,
+                eventDate: loc.date || loc.eventDate, // Ensure this matches your LocalDateTime field
                 tickets: loc.tickets,
                 price: loc.price
             }))
         };
-        console.log("Payload to send:", payload);
+        console.log("Event Data State:", eventData);
         axios.post(`http://localhost:8082/events`, payload)
             .then(res => {
                 // This only runs for 200-299 status codes
@@ -143,7 +146,7 @@ const CreateEvent = () => {
                                 type="text"
                                 style={styles.input}
                                 placeholder="e.g. Molec: Summer Night Plovdiv"
-                                onChange={(e) => setEventData({ ...eventData, event_name: e.target.value })}
+                                onChange={(e) => setEventData({ ...eventData, eventName: e.target.value })}
                             />
                         </div>
                         <div style={styles.inputGroup}>
@@ -162,7 +165,7 @@ const CreateEvent = () => {
                         <div style={styles.grid2}>
                             <div style={styles.inputGroup}>
                                 <label style={styles.label}>Artist / Performer</label>
-                                <select style={styles.input} onChange={(e) => setEventData({ ...eventData, artist_id: Number(e.target.value) })}>
+                                <select style={styles.input} onChange={(e) => setEventData({ ...eventData, artistId: Number(e.target.value) })}>
                                     <option value="">Choose Artist</option>
                                     {artists.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                 </select>
@@ -191,14 +194,14 @@ const CreateEvent = () => {
                             <div key={index} style={styles.locationRow}>
                                 <div style={{ flex: 2 }}>
                                     <label style={styles.miniLabel}>Location</label>
-                                    <select style={styles.input} onChange={(e) => updateLocation(index, 'location', e.target.value)}>
+                                    <select style={styles.input} value={loc.locationId} onChange={(e) => updateLocation(index, 'locationId', e.target.value)}>
                                         <option value="">Select Location</option>
                                         {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                                     </select>
                                 </div>
                                 <div style={{ flex: 2 }}>
                                     <label style={styles.miniLabel}>Date & Time</label>
-                                    <input type="datetime-local" style={styles.input} onChange={(e) => updateLocation(index, 'date', e.target.value)} />
+                                    <input type="datetime-local" style={styles.input} onChange={(e) => updateLocation(index, 'eventDate', e.target.value)} />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <label style={styles.miniLabel}>Tickets</label>
@@ -221,14 +224,14 @@ const CreateEvent = () => {
             </div>
 
             <>
-        <ErrorModal 
-            show={errorState.show} 
-            title={errorState.title} 
-            messages={errorState.messages} 
-            onClose={() => setErrorState({ ...errorState, show: false })} 
-        />
-        {/* Your existing form code */}
-    </>
+                <ErrorModal
+                    show={errorState.show}
+                    title={errorState.title}
+                    messages={errorState.messages}
+                    onClose={() => setErrorState({ ...errorState, show: false })}
+                />
+                {/* Your existing form code */}
+            </>
         </div>
     );
 };

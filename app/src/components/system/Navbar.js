@@ -14,29 +14,6 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  useEffect(() => {
-    const headers = { "X-User-Id": 1 };
-    axios.get(`http://localhost:8081/orders/active`, { headers })
-      .then(res => {
-        console.log(res.data);
-        if(res.status === 200) {
-          setActiveOrder(true);
-        } else if (res.status === 204) {
-          console.log("No active order found (Status 204).");
-          setActiveOrder(false);
-        }
-        if (res.status === 204) {
-          console.log("No active order found (Status 204).");
-          setActiveOrder(false);
-          return; // Stop here since there is no data to set
-        }
-      })
-      .catch(err => {
-        console.error("Error fetching order:", err);
-      });
-  }, []);
-
-
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
       <div className="container">
@@ -68,10 +45,12 @@ const Navbar = () => {
             <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
             </li>
-
-              { <li className="nav-item">
+            {localStorage.getItem('hasActiveOrder') && <li className="nav-item">
+              <NavLink to="/order/active" className="nav-link px-3">Active Order</NavLink>
+            </li>}
+            {<li className="nav-item">
               <NavLink to="/orders" className="nav-link px-3">Orders</NavLink>
-            </li> }
+            </li>}
             {isAuth ? (
               <li className="nav-item" >
                 <NavLink to="/profile" className="nav-link px-3">My Profile</NavLink>

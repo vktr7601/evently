@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EventsLocationMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "data.date", target = "date")
+    @Mapping(source = "data.eventDate", target = "date")
     @Mapping(source = "data.tickets", target = "totalTickets")
     @Mapping(source = "data.price", target = "price")
     @Mapping(source = "event", target = "event")

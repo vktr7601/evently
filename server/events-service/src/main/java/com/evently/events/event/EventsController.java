@@ -1,8 +1,8 @@
 package com.evently.events.event;
 
+import com.evently.events.event.entities.CreateEventRequest;
 import com.evently.events.event.entities.EventDetailDto;
 import com.evently.events.event.entities.EventListItemDto;
-import com.evently.events.event.entities.CreateEventRequest;
 import com.evently.events.event.entities.UpdateEventRequest;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import jakarta.validation.Valid;
@@ -55,12 +55,12 @@ public class EventsController {
         return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public ResponseEntity<EventDetailDto> updateEvent(@RequestBody UpdateEventRequest updateEventRequest) {
-        eventService.updateEvent(updateEventRequest);
+    @PutMapping("/{id}")
+    public ResponseEntity<EventDetailDto> updateEvent(@PathVariable Long id, @RequestBody UpdateEventRequest updateEventRequest) {
+        EventDetailDto eventDetailDto = eventService.updateEvent(id, updateEventRequest);
 
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(eventDetailDto);
     }
 
 

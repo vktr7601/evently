@@ -41,4 +41,14 @@ public class EventsExceptionHandler {
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(FormValidationException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(FormValidationException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        String errorMessage = ex.getMessage();
+        errors.put("meesage", errorMessage);
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
 }
