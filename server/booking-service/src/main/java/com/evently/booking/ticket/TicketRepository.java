@@ -1,7 +1,12 @@
 package com.evently.booking.ticket;
 
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +42,20 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
           AND t.status = 'AVAILABLE'
         LIMIT :ticketCount
         """, nativeQuery = true)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(value = {@QueryHint(name = "javax.persistence.query.timeout", value = "5000")})
     List<Ticket> findAvailableTicketsForEvent(@Param("eventLocationId") long eventId, @Param("startTime") LocalDateTime startTime, @Param("ticketCount") int count);
+
+    @Query(value = """
+        SELECT t
+        FROM Ticket t
+        WHERE t.eventLocationsId = :eventLocationId
+          AND t.dateTime = :startTime
+          AND t.status = 'AVAILABLE'
+        """)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(value = {@QueryHint(name = "javax.persistence.query.timeout", value = "5000")})
+    List<Ticket> findAvailableTicketsForEvent(@Param("eventLocationId") long eventId, @Param("startTime") LocalDateTime startTime, Pageable pageable);
 
     @Query(value = """
         SELECT t
@@ -46,4 +64,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
         """)
     List<Ticket> findAllByOrderId(@Param("orderId") long orderId);
 
+    List<Ticket> findAllByUserId(long userId);
+
+    @Query(value = """
+        SELECT t
+        FROM Ticket t
+        WHERE t.userId = :userId
+          AND t.id = :ticketId
+        """)
+    Ticket findByUserIdAndTicketId(@Param("userId") long userId, @Param("ticketId") long ticketId);
 }

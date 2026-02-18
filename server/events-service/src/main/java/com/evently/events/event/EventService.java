@@ -2,9 +2,7 @@ package com.evently.events.event;
 
 
 import com.evently.events.artists.Artist;
-import com.evently.events.artists.ArtistsRepository;
 import com.evently.events.artists.ArtistsService;
-import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.config.KafkaProducer;
 import com.evently.events.event.entities.*;
@@ -18,9 +16,13 @@ import com.evently.events.locations.Location;
 import com.evently.events.locations.LocationService;
 import dtos.EventCreated;
 import dtos.TicketAllocation;
+import exceptions.DuplicateResourceException;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,32 +37,10 @@ public class EventService {
     private final EventsLocationsService eventsLocationsService;
     private final EventRepository eventRepository;
     private final ArtistsService artistsService;
-    private final ArtistsRepository artistsRepository;
-    private final CategoryService categoryService;
     private final EventMapper eventMapper;
     private final LocationService locationService;
     private final KafkaProducer kafkaProducer;
     private final EventsLocationsRepository eventsLocationsRepository;
-
-
-    @Transactional
-    //  @CachePut(value = "events", key = "'id:' + #result.getId()")
-//    public EventResponseDto create(EventRequestDto request) {
-//        Event event = eventMapper.toEntity(request);
-//        Artist artist = artistsRepository.findByName(request.getArtist());
-//        event.setArtist(artist);
-//        eventRepository.save(event);
-//        var res = eventsCategoriesService.categorize(event, request.getCategories());
-//        List<EventsVenuesDto> list = eventsVenuesService.create(event, request.getEventLocationData());
-//        List<CreateTicketsDto> list1 = list.stream().map(x -> new CreateTicketsDto(x.venueId(), x.totalTickets(), x.date())).toList();
-//        // ticketClient.createTickets(list1);
-//        List<Long> categoriesIds = res.stream().map(BaseEntity::getId).toList();
-//        EventCreated eventCreated = EventCreated.of(event.getId(), categoriesIds, artist.getId(), event.getName());
-//        kafkaProducer.sendEventCreatedMessage(eventCreated);
-//
-//
-//        return eventMapper.toResponseDto(event, request.getCategories(), list);
-//    }
 
     public List<EventListItemDto> findAllEventsByCategoryName(String categoryName) {
         List<EventCategoriesDto> allEventsByCategoryId = eventsCategoriesService.getEventsByCategoryName(categoryName);
@@ -74,7 +54,7 @@ public class EventService {
         return eventsListItems;
     }
 
-    @Transactional
+    @Cacheable(cacheNames = "events", key = "'allEventsSortedByDateDesc'")
     public List<EventListItemDto> findAllEventsSortedByDateDesc() {
         log.info("Starting process to fetch all events sorted by date.");
 
@@ -88,6 +68,7 @@ public class EventService {
         return events;
     }
 
+    @Cacheable(cacheNames = "eventDetails", key = "#id")
     public EventDetailDto findEventDetailsById(Long id) {
         log.info("Attempting to find details for event ID: {}", id);
 
@@ -108,14 +89,22 @@ public class EventService {
     }
 
     @Transactional
-    public EventDetailDto createEvent(EventRequestDto eventRequestDto) {
+    @CachePut(cacheNames = "eventDetails", key = "#result.id")
+    @CacheEvict(cacheNames = "events", key = "'allEventsSortedByDateDesc'")
+    public EventDetailDto createEvent(CreateEventRequest eventRequestDto) throws DuplicateResourceException {
+        if (eventRepository.existsByName(eventRequestDto.getName())) {
+            throw new DuplicateResourceException("Event with name: %s already exists".formatted(eventRequestDto.getName()));
+        }
         Event event = eventMapper.toEntity(eventRequestDto);
         Artist artist = artistsService.findById(eventRequestDto.getArtistId());
         event.setArtist(artist);
+        event.setImageUrl(artist.getImageUrl());
         eventRepository.save(event);
         List<CategoryDto> assignedDto = eventsCategoriesService.categorize(event, eventRequestDto.getCategories());
-        Map<Long, Location> map = locationService.findAllByIdIn(eventRequestDto.eventLocations.stream().map(EventsLocationsData::getLocationId).toList());
-        List<EventsLocationsDto> eventsLocations = eventsLocationsService.addLocationDetails(event, eventRequestDto.getEventLocations(), map);
+        List<Long> list = eventRequestDto.eventLocations.stream().map(EventsLocationsData::getLocationId).toList();
+        Map<Long, Location> allByIdIn = locationService.findAllByIdIn(list);
+
+        List<EventsLocationsDto> eventsLocations = eventsLocationsService.addLocationDetails(event, eventRequestDto.getEventLocations(), allByIdIn);
 
 
         EventDetailDto eventDetailDto = eventMapper.toDetailDto(event, eventsLocations, assignedDto);
@@ -132,9 +121,23 @@ public class EventService {
         return eventDetailDto;
     }
 
+
+    @Transactional
+    @CachePut(cacheNames = "eventDetails", key = "#result.id")
+    public void updateEvent(UpdateEventRequest updateEventRequest) {
+        Event event = eventRepository.findById(updateEventRequest.getEventId()).orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + updateEventRequest.getEventId()));
+        if (updateEventRequest.getEventName() != null) {
+            event.setName(updateEventRequest.getEventName());
+        }
+        if (updateEventRequest.getDescription() != null) {
+            event.setDescription(updateEventRequest.getDescription());
+        }
+        eventRepository.save(event);
+
+    }
+
     public EventsLocationsDto getEventLocationData(Long eventId) {
         var eventsLocations = eventsLocationsRepository.findByEventLocationId(eventId);
-        ;
         return eventsLocations;
     }
 }

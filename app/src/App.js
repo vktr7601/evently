@@ -22,6 +22,8 @@ import EventLocationDetails from './pages/event/EventLocationDetails';
 import OrderPayment from './pages/payment/OrderPayment';
 import Orders from './pages/order/Orders';
 import OrderDetails from './pages/order/OrderDetails';
+import CreateEvent from './pages/event/CreateEvent';
+import EditEvent from './pages/event/EditEvent';
 
 function App() {
   return (
@@ -41,12 +43,14 @@ function App() {
             <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />
+            <Route path="/events/create" element={<CreateEvent />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile" element={< ProfilePage />} />
             <Route path='/event-details/:id' element={<EventLocationDetails />} />
             <Route path="/order/active" element={<OrderPayment />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/details/:number" element={<OrderDetails />} />
+            <Route path="/admin/event-management/:id" element={<EditEvent />} />
           </Routes>
         </div>
       </main>

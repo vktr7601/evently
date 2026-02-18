@@ -1,6 +1,8 @@
 package com.evently.booking.order;
 
 import com.evently.booking.exceptions.NoActiveOrderException;
+import com.evently.booking.exceptions.OrderNotRefundableException;
+import com.evently.booking.exceptions.ProcessOrderException;
 import com.evently.booking.order.entities.*;
 import com.evently.booking.ticket.Ticket;
 import com.evently.booking.ticket.TicketRepository;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,11 +36,14 @@ public class OrderService {
 
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
-        orderRepository.findPendingOrderByIdAndUserId(userId).map(order -> updateExistingOrder(order, orderRequest, userId)).orElseGet(() -> createNewOrder(orderRequest, userId));
+        orderRepository.findPendingOrderByIdAndUserId(userId)
+            .map(order -> updateExistingOrder(order, orderRequest, userId))
+            .orElseGet(() -> createNewOrder(orderRequest, userId));
     }
 
     public OrderDetailsDto getActiveUserOrder(Long userId) {
-        Order order = orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
+        Order order = orderRepository.findPendingOrderByIdAndUserId(userId)
+            .orElseThrow(() -> new NoActiveOrderException(userId));
 
         List<TicketListItem> listItems = ticketService.getTicketsByOrderId(order.getId());
 
@@ -54,47 +60,13 @@ public class OrderService {
         var order = orderRepository.findPendingOrderByIdAndUserId(userId);
     }
 
-    @Transactional
-    public void expireActiveUserOrder(Long userId) {
-        // 1. Fix the ID parameters
-        var order = orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new RuntimeException("Order not found or does not belong to the user"));
-        updateOrderDetails(order, OrderStatus.EXPIRED);
-        // 2. Update Order status
-//        order.setStatus(OrderStatus.CANCELLED);
-//        order.setActive(false);
-//
-//        // 3. Release the tickets
-//        List<Ticket> tickets = order.getTickets();
-//        for (Ticket ticket : tickets) {
-//            ticket.setStatus(TicketStatus.AVAILABLE);
-//            ticket.setUserId(null);
-//            ticket.setReservedUntil(null);
-//            ticket.setOrder(null);
-//        }
-//
-//        orderRepository.save(order); // Handled automatically if using @Transactional
-    }
-
     Order createNewOrder(OrderRequest orderRequest, long userId) {
-        List<Ticket> ticketList = ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), orderRequest.getTicketsCount(), orderRequest.getDateTime());
+        List<Ticket> tickets = ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), orderRequest.getTicketsCount(), orderRequest.getDateTime());
+
         Order order = new Order();
         order.setUserId(userId);
         order.setStatus(OrderStatus.PENDING_PAYMENT);
-        orderRepository.save(order);
-
-        assignTicketsToOrder(order, ticketList, userId);
-//        BigDecimal price = BigDecimal.ZERO;
-//        for (Ticket ticket : ticketList) {
-//            ticket.setUserId(userId);
-//            ticket.setStatus(TicketStatus.PENDING_PAYMENT);
-//            ticket.setReservedUntil(order.getExpirationTime());
-//            price = price.add(ticket.getPrice());
-//            ticket.setOrder(order);
-//            // order.addTicket(ticket);
-//        }
-//
-//        order.setTotalPrice(price);
-        ticketRepository.saveAllAndFlush(ticketList);
+        assignTicketsToOrder(order, tickets);
 
         orderRepository.save(order);
 
@@ -117,7 +89,6 @@ public class OrderService {
             for (Ticket ticket : tickets) {
                 ticket.setStatus(TicketStatus.AVAILABLE);
                 ticket.setUserId(null);
-                ticket.setReservedUntil(null);
                 ticket.setOrder(null);
             }
 
@@ -130,7 +101,6 @@ public class OrderService {
             for (Ticket ticket : tickets) {
                 ticket.setStatus(TicketStatus.AVAILABLE);
                 ticket.setUserId(null);
-                ticket.setReservedUntil(null);
                 ticket.setOrder(null);
             }
             orderRepository.save(order);
@@ -140,14 +110,14 @@ public class OrderService {
     Order updateExistingOrder(Order order, OrderRequest orderRequest, long userId) {
         List<Ticket> ticketList = ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), orderRequest.getTicketsCount(), orderRequest.getDateTime());
 
-        for (Ticket ticket : ticketList) {
-            ticket.setUserId(userId);
-            ticket.setStatus(TicketStatus.PENDING_PAYMENT);
-            ticket.setReservedUntil(order.getExpirationTime());
-            BigDecimal updatedPrice = order.getTotalPrice().add(ticket.getPrice());
-            order.setTotalPrice(updatedPrice);
-            order.addTicket(ticket);
-        }
+        assignTicketsToOrder(order, ticketList);
+//        for (Ticket ticket : ticketList) {
+//            ticket.setUserId(userId);
+//            ticket.setStatus(TicketStatus.PENDING_PAYMENT);
+//            BigDecimal updatedPrice = order.getTotalPrice().add(ticket.getPrice());
+//            order.setTotalPrice(updatedPrice);
+//            order.addTicket(ticket);
+//        }
 
         orderRepository.save(order);
 
@@ -166,18 +136,7 @@ public class OrderService {
         return mapToDto(order, ticketListItems);
     }
 
-
-    OrderDetailsDto mapToDto(Order order, List<TicketListItem> listItems) {
-        OrderDetailsDto orderDto = orderMapper.toDto(order, listItems);
-
-        BigDecimal totalSum = listItems.stream().map(TicketListItem::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        orderDto.setTotalPrice(totalSum);
-
-        return orderDto;
-    }
-
-    List<TicketListItem> resolveOrderItems(Order order) {
+    public List<TicketListItem> resolveOrderItems(Order order) {
         if (order.getAudit() != null && !order.getAudit().isEmpty()) {
             try {
                 return objectMapper.readValue(order.getAudit(), new TypeReference<List<TicketListItem>>() {
@@ -191,39 +150,117 @@ public class OrderService {
         return ticketService.getTicketsByOrderId(order.getId());
     }
 
-    void assignTicketsToOrder(Order order, List<Ticket> tickets, Long userId) {
+    void assignTicketsToOrder(Order order, List<Ticket> tickets) {
         tickets.forEach(ticket -> {
-            ticket.setUserId(userId);
+            ticket.setUserId(order.getUserId());
             ticket.setStatus(TicketStatus.PENDING_PAYMENT);
-            ticket.setReservedUntil(order.getExpirationTime());
             order.setTotalPrice(order.getTotalPrice().add(ticket.getPrice()));
             order.addTicket(ticket);
         });
     }
 
-    public void finishActiveUserOrder(Long userId, FinishOrderRequest finishOrderRequest) {
+    public void finishActiveUserOrder(Long userId, FinishOrderRequest finishOrderRequest) throws ProcessOrderException {
         Order order = orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
-//        var totalPrice = activeOrder.getTotalPrice();
-//        if (!finishOrderRequest.getPromoCode().isEmpty()) {
-//
-//        }
 
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setAmount(order.getTotalPrice());
-        paymentRequest.setCardNumber(finishOrderRequest.getCardNumber());
-        paymentRequest.setCardExpiry(finishOrderRequest.getCardExpiry());
-        paymentRequest.setCardCvv(finishOrderRequest.getCardCvv());
+        paymentRequest.setCardNumber(finishOrderRequest.getCardNumber().trim());
+        paymentRequest.setCardExpiry(finishOrderRequest.getCardExpiry().trim());
+        paymentRequest.setCardCvv(finishOrderRequest.getCardCvv().trim());
         paymentRequest.setUserId(userId);
         paymentRequest.setOrderId(order.getId());
 
-        ResponseEntity<?> response = paymentClient.processPayment(paymentRequest);
-        if (response.getStatusCode().is2xxSuccessful()) {
+        ResponseEntity<PaymentServiceResponse> response = paymentClient.processPayment(paymentRequest);
+        if (response.getBody().isSuccess()) {
             ticketService.finalizeOrder(order.getId());
             order.setStatus(OrderStatus.CONFIRMED);
             order.setActive(false);
             order.setTransactionId(response.getBody().toString());
             orderRepository.save(order);
-            System.out.println();
+        } else {
+            throw new ProcessOrderException(response.getBody());
         }
+    }
+
+    @Transactional
+    public void refundOrder(long number, long userId) throws OrderNotRefundableException {
+        if (!isOrderRefundable(userId, number)) {
+            throw new OrderNotRefundableException(number);
+        }
+
+
+        Order order = orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(
+            () -> new NoActiveOrderException(userId));
+
+        List<Ticket> tickets = order.getTickets();
+
+        List<TicketListItem> ticketListItems = resolveOrderItems(order);
+        for (TicketListItem item : ticketListItems) {
+            item.setStatus(TicketStatus.REFUNDED);
+        }
+
+
+        try {
+            String json = objectMapper.writeValueAsString(ticketListItems);
+            order.setAudit(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        RefundRequest refundRequest = new RefundRequest();
+        refundRequest.setAmount(order.getTotalPrice());
+        refundRequest.setTransactionId(order.getTransactionId());
+        ResponseEntity<PaymentServiceResponse> response = paymentClient.processRefund(refundRequest);
+        if (response.getBody().isSuccess()) {
+            for (Ticket ticket : tickets) {
+                ticket.setStatus(TicketStatus.AVAILABLE);
+                ticket.setUserId(null);
+                ticket.setOrder(null);
+            }
+            order.setStatus(OrderStatus.REFUNDED);
+            order.setTransactionId(response.getBody().toString());
+            orderRepository.save(order);
+        } else {
+            throw new ProcessOrderException(response.getBody());
+        }
+        System.out.println();
+
+    }
+
+    public boolean isOrderRefundable(Long userId, Long number) {
+        Order order = orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(
+            () -> new NoActiveOrderException(userId));
+
+        List<Ticket> tickets = order.getTickets();
+
+        boolean canRefund = true;
+        for (Ticket ticket : tickets) {
+            if (ticket.getDateTime().isBefore(LocalDateTime.now().plusHours(2))) {
+                canRefund = false;
+                break;
+            }
+        }
+        return canRefund;
+    }
+
+
+    public Order findByOrderNumberAndUserId(Long number, Long userId) {
+        return orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(
+            () -> new NoActiveOrderException(userId));
+    }
+
+    public void save(Order order) {
+        orderRepository.save(order);
+    }
+
+
+    OrderDetailsDto mapToDto(Order order, List<TicketListItem> listItems) {
+        OrderDetailsDto orderDto = orderMapper.toDto(order, listItems);
+
+        BigDecimal totalSum = listItems.stream().map(TicketListItem::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        orderDto.setTotalPrice(totalSum);
+
+        return orderDto;
     }
 }

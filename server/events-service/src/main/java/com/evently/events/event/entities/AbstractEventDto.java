@@ -8,11 +8,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter(AccessLevel.PRIVATE)
-public abstract class AbstractEventDto {
+public abstract class AbstractEventDto implements Serializable {
     private long id;
     private String name;
     private String description;

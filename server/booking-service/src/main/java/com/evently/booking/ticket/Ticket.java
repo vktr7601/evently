@@ -26,8 +26,6 @@ public class Ticket extends BaseEntity {
     private LocalDateTime dateTime;
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
-    @Column(name = "reserved_until")
-    private LocalDateTime reservedUntil;
     @Column(name = "price")
     private BigDecimal price;
     @ManyToOne(fetch = FetchType.LAZY)

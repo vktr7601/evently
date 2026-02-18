@@ -1,5 +1,6 @@
-package com.evently.booking.ticket;
+package com.evently.booking.config;
 
+import com.evently.booking.ticket.TicketService;
 import dtos.EventCreated;
 import dtos.KafkaTopics;
 import lombok.RequiredArgsConstructor;

@@ -15,7 +15,7 @@ public interface EventMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "eventLocations", ignore = true)
     @Mapping(target = "artist", ignore = true)
-    Event toEntity(EventRequestDto dto);
+    Event toEntity(CreateEventRequest dto);
 
     @Mapping(source = "event.id", target = "id")
     @Mapping(source = "event.name", target = "name")

@@ -39,6 +39,10 @@ public class Order extends BaseEntity {
     private String audit;
     @Column(name = "transaction_id")
     private String transactionId;
+    @Column(name = "refund_id")
+    private String refundId;
+    @Column(name = "refund_time")
+    private LocalDateTime refundTime;
 
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);

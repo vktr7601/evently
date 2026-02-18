@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -30,22 +31,22 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
     List<EventsLocationsDto> findUpcomingEventLocationsByEventId(@Param("eventId") long eventId);
 
     @Query(value = """
-   SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
-                el.id,
-                e.id,
-                loc.id,
-                e.name,
-                loc.name,
-                el.date,
-                el.price,
-                el.eventsLocationsStatus,
-                el.totalTickets)
-            FROM EventsLocations el
-            JOIN el.event e ON e.id = el.event.id
-            JOIN el.event.artist a ON a.id = e.artist.id
-            JOIN el.location loc ON loc.id = el.location.id
-            WHERE  el.event.artist.id = :artistId AND el.date > CURRENT_DATE
-            ORDER BY el.date ASC
+        SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                     el.id,
+                     e.id,
+                     loc.id,
+                     e.name,
+                     loc.name,
+                     el.date,
+                     el.price,
+                     el.eventsLocationsStatus,
+                     el.totalTickets)
+                 FROM EventsLocations el
+                 JOIN el.event e ON e.id = el.event.id
+                 JOIN el.event.artist a ON a.id = e.artist.id
+                 JOIN el.location loc ON loc.id = el.location.id
+                 WHERE  el.event.artist.id = :artistId AND el.date > CURRENT_DATE
+                 ORDER BY el.date ASC
         """)
     List<EventsLocationsDto> findAllUpcomingEventsByArtistId(@Param("artistId") long artistId);
 
@@ -104,4 +105,13 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
             WHERE el.id in :eventLocationIds
         """)
     List<EventsLocationsDto> findAllInList(@Param("eventLocationIds") List<Long> eventLocationIds);
+
+    @Query(value = """
+         SELECT CASE COUNT (el) WHEN 0 THEN false ELSE true END
+         FROM EventsLocations el
+         JOIN el.location loc ON loc.id = el.location.id
+        AND el.date >= :startOfDay AND el.date <= :endOfDay
+         WHERE loc.id = :locationId
+        """)
+    boolean hasEventForLocationInSpecificDate(@Param("locationId") long locationId, @Param("startOfDay") LocalDateTime date, @Param("endOfDay") LocalDateTime endDate);
 }

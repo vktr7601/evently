@@ -18,9 +18,10 @@ public class MockPaymentGateway implements PaymentGateway {
     @Override
     public PaymentGatewayResponse charge(BigDecimal amount, String cardNumber, String cardExpiry, String cardCvv) {
         log.info("Mock gateway processing payment: amount={}, card=****{}", amount, maskCard(cardNumber));
+        String cardRegex = "^\\d{13,19}$";
 
-        if (cardNumber == null || cardNumber.length() < 13) {
-            return new PaymentGatewayResponse(null, false, "Invalid card number");
+        if (cardNumber == null || !cardNumber.matches(cardRegex)) {
+            return new PaymentGatewayResponse(null, false, "Invalid card format: must be 13-19 digits");
         }
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {

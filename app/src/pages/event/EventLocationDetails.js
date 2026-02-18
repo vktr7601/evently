@@ -163,4 +163,4 @@ const LocationDetails = () => {
     );
 };
 
-export default LocationDetails;
+export default LocationDetails; 

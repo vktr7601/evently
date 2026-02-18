@@ -54,6 +54,9 @@ const Navbar = () => {
             <li className="nav-item">
               <NavLink to="/events" className="nav-link px-3">Events</NavLink>
             </li>
+            <li className='nav-item'>
+              <NavLink to="/events/create" className="nav-link px-3">Create Event</NavLink>
+            </li>
             <li className="nav-item">
               <NavLink to="/artists" className="nav-link px-3">Artists</NavLink>
             </li>
@@ -62,9 +65,9 @@ const Navbar = () => {
                 <NavLink to="/notifications" className="nav-link px-3">Inbox</NavLink>
               </li>
             )}
-            {/* <li className="nav-item">
+            <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
-            </li> */}
+            </li>
 
               { <li className="nav-item">
               <NavLink to="/orders" className="nav-link px-3">Orders</NavLink>
@@ -78,24 +81,6 @@ const Navbar = () => {
                 Sign In
               </Link>
             )}
-            {activeOrder && (
-              <li className="nav-item"> {/* <--- Missing Opening Tag */}
-                <NavLink
-                  to="/order/active"
-                  className="btn btn-outline-primary rounded-pill px-4 shadow-sm fw-bold d-flex align-items-center gap-2"
-                >
-                  <span style={{
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: '#10b981',
-                    borderRadius: '50%',
-                    display: 'inline-block'
-                  }}></span>
-                  Active Order
-                </NavLink>
-              </li>
-            )}
-
           </ul>
         </div>
       </div>

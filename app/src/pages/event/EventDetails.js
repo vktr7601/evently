@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
+
 const EventDetails = () => {
+    const [isAdmin, setIsAdmin] = useState(true); 
     const { id } = useParams();
     const [event, setEvent] = useState(null);
 
@@ -45,7 +47,7 @@ const EventDetails = () => {
                             <p className="fs-5 text-secondary mb-4" style={{ lineHeight: '1.8' }}>
                                 {event.description}
                             </p>
-                            
+
                             {/* Artist Mention */}
                             <div className="d-flex align-items-center mb-4 p-3 bg-white rounded-3 shadow-sm border" style={{ maxWidth: '400px' }}>
                                 <img src={event.artist.imageUrl} alt={event.artist.name} className="rounded-circle me-3" style={{ width: '50px', height: '50px', objectFit: 'cover' }} />
@@ -57,8 +59,18 @@ const EventDetails = () => {
                                 </div>
                             </div>
 
-                            <div className="d-flex gap-3">
-                                <a href="#dates" className="btn btn-primary btn-lg rounded-pill px-5">View Calendar</a>
+                            <div className="d-flex gap-3 mt-4">
+                                <a href="#dates" className="btn btn-primary btn-lg rounded-pill px-5">
+                                    View Calendar
+                                </a>
+                                {isAdmin && (
+                                    // <a href="#edit" className="btn btn-outline-primary btn-lg rounded-pill px-5">
+                                    //     Edit Event
+                                    // </a>
+                                    <Link to={`/admin/event-management/${event.id}`} className="btn btn-outline-primary btn-lg rounded-pill px-5">
+                                        Edit Event
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -106,7 +118,7 @@ const EventDetails = () => {
                                             {/* Action Column */}
                                             <div className="col-md-3 text-md-end mt-3 mt-md-0">
                                                 {loc.eventsLocationsStatus === 'AVAILABLE' ? (
-                                                    
+
                                                     <Link to={`/event-details/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
                                                         Book Tickets
                                                     </Link>

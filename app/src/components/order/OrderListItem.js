@@ -35,15 +35,20 @@ const OrderListItem = ({ order }) => {
                         ...getStatusStyles(order.orderStatus)
                     }}>
                         {order.orderStatus}
-                        {order.orderStatus === 'PENDING' && (
+                        {order.orderStatus === 'PENDING_PAYMENT' && (
                             <div>Finish The payment</div>
                         )}
                     </span>
                 </div>
-
-                <Link to={`/orders/details/${order.number}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
-                    View Details
-                </Link>
+                {order.orderStatus === 'PENDING_PAYMENT' ? (
+                    <Link to={`/order/active`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                        Finish Payment
+                    </Link>
+                ) : (
+                    <Link to={`/orders/details/${order.number}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                        View Details
+                    </Link>
+                )}
             </div>
         </div>
     );

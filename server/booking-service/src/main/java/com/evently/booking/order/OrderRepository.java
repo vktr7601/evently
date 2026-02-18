@@ -17,7 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         @Param("userId") Long userId
     );
 
-    @Query("SELECT o FROM Order o JOIN FETCH o.tickets WHERE  o.userId = :userId and o.status = 'PENDING_PAYMENT'")
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.tickets WHERE o.userId = :userId AND o.status = 'PENDING_PAYMENT'")
     Optional<Order> findPendingOrderByIdAndUserId(Long userId);
 
     @Query(value = """

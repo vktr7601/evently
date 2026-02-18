@@ -1,4 +1,4 @@
-package com.evently.booking.ticket;
+package com.evently.booking.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package com.evently.events.artists;
 
-import com.evently.events.artists.entities.ArtistDetailsdDto;
+import com.evently.events.artists.entities.ArtistDetails;
 import com.evently.events.artists.entities.ArtistListItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +24,9 @@ public class ArtistsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ArtistDetailsdDto> getArtistDetails(@PathVariable Long id) {
-        ArtistDetailsdDto artistDetailsdDto = artistsService.findArtistDetails(id);
+    public ResponseEntity<ArtistDetails> getArtistDetails(@PathVariable Long id) {
+        ArtistDetails artistDetailsDto = artistsService.findArtistDetails(id);
 
-        return ResponseEntity.ok(artistDetailsdDto);
+        return ResponseEntity.ok(artistDetailsDto);
     }
 }

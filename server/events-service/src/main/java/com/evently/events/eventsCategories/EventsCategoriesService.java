@@ -1,7 +1,6 @@
 package com.evently.events.eventsCategories;
 
 import com.evently.events.category.Category;
-import com.evently.events.category.CategoryRepository;
 import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.Event;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventsCategoriesService {
     private final EventsCategoriesRepository eventsCategoriesRepository;
-    private final CategoryRepository categoryRepository;
     private final EventsCategoriesMapper eventsCategoriesMapper;
     private final CategoryService categoryService;
 
@@ -31,8 +29,15 @@ public class EventsCategoriesService {
         List<EventsCategories> mapped = fetchedCategories.stream().map(cat -> eventsCategoriesMapper.toEventsCategories(event, cat)).toList();
 
         eventsCategoriesRepository.saveAll(mapped);
-        
+
         return fetchedCategories.stream().map(eventsCategoriesMapper::toCategoryDto).toList();
+    }
+
+    @Transactional
+    public List<CategoryDto> updateEventCategories(Event event, List<Long> categories) {
+        eventsCategoriesRepository.deleteEventsCategoriesByEventId(event.getId());
+
+        return categorize(event, categories);
     }
 
     @Transactional

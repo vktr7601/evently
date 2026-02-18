@@ -2,8 +2,10 @@ package com.evently.events.event;
 
 import com.evently.events.event.entities.EventDetailDto;
 import com.evently.events.event.entities.EventListItemDto;
-import com.evently.events.event.entities.EventRequestDto;
+import com.evently.events.event.entities.CreateEventRequest;
+import com.evently.events.event.entities.UpdateEventRequest;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -45,12 +47,20 @@ public class EventsController {
     }
 
     @PostMapping
-    public ResponseEntity<EventDetailDto> createEvent(@RequestBody EventRequestDto eventRequestDto) {
-        EventDetailDto createdEvent = eventService.createEvent(eventRequestDto);
+    public ResponseEntity<EventDetailDto> createEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
+        EventDetailDto createdEvent = eventService.createEvent(createEventRequest);
 
         log.info("Response sent: Successfully created event: {}", createdEvent.getName());
 
         return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
+    }
+
+    @PutMapping
+    public ResponseEntity<EventDetailDto> updateEvent(@RequestBody UpdateEventRequest updateEventRequest) {
+        eventService.updateEvent(updateEventRequest);
+
+
+        return ResponseEntity.ok(null);
     }
 
 

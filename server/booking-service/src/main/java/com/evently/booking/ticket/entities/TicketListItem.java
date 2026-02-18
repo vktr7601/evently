@@ -15,19 +15,7 @@ public class TicketListItem implements Serializable {
     private Long number;
     private String eventName;
     private String eventLocationName;
+    private TicketStatus status;
     private LocalDateTime eventDate;
     private BigDecimal price;
-
-//    public TicketListItem(long id, Long number, String eventName, String eventLocationName, LocalDateTime eventDate, BigDecimal price) {
-//        setId(id);
-//        setNumber(number);
-//        setEventName(eventName);
-//        setEventLocationName(eventLocationName);
-//        setEventDate(eventDate);
-//        setPrice(price);
-//    }
-//
-//    public TicketListItem() {
-//
-//    }
 }

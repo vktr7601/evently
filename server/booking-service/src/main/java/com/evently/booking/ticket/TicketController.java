@@ -1,11 +1,12 @@
 package com.evently.booking.ticket;
 
+import com.evently.booking.ticket.entities.TicketListItem;
+import dtos.Headers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,5 +19,15 @@ public class TicketController {
         ticketService.checkAvailability(eventLocationId, ticketsCount);
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping
+    public List<TicketListItem> getUserTickets(@RequestHeader(Headers.USER_ID) Long userId) {
+        return ticketService.getUserTickets(userId);
+    }
+
+    public void refundTicketRequest(@RequestHeader(Headers.USER_ID) Long userId, int ticketId) {
+        ticketService.refundTicket(userId, ticketId);
     }
 }

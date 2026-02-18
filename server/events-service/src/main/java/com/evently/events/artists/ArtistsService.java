@@ -1,6 +1,6 @@
 package com.evently.events.artists;
 
-import com.evently.events.artists.entities.ArtistDetailsdDto;
+import com.evently.events.artists.entities.ArtistDetails;
 import com.evently.events.artists.entities.ArtistListItem;
 import com.evently.events.artists.entities.ArtistMapper;
 import com.evently.events.config.S3BucketService;
@@ -9,6 +9,7 @@ import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,15 +23,17 @@ public class ArtistsService {
     private final ArtistMapper mapper;
     private final EventsLocationsService eventsLocationsService;
 
-    public ArtistDetailsdDto findArtistDetails(long id) {
-        ArtistDetailsdDto artistDetailsdDto = artistsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Artist with id " + id + " not found"));
-        List<EventsLocationsDto> allUpcomingEventsByArtistId = eventsLocationsService.findAllUpcomingEventsByArtistId(artistDetailsdDto.getId());
+    @Cacheable(cacheNames = "artists", key = "#id")
+    public ArtistDetails findArtistDetails(long id) {
+        ArtistDetails artistDetailsDto = artistsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Artist with id " + id + " not found"));
+        List<EventsLocationsDto> allUpcomingEventsByArtistId = eventsLocationsService.findAllUpcomingEventsByArtistId(artistDetailsDto.getId());
 
-        artistDetailsdDto.setLocations(allUpcomingEventsByArtistId);
+        artistDetailsDto.setLocations(allUpcomingEventsByArtistId);
 
-        return artistDetailsdDto;
+        return artistDetailsDto;
     }
 
+    @Cacheable(cacheNames = "artists", key = "'allArtistsSortedByDateDesc'")
     public List<ArtistListItem> findAllArtistsSortedByDateDesc() {
         List<ArtistListItem> allArtistsSortedByDateDesc = artistsRepository.findAllArtistsSortedByDateDesc();
 

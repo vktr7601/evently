@@ -1,6 +1,7 @@
 package com.evently.events.artists;
 
-import com.evently.events.artists.entities.ArtistDetailsdDto;
+import com.evently.events.artists.entities.ArtistDetails;
+
 import com.evently.events.artists.entities.ArtistListItem;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ public interface ArtistsRepository extends BaseRepository<Artist> {
     Optional<Artist> findByName(String name);
 
     @Query(value = """
-        SELECT  new com.evently.events.artists.entities.ArtistDetailsdDto(\
+        SELECT  new com.evently.events.artists.entities.ArtistDetails(
                 a.id,
                 a.name,
                 a.bio,
@@ -22,10 +23,10 @@ public interface ArtistsRepository extends BaseRepository<Artist> {
         FROM Artist a
         WHERE a.id = :id
         """)
-    Optional<ArtistDetailsdDto> findById(long id);
+    Optional<ArtistDetails> findById(long id);
 
     @Query(value = """
-        SELECT  new com.evently.events.artists.entities.ArtistListItem(\
+        SELECT  new com.evently.events.artists.entities.ArtistListItem(
                 a.id,
                 a.name,
                 a.bio,

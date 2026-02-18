@@ -1,5 +1,6 @@
 package com.evently.booking.order;
 
+import com.evently.booking.exceptions.OrderNotRefundableException;
 import com.evently.booking.order.entities.FinishOrderRequest;
 import com.evently.booking.order.entities.OrderDetailsDto;
 import com.evently.booking.order.entities.OrderListItemDto;
@@ -30,11 +31,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getActiveUserOrder(userId));
     }
 
-    @PutMapping("/expire")
-    public ResponseEntity<?> expireActiveUserOrder(@RequestHeader("X-User-Id") Long userId) {
-        orderService.expireActiveUserOrder(userId);
-        return ResponseEntity.noContent().build();
-    }
+//    @PutMapping("/expire")
+//    public ResponseEntity<?> expireActiveUserOrder(@RequestHeader("X-User-Id") Long userId) {
+//        orderService.expireActiveUserOrder(userId);
+//        return ResponseEntity.noContent().build();
+//    }
 
     @DeleteMapping("/cancel")
     public ResponseEntity<?> cancelOrder(@RequestHeader(Headers.USER_ID) Long userId) {
@@ -59,8 +60,6 @@ public class OrderController {
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestHeader(Headers.USER_ID) Long userId, @RequestBody FinishOrderRequest finishOrderRequest) {
         orderService.finishActiveUserOrder(userId, finishOrderRequest);
-
         return ResponseEntity.noContent().build();
     }
-
 }
