@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useState } from 'react';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem("userToken");
-
+  // const isAuthenticated = !!localStorage.getItem("userToken");
+  const isAuth = false;
   const handleSignOut = () => {
     localStorage.removeItem("userToken");
     navigate("/login");
@@ -27,24 +29,39 @@ const Navbar = () => {
             <li className="nav-item">
               <NavLink to="/events" className="nav-link px-3">Events</NavLink>
             </li>
+            <li className='nav-item'>
+              <NavLink to="/events/create" className="nav-link px-3">Create Event</NavLink>
+            </li>
             <li className="nav-item">
               <NavLink to="/artists" className="nav-link px-3">Artists</NavLink>
             </li>
-            <li className="nav-item">
-              <NavLink to="/notification" className="nav-link px-3">Mail</NavLink>
-            </li>
+            {isAuth && (
+              <li className="nav-item">
+                <NavLink to="/notifications" className="nav-link px-3">Inbox</NavLink>
+              </li>
+            )}
             <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
             </li>
-            <li className="nav-item">
+             <li className="nav-item">
+              <NavLink to="/admin/location/create" className="nav-link px-3">Create Location</NavLink>
+            </li>
+            {<li className="nav-item">
+              <NavLink to="/orders" className="nav-link px-3">Orders</NavLink>
+            </li>}
+            {isAuth ? (
+              <li className="nav-item" >
+                <NavLink to="/profile" className="nav-link px-3">My Profile</NavLink>
+              </li>
+            ) : (
               <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
                 Sign In
               </Link>
-            </li>
+            )}
           </ul>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 };
 

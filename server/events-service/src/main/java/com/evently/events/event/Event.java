@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "events")
 public class Event extends BaseEntity {
     @OneToMany(mappedBy = "event")
-    public List<EventsLocations> eventsVenues;
+    public List<EventsLocations> eventLocations;
     @Column(name = "name", unique = true, nullable = false, length = 256)
     private String name;
     @Column(name = "description", nullable = false, length = 1024)
@@ -24,5 +24,15 @@ public class Event extends BaseEntity {
     private String imageUrl;
     @ManyToOne
     @JoinColumn(name = "artist_id", nullable = false)
-    public Artist artist;
+    private Artist artist;
+
+    @Column(name = "active")
+    private boolean isActive;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        //todo: change to false
+        isActive = true;
+    }
 }

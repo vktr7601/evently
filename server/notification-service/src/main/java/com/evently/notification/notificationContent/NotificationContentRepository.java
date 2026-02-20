@@ -1,8 +1,8 @@
 package com.evently.notification.notificationContent;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import utils.BaseRepository;
 
 @Repository
-public interface NotificationContentRepository extends BaseRepository<NotificationContent> {
+public interface NotificationContentRepository extends JpaRepository<NotificationContent, Long> {
 }

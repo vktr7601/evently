@@ -1,61 +1,30 @@
 package com.evently.events.eventsLocations;
 
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import com.evently.events.eventsLocations.entities.EventsLocationsStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import utils.BaseRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface EventsLocationsRepository extends BaseRepository<EventsLocations> {
-    //    @Query(value = """
-//            SELECT new com.evently.events.eventsLocations.entities.EventOccurrenceDTO(
-//                loc.name,
-//                e.name,
-//                el.date,
-//                e.description,
-//                el.price
-//            )
-//            FROM EventsVenues  el
-//            JOIN el.event e
-//            JOIN el.location loc
-//            JOIN e.eventsLocations ec
-//            JOIN ec c
-//            WHERE c.name = :categoryName
-//            ORDER BY el.date
-//            """)
-    //  List<EventOccurrenceDTO> findAllByCategoryName(@Param("categoryName") String categoryName);
-//    List<EventOccurrenceDTO> findallBy(String categoryName);
-
-
-    //    @Query(value = """
-//            SELECT new com.evently.events.event.entities.EventDto(
-//            e.name,
-//        e.description,
-//            e.imageUrl,
-//                        null ,
-//            p.name,
-//            e.id)
-//            FROM EventsVenues  el
-//                      JOIN el.event e
-//                    JOIN Artist as p on e.artist.id =p.id
-//                      WHERE el.location.id = :id
-//        """)
-    //  List<EventDto> findAllByVenueId(@Param("id") long venueId);
-
+public interface EventsLocationsRepository extends JpaRepository<EventsLocations, Long> {
     @Query(value = """
-            SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
-                el.id,
-                e.id,
-                loc.id,
-                e.name,
-                loc.name,
-                el.date,
-                el.price,
-                el.eventsLocationsStataus
-            )
+         SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                                        el.id,
+                                        e.id,
+                                        loc.id,
+                                        e.name,
+                                        loc.name,
+                                        el.date,
+                                        el.eventsLocationsStatus,
+                                        el.price,
+                                        el.totalTickets)
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
             JOIN el.location loc ON loc.id = el.location.id
@@ -65,36 +34,37 @@ public interface EventsLocationsRepository extends BaseRepository<EventsLocation
     List<EventsLocationsDto> findUpcomingEventLocationsByEventId(@Param("eventId") long eventId);
 
     @Query(value = """
+
             SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
-                el.id,
-                e.id,
-                loc.id,
-                e.name,
-                loc.name,
-                el.date,
-                el.price,
-                el.eventsLocationsStataus
-            )
-            FROM EventsLocations el
-            JOIN el.event e ON e.id = el.event.id
-            JOIN el.event.artist a ON a.id = e.artist.id
-            JOIN el.location loc ON loc.id = el.location.id
-            WHERE  el.event.artist.id = :artistId AND el.date > CURRENT_DATE
-            ORDER BY el.date ASC
+                                             el.id,
+                                             e.id,
+                                             loc.id,
+                                             e.name,
+                                             loc.name,
+                                             el.date,
+                                             el.eventsLocationsStatus,
+                                             el.price,
+                                             el.totalTickets)
+                 FROM EventsLocations el
+                 JOIN el.event e ON e.id = el.event.id
+                 JOIN el.event.artist a ON a.id = e.artist.id
+                 JOIN el.location loc ON loc.id = el.location.id
+                 WHERE  el.event.artist.id = :artistId AND el.date > CURRENT_DATE
+                 ORDER BY el.date ASC
         """)
     List<EventsLocationsDto> findAllUpcomingEventsByArtistId(@Param("artistId") long artistId);
 
     @Query(value = """
-            SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
-                el.id,
-                e.id,
-                loc.id,
-                e.name,
-                loc.name,
-                el.date,
-                el.price,
-                el.eventsLocationsStataus
-            )
+           SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                   el.id,
+                   e.id,
+                   loc.id,
+                   e.name,
+                   loc.name,
+                   el.date,
+                   el.eventsLocationsStatus,
+                   el.price,
+                   el.totalTickets)
             FROM EventsLocations el
             JOIN el.event e ON e.id = el.event.id
             JOIN el.location loc ON loc.id = el.location.id
@@ -103,8 +73,74 @@ public interface EventsLocationsRepository extends BaseRepository<EventsLocation
         """)
     List<EventsLocationsDto> findAllUpcomingEventsByLocationId(@Param("locationId") long id);
 
-    @Override
-    default String getEntityName() {
-        return "EventsLocations";
-    }
+    @Query(value = """
+           SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                                        el.id,
+                                        e.id,
+                                        loc.id,
+                                        e.name,
+                                        loc.name,
+                                        el.date,
+                                        el.eventsLocationsStatus,
+                                        el.price,
+                                        el.totalTickets)
+
+            FROM EventsLocations el
+            JOIN el.event e ON e.id = el.event.id
+            JOIN el.location loc ON loc.id = el.location.id
+            WHERE el.id = :id
+        """)
+    Optional<EventsLocationsDto> findEventLocationById(@Param("id") long id);
+
+    @Query(value = """
+          SELECT new com.evently.events.eventsLocations.entities.EventsLocationsDto(
+                                        el.id,
+                                        e.id,
+                                        loc.id,
+                                        e.name,
+                                        loc.name,
+                                        el.date,
+                                        el.eventsLocationsStatus,
+                                        el.price,
+                                        el.totalTickets)
+            FROM EventsLocations el
+            JOIN el.event e ON e.id = el.event.id
+            JOIN el.location loc ON loc.id = el.location.id
+            WHERE el.id in :eventLocationIds
+        """)
+    List<EventsLocationsDto> findAllInList(@Param("eventLocationIds") List<Long> eventLocationIds);
+
+    @Query(value = """
+         SELECT CASE COUNT (el) WHEN 0 THEN false ELSE true END
+         FROM EventsLocations el
+         JOIN el.location loc ON loc.id = el.location.id
+        AND el.date >= :startOfDay AND el.date <= :endOfDay
+         WHERE loc.id = :locationId
+        """)
+    boolean hasEventForLocationInSpecificDate(@Param("locationId") long locationId, @Param("startOfDay") LocalDateTime date, @Param("endOfDay") LocalDateTime endDate);
+
+
+    @Query(value = """
+         SELECT el
+         FROM EventsLocations el
+         JOIN el.location loc ON loc.id = el.location.id
+        AND el.date >= :startOfDay AND el.date <= :endOfDay
+         WHERE loc.id = :locationId
+        """)
+    EventsLocations findByEventLocationIdAndEventIdAndStartDate(@Param("locationId") long locationId, @Param("startOfDay") LocalDateTime date, @Param("endOfDay") LocalDateTime endDate);
+
+    @Query("SELECT el.id FROM EventsLocations el WHERE el.date < :now AND el.eventsLocationsStatus = :status")
+    List<Long> findIdsByStatusAndDate(
+        @Param("now") LocalDateTime now,
+        @Param("status") EventsLocationsStatus status
+    );
+
+    @Modifying
+    @Query("UPDATE EventsLocations el SET el.eventsLocationsStatus = :newStatus WHERE el.id IN :ids")
+    void updateStatusByIds(
+        @Param("ids") List<Long> ids,
+        @Param("newStatus") EventsLocationsStatus newStatus
+    );
+
+
 }

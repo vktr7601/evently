@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "userPreferencesList", ignore = true)
+    @Mapping(target = "categoryFollowList", ignore = true)
     User toEntity(UserRequest user);
 
     AuthUser toAuthUser(User user);

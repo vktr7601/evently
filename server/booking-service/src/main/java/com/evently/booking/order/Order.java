@@ -1,0 +1,59 @@
+package com.evently.booking.order;
+
+import com.evently.booking.order.data.OrderStatus;
+import com.evently.booking.ticket.Ticket;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import utils.BaseEntity;
+import utils.NumberGenerator;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Getter
+@Setter
+@Entity
+@Table(name = "orders")
+public class Order extends BaseEntity {
+    @Column(name = "userId")
+    private long userId;
+    @Column(name = "totalPrice")
+    private BigDecimal totalPrice = BigDecimal.ZERO;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Ticket> tickets = new ArrayList<>();
+    @Column(name = "expirationTime")
+    private LocalDateTime expirationTime;
+    @Column(name = "number")
+    private Long number;
+    @Column(name = "active")
+    private boolean active;
+    @Column(name = "audit")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String audit;
+    @Column(name = "transactionId")
+    private String transactionId;
+    @Column(name = "refundId")
+    private String refundId;
+    @Column(name = "refundTime")
+    private LocalDateTime refundTime;
+
+    public void addTicket(Ticket ticket) {
+        tickets.add(ticket);
+        ticket.setOrder(this);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        expirationTime = LocalDateTime.now().plusMinutes(10);
+        number = NumberGenerator.generateUniqueNumber();
+    }
+}

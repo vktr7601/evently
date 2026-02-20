@@ -1,36 +1,46 @@
 package com.evently.booking.ticket;
 
-import dtos.CreateTicketsDto;
+import com.evently.booking.order.OrderService;
+import com.evently.booking.ticket.entities.TicketListItem;
+import dtos.Headers;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping
 @RequiredArgsConstructor
+@RequestMapping("/tickets")
 public class TicketController {
-    private final TicketRepository ticketRepository;
-    private final TicketMapper ticketMapper;
+    private final TicketService ticketService;
+    private final OrderService orderService;
 
-    @PostMapping("/create-tickets")
-    public boolean createTickets(@RequestBody List<CreateTicketsDto> data) {
-        for (CreateTicketsDto ticket : data) {
-            List<Ticket> tickets = new ArrayList<>();
-            for (int i = 0; i < ticket.ticketsCount(); i++) {
-                Ticket ticket1 = new Ticket();
-                ticket1.setEventVenueId(ticket.eventVenueId());
-                ticket1.setDateTime(ticket.dateTime());
-                tickets.add(ticket1);
-            }
-            
-            ticketRepository.saveAll(tickets);
+    @GetMapping("/availability")
+    public ResponseEntity<?> checkAvailability(@RequestParam("eventLocationId"
+    ) long eventLocationId, @RequestParam("ticketsCount") int ticketsCount) {
+        boolean result = ticketService.checkAvailability(eventLocationId,
+                ticketsCount);
+        if (result) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(409).body("Not enough tickets " +
+                    "available for the requested event location.");
         }
+    }
 
-        return true;
+    @GetMapping
+    public List<TicketListItem> getUserTickets(@RequestHeader(Headers.USER_ID) Long userId) {
+        return ticketService.getUserTickets(userId);
+    }
+
+    public void refundTicketRequest(@RequestHeader(Headers.USER_ID) Long userId, int ticketId) {
+        ticketService.refundTicket(userId, ticketId);
+    }
+
+
+    public void handleEventCancellationEvent(int eventLocations) {
+        Ticket allTicketsForSpecificEventLocation =
+                ticketService.findAllTicketsForSpecificEventLocation(eventLocations);
     }
 }

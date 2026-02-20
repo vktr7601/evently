@@ -8,6 +8,6 @@ INSERT INTO notification_content (title, html_body, created_at, updated_at) VALU
 -- -- Assuming the IDs generated above are 1, 2, and 3
 -- -- Note: 'notification_content' matches your @JoinColumn(name = "notification_content")
 INSERT INTO notifications (user_id, content_id, is_read, is_deleted, created_at, updated_at) VALUES
-                                                                                                       (1, 1, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                       (1, 2, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-                                                                                                       (1, 3, true,  false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+                                                                                                       (2, 1, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                       (2, 2, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+                                                                                                       (2, 3, true,  false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

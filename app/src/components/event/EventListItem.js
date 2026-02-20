@@ -33,7 +33,7 @@ import { Link } from "react-router-dom";
                     <span className="text-dark fw-bold small">
                         <i className="bi bi-person me-1"></i>
                         <Link
-                            to={`/artists/${event.artist.id}`} 
+                            to={`/artists/${event.artist.id}`}
                             className="text-decoration-none text-primary"
                             style={{ fontSize: '0.85rem' }}
                         >

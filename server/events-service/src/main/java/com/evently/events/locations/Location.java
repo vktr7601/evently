@@ -20,5 +20,5 @@ public class Location extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "location")
-    private List<EventsLocations> eventsVenues;
+    private List<EventsLocations> eventsLocations;
 }

@@ -1,14 +1,14 @@
 package com.evently.events.eventsCategories;
 
 import com.evently.events.category.Category;
-import com.evently.events.category.CategoryRepository;
+import com.evently.events.category.CategoryService;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.Event;
 import com.evently.events.event.entities.EventListItemDto;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
 import com.evently.events.eventsCategories.entities.EventsCategoriesMapper;
-import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,33 +16,56 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventsCategoriesService {
     private final EventsCategoriesRepository eventsCategoriesRepository;
-    private final CategoryRepository categoryRepository;
     private final EventsCategoriesMapper eventsCategoriesMapper;
+    private final CategoryService categoryService;
 
-    public List<Category> categorize(Event event, List<String> categories) {
-        List<Category> fetchedCategories = categoryRepository.findAllByNameIn(categories);
-        if (fetchedCategories.size() != categories.size())
-            throw new ResourceNotFoundException("Category not found");
+    @Transactional
+    public List<CategoryDto> categorizeEvent(Event event,
+                                             List<Long> categories) {
+        log.info("Categorizing event ID: {} with {} categories",
+                event.getId(), categories.size());
 
-        List<EventsCategories> mapping = fetchedCategories.stream().map(x -> eventsCategoriesMapper.toEventsCategories(event, x)).toList();
+        List<Category> fetchedCategories =
+                categoryService.findAllByIdIn(categories);
+        log.debug("Fetched {} categories for event ID: {}",
+                fetchedCategories.size(), event.getId());
 
-        eventsCategoriesRepository.saveAll(mapping);
+        List<EventsCategories> mapped = fetchedCategories.stream()
+                .map(cat -> eventsCategoriesMapper.toEventsCategories(event,
+                        cat))
+                .toList();
 
-        return fetchedCategories;
+        eventsCategoriesRepository.saveAll(mapped);
+        log.info("Successfully categorized event ID: {} with categories: {}",
+                event.getId(),
+                fetchedCategories.stream().map(Category::getName).toList());
+
+        return fetchedCategories.stream()
+                .map(eventsCategoriesMapper::toCategoryDto)
+                .toList();
+    }
+
+    @Transactional
+    public List<CategoryDto> updateEventCategories(Event event,
+                                                   List<Long> categories) {
+        eventsCategoriesRepository.deleteEventsCategoriesByEventId(event.getId());
+
+        return categorizeEvent(event, categories);
     }
 
     @Transactional
     public void addCategoriesToEventListItems(List<EventListItemDto> events) {
-        List<Long> eventIds = events.stream().map(EventListItemDto::getId).toList();
-        Map<Long, List<CategoryDto>> eventCategoryMap = findAllCategoriesByEventIds(eventIds);
+        List<Long> eventIds =
+                events.stream().map(EventListItemDto::getId).toList();
+        Map<Long, List<CategoryDto>> eventCategoryMap =
+                findAllCategoriesByEventIds(eventIds);
 
-        events.forEach(e -> e.setCategoryDtoList(
-            eventCategoryMap.getOrDefault(e.getId(), List.of())
-        ));
+        events.forEach(e -> e.setCategoryDtoList(eventCategoryMap.getOrDefault(e.getId(), List.of())));
     }
 
     public List<EventCategoriesDto> getEventsByCategoryName(String categoryName) {
@@ -54,9 +77,11 @@ public class EventsCategoriesService {
     }
 
     private Map<Long, List<CategoryDto>> findAllCategoriesByEventIds(List<Long> eventIds) {
-        List<EventCategoriesDto> eventCategoriesDtos = eventsCategoriesRepository.findAllCategoriesByEventIds(eventIds);
+        List<EventCategoriesDto> eventCategoriesDtos =
+                eventsCategoriesRepository.findAllCategoriesByEventIds(eventIds);
 
-        Map<Long, List<CategoryDto>> categoriesByEvent = eventCategoriesDtos.stream().collect(Collectors.groupingBy(EventCategoriesDto::getEventId, Collectors.mapping(eventsCategoriesMapper::toCategoryDto, Collectors.toList())));
+        Map<Long, List<CategoryDto>> categoriesByEvent =
+                eventCategoriesDtos.stream().collect(Collectors.groupingBy(EventCategoriesDto::getEventId, Collectors.mapping(eventsCategoriesMapper::toCategoryDto, Collectors.toList())));
 
         return categoriesByEvent;
     }
