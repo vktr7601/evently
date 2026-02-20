@@ -17,6 +17,6 @@ public interface EventServiceClient {
 //    @PostMapping("/internal/event-locations/by-ids")
 //    Map<Long, EventsLocationsDto> getLocations(@RequestBody List<Long> ids);
 
-    @PostMapping("/byIds")
+    @PostMapping("/internal/event-locations/byIds")
     List<EventsLocationsDto> getLocations(@RequestBody List<Long> ids);
 }

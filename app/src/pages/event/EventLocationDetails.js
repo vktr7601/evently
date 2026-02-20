@@ -21,6 +21,7 @@ const LocationDetails = () => {
                 // Fetching from your event location endpoint
                 const response = await axios.get(`http://localhost:8082/events/${id}/location`);
                 setOccurrence(response.data);
+                console.log("Fetched event location details:", response.data);
             } catch (err) {
                 setError('Failed to load event location details.');
                 console.error(err);
@@ -37,7 +38,7 @@ const LocationDetails = () => {
             // 1. Check Availability
             const availRes = await axios.get(`http://localhost:8081/tickets/availability`, {
                 params: {
-                    eventLocationId: occurrence.eventLocationId,
+                    eventLocationId: occurrence.id,
                     ticketsCount: quantity
                 }
             });
@@ -46,9 +47,9 @@ const LocationDetails = () => {
             if (availRes.status === 200) {
                 localStorage.setItem('hasActiveOrder', true);
                 const orderRes = await axios.post("http://localhost:8081/orders", {
-                    event_location_id: occurrence.eventLocationId,
-                    tickets_count: quantity,
-                    date_time: occurrence.eventStartTime
+                    eventLocationId: occurrence.id,
+                    ticketsCount: quantity,
+                    eventStartTime: occurrence.eventStartTime
                 }, {
                     // This is your Config Object
                     headers: {
@@ -68,7 +69,7 @@ const LocationDetails = () => {
                 setError("Insufficient tickets available. This event may have just sold out. Please try again."); 
                 setShowMaintenanceMode(true);
             }
-            else if (err.status === 404) setError('Event or tickets not found.');
+            else if (err.response?.status === 404) setError('Event or tickets not found.');
             else setError('Service unavailable. Please try again later.');
         }
     };

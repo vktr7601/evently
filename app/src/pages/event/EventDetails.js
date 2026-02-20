@@ -23,7 +23,7 @@ const EventDetails = () => {
         switch (loc.eventsLocationsStatus) {
             case 'AVAILABLE':
                 return (
-                    <Link to={`/event-details/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                    <Link to={`/event-details/${loc.id}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
                         Book Tickets
                     </Link>
                 );
@@ -58,7 +58,7 @@ const EventDetails = () => {
                     <div className="row align-items-center">
                         <div className="col-lg-4 mb-4 mb-lg-0">
                             <img
-                                src={event.imageUrl}
+                                src={event.eventImageUrl}
                                 alt={event.name}
                                 className="img-fluid rounded-4 shadow-lg w-100"
                                 style={{ objectFit: 'cover', height: '400px' }}
@@ -74,7 +74,7 @@ const EventDetails = () => {
                             </div>
                             <h1 className="display-3 fw-black text-dark mb-3">{event.name}</h1>
                             <p className="fs-5 text-secondary mb-4" style={{ lineHeight: '1.8' }}>
-                                {event.description}
+                                {event.eventDescription}
                             </p>
 
                             {/* Artist Mention */}
@@ -117,8 +117,8 @@ const EventDetails = () => {
                     <div className="row g-4">
                         {event.eventLocations && event.eventLocations.length > 0 ? (
                             event.eventLocations.map((loc) => (
-                                <div key={loc.eventLocationId} className="col-12">
-                                    <div className={`card border-0 shadow-sm p-3 transition-hover ${loc.status === 'SOLD_OUT' ? 'opacity-75' : ''}`}>
+                                <div key={loc.id} className="col-12">
+                                    <div className={`card border-0 shadow-sm p-3 transition-hover ${loc.eventsLocationsStatus === 'SOLD_OUT' ? 'opacity-75' : ''}`}>
                                         <div className="row align-items-center text-center text-md-start">
                                             {/* Date/Time Column */}
                                             <div className="col-md-2 border-end-md">

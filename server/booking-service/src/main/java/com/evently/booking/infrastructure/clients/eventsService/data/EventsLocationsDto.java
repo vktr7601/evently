@@ -10,13 +10,13 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static lombok.AccessLevel.*;
+import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Setter(PROTECTED)
 @NoArgsConstructor
 public class EventsLocationsDto implements Serializable {
-    @JsonProperty("eventLocationId")
+    @JsonProperty("id")
     private long id;
     @JsonProperty("eventId")
     private long eventId;
@@ -34,6 +34,4 @@ public class EventsLocationsDto implements Serializable {
     private BigDecimal pricePerTicket;
     @JsonProperty("ticketsCount")
     private long ticketsCount;
-
-
 }

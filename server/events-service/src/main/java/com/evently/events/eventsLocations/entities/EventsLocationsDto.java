@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor()
 @AllArgsConstructor
 public class EventsLocationsDto implements Serializable {
-    @JsonProperty("eventLocationId")
+    @JsonProperty("id")
     private long id;
     @JsonProperty("eventId")
     private long eventId;

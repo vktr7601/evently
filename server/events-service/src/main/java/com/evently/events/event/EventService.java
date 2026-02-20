@@ -40,7 +40,8 @@ public class EventService {
     private final EventsLocationsService eventsLocationsService;
     private final EventRepository eventRepository;
     private final ArtistsService artistsService;
-    private final EventMapper eventMapper;
+    //  private final EventMapper eventMapper;
+    private final EventsMapper eventsMapper;
     private final LocationService locationService;
     private final KafkaProducer kafkaProducer;
     private final EventsLocationsRepository eventsLocationsRepository;
@@ -118,7 +119,7 @@ public class EventService {
 
         Artist artist = artistsService.findById(eventRequestDto.getArtistId());
 
-        Event event = eventMapper.toEntity(eventRequestDto, artist);
+        Event event = eventsMapper.toEntity(eventRequestDto, artist);
 
         eventRepository.save(event);
 
@@ -144,7 +145,7 @@ public class EventService {
 
         eventPublisher.publishEvent(eventCreated);
 
-        return eventMapper.toDetailDto(event, eventLocations, categories);
+        return eventsMapper.toDetailDto(event, eventLocations, categories);
     }
 
 

@@ -92,8 +92,8 @@ const OrderPayment = () => {
                     </div>
 
                     <div style={styles.ticketList}>
-                        {order?.ticketListItems ? order.ticketListItems.map((t) => {
-                            const dateObj = formatDateObj(t.eventDate);
+                        {order?.tickets ? order.tickets.map((t) => {
+                            const dateObj = formatDateObj(t.eventStartTime);
                             return (
                                 <div key={t.id} style={styles.ticketCard}>
                                     <div style={styles.ticketGrid}>

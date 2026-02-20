@@ -17,15 +17,17 @@ public class TicketController {
     private final OrderService orderService;
 
     @GetMapping("/availability")
-    public ResponseEntity<?> checkAvailability(@RequestParam("eventLocationId") long eventLocationId, @RequestParam("ticketsCount") int ticketsCount) {
-        boolean result = ticketService.checkAvailability(eventLocationId, ticketsCount);
-        if(result) {
+    public ResponseEntity<?> checkAvailability(@RequestParam("eventLocationId"
+    ) long eventLocationId, @RequestParam("ticketsCount") int ticketsCount) {
+        boolean result = ticketService.checkAvailability(eventLocationId,
+                ticketsCount);
+        if (result) {
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.status(409).body("Not enough tickets available for the requested event location.");
+            return ResponseEntity.status(409).body("Not enough tickets " +
+                    "available for the requested event location.");
         }
     }
-
 
     @GetMapping
     public List<TicketListItem> getUserTickets(@RequestHeader(Headers.USER_ID) Long userId) {
@@ -38,6 +40,7 @@ public class TicketController {
 
 
     public void handleEventCancellationEvent(int eventLocations) {
-        Ticket allTicketsForSpecificEventLocation = ticketService.findAllTicketsForSpecificEventLocation(eventLocations);
+        Ticket allTicketsForSpecificEventLocation =
+                ticketService.findAllTicketsForSpecificEventLocation(eventLocations);
     }
 }

@@ -19,8 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
-//    private final EventsLocationsService eventsLocationsService;
-
+    
     private final BookingServiceClient bookingServiceClient;
 
     @Transactional

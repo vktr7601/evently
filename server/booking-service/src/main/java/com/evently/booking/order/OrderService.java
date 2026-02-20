@@ -10,6 +10,7 @@ import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException
 import com.evently.booking.infrastructure.exceptions.ProcessOrderException;
 import com.evently.booking.order.data.OrderMapper;
 import com.evently.booking.order.data.OrderStatus;
+import com.evently.booking.order.data.OrdersMapper;
 import com.evently.booking.order.entities.*;
 import com.evently.booking.ticket.Ticket;
 import com.evently.booking.ticket.TicketService;
@@ -37,7 +38,8 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final TicketService ticketService;
-    private final OrderMapper orderMapper;
+    //    private final OrderMapper orderMapper;
+    private final OrdersMapper ordersMapper;
     private final ObjectMapper objectMapper;
     private final PaymentServiceClient paymentServiceClient;
     private final EventServiceClient eventServiceClient;
@@ -360,7 +362,7 @@ public class OrderService {
 
 
     OrderDetails mapToDto(Order order, List<TicketListItem> listItems) {
-        OrderDetails orderDto = orderMapper.toDto(order, listItems);
+        OrderDetails orderDto = ordersMapper.toDto(order, listItems);
 
         BigDecimal totalSum =
                 listItems.stream().map(TicketListItem::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);

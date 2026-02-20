@@ -1,7 +1,7 @@
 package com.evently.events.category;
 
-import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.category.entities.CategoryMapper;
+import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.category.entities.CategoryRequest;
 import exceptions.DuplicateResourceException;
 import lombok.RequiredArgsConstructor;

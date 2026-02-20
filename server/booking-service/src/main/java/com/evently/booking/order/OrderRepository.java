@@ -19,7 +19,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     );
 
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.tickets WHERE o.userId = :userId AND o.status = 'PENDING_PAYMENT'")
-    Optional<Order> findPendingOrderByIdAndUserId(Long userId);
+    Optional<Order> findPendingOrderByIdAndUserId(@Param("userId") Long userId);
 
     @Query(value = """
         SELECT new com.evently.booking.order.entities.OrderListItemDto(
