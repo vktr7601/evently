@@ -23,22 +23,15 @@ const OrderDetails = () => {
         fetchOrderDetails();
     }, [number]);
 
-    const downloadS3Image = async (imageUrl) => {
+
+    const handleCancelOrder = async () => {
         try {
-            // Using your specific S3 link as per your snippet
-            const response = await fetch('https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ancient_city_of_nesebar.jpg');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = `Ticket-${number}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
+            await axios.post(`http://localhost:8081/orders/cancel/${number}`, {}, {
+                headers: { "X-User-Id": 1 }
+            });
+            alert("Order cancelled successfully.");
         } catch (err) {
-            alert("Could not download ticket image.");
+            alert("Could not cancel order.");
         }
     };
 
@@ -47,7 +40,7 @@ const OrderDetails = () => {
 
     return (
         <div className="container my-5" style={{ maxWidth: '1100px' }}>
-            
+
             {/* --- TOP SECTION: ORDER OVERVIEW --- */}
             <div className="card border-0 shadow-lg rounded-4 overflow-hidden mb-5">
                 <div className="card-header bg-white border-0 p-4 pt-5">
@@ -64,14 +57,13 @@ const OrderDetails = () => {
                                 <span className="badge bg-info-subtle text-info mt-2">Transaction ID: {order.transactionId}</span>
                             )}
                         </div>
-                        <span className={`badge rounded-pill px-4 py-2 fs-6 ${
-                            order.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'
-                        }`}>
+                        <span className={`badge rounded-pill px-4 py-2 fs-6 ${order.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'
+                            }`}>
                             {order.status.replace('_', ' ')}
                         </span>
                     </div>
                 </div>
-                
+
                 <div className="card-body p-4 pb-5">
                     <div className="row g-4 text-center text-md-start">
                         <div className="col-md-3 border-end-md">
@@ -96,7 +88,13 @@ const OrderDetails = () => {
                                     Download Invoice
                                 </button>
                             )}
+
+                            <button onClick={handleCancelOrder} className="btn btn-danger btn-lg rounded-pill px-5 fw-bold shadow ms-3">
+                                Cancel Order
+                            </button>
                         </div>
+
+
                     </div>
                 </div>
             </div>
@@ -111,7 +109,7 @@ const OrderDetails = () => {
                             <div className="col-md-4 border-end-md">
                                 <h5 className="fw-bold mb-1 text-primary">{ticket.eventName}</h5>
                                 <div className="text-secondary small fw-medium">
-                                     {ticket.eventLocationName}
+                                    {ticket.eventLocationName}
                                 </div>
                             </div>
 
@@ -124,22 +122,24 @@ const OrderDetails = () => {
                                     })}
                                 </h6>
                             </div>
-
                             {/* 3. Ticket Number */}
-                            <div className="col-md-2 border-end-md">
+                            {/* <div className="col-md-2 border-end-md">
                                 <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Ticket ID</label>
                                 <code className="fw-bold text-dark fs-6">#{ticket.number}</code>
-                            </div>
+                            </div> */}
 
                             {/* 4. Action */}
                             <div className="col-md-3 text-md-end">
-                                <button 
-                                    onClick={() => downloadS3Image(ticket.imageUrl)}
+                                <button
                                     className="btn btn-light border rounded-pill px-4 py-2 fw-bold w-100"
                                 >
                                     <i className="bi bi-download me-2"></i> Download PDF
                                 </button>
                             </div>
+
+                            <button className="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow">
+                                Refund Ticket
+                            </button>
                         </div>
                     </div>
                 ))}

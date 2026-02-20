@@ -44,29 +44,35 @@ const LocationDetails = () => {
             });
 
 
-            if (availRes.status === 200) {
-                localStorage.setItem('hasActiveOrder', true);
+            try {
                 const orderRes = await axios.post("http://localhost:8081/orders", {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity,
                     eventStartTime: occurrence.eventStartTime
                 }, {
-                    // This is your Config Object
-                    headers: {
-                        'X-User-Id': `1`,
-                    }
+                    headers: { 'X-User-Id': 1 }
                 });
 
-                // 3. Navigate to Payment
-                navigate(`/order/active/`);
+                // 1. Validate the creation was successful (201 Created)
+                if (orderRes.status === 201 || orderRes.status === 204) {
+
+                    // 2. Sync your localStorage immediately
+                    console.log("Order created successfully:", orderRes.data);
+
+                    navigate(`/order/active`);
+                }
+            } catch (err) {
+                // 4. Handle specific backend errors (e.g., "User already has an active order")
+                const errorMessage = err.response?.data?.message || "Could not create order";
+                alert(errorMessage);
             }
         } catch (err) {
             console.error("Data:", err.response.data);
-        console.error("Status:", err.response.status);
-           // const status = err.response?.status;
+            console.error("Status:", err.response.status);
+            // const status = err.response?.status;
             if (err.response?.status === 400) setError('Insufficient tickets available.');
             if (err.response?.status === 409) {
-                setError("Insufficient tickets available. This event may have just sold out. Please try again."); 
+                setError("Insufficient tickets available. This event may have just sold out. Please try again.");
                 setShowMaintenanceMode(true);
             }
             else if (err.response?.status === 404) setError('Event or tickets not found.');

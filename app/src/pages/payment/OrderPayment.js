@@ -13,32 +13,76 @@ const OrderPayment = () => {
     const [cardNumber, setCardNumber] = useState("");
     const [expiry, setExpiry] = useState("");
     const [cvc, setCvc] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMsg, setModalMsg] = useState("");
+
+    const [isLoadingOrder, setIsLoadingOrder] = useState(false); // New safety flag
 
     useEffect(() => {
-        const headers = { "X-User-Id": 1 };
-        axios.get(`http://localhost:8081/orders/active`, { headers })
-            .then(res => setOrder(res.data))
-            .catch(err => console.error("Error fetching order:", err));
-    }, []);
+        // Prevent multiple simultaneous fetches
+        if (isLoadingOrder || order) return;
 
+        setIsLoadingOrder(true);
+        const headers = { "X-User-Id": 1 };
+
+        axios.get(`http://localhost:8081/orders/active`, { headers })
+            .then(res => {
+                setOrder(res.data);
+                setIsLoadingOrder(false);
+            })
+            .catch(err => {
+                setIsLoadingOrder(false);
+                console.error("Error fetching active order:", err);
+                // If 410, you might want to redirect to events
+                if (err.response?.status === 410) {
+                    navigate('/events');
+                }
+            });
+    }, []); // Technically correct, but added safety check above
+    const handleHappyPathTest = () => {
+        setCardNumber("4242 4242 4242 4242"); // Standard Stripe success card
+        setExpiry("12/28");
+        setCvc("123");
+        // You can also pre-set a valid promo code if you have one
+        if (typeof setPromoCode === 'function') setPromoCode("WELCOME20");
+
+        console.log("🧪 Test data preloaded: Happy Path");
+    };
     const handlePayment = () => {
+        if (!cardNumber || !expiry || !cvc) {
+            setModalMsg("Please fill in all card details.");
+            setIsModalOpen(true);
+            return;
+        }
+
         setIsProcessing(true);
+
+        // Calculate clean number INSIDE the handler
+        const sanitizedCard = cardNumber.replace(/\s+/g, '');
+
         axios.post(`http://localhost:8081/orders/confirm`, {
-            card_number: cardNumber,
-            card_expiry : expiry,
+            card_number: sanitizedCard,
+            card_expiry: expiry,
             card_cvv: cvc,
             promo_code: promoCode || ""
         }, { headers: { "X-User-Id": 1 } })
-        .then(() => {
-            setIsProcessing(false);
-            alert("Payment Successful!");
-            navigate('/orders');
-        })
-        .catch(err => {
-            setIsProcessing(false);
-            console.error("Error processing payment:", err);
-            alert("Payment Failed.");
-        });
+            .then(() => {
+                setIsProcessing(false);
+                alert("Payment Successful!");
+                navigate('/orders');
+            })
+            .catch(err => {
+                if(err.response?.status === 400) {
+                    setModalMsg(err.response.data.message || "Payment Failed: Invalid card details or promo code.");
+                    setIsModalOpen(true);
+                    return;
+                }
+                setIsProcessing(false);
+                // USE YOUR MODAL HERE
+                const message = err.response?.data?.message || "Payment Failed: Please check your details.";
+                setModalMsg(message);
+                setIsModalOpen(true);
+            });
     };
 
     const handleCancel = () => {
@@ -49,12 +93,12 @@ const OrderPayment = () => {
                 navigate("/events");
             })
             .catch(err => {
-                console.error("Error cancelling order:", err);
-                alert("Failed to cancel order.");
+                setModalMsg("Your session expired. Please choose tickets again.");
+                setIsModalOpen(true);
             });
     };
 
-    // Helper to format dates from ISO String
+    const cleanCardNumber = cardNumber.replace(/\s+/g, ''); // Removes all spaces
     const formatDateObj = (dateString) => {
         const date = new Date(dateString);
         return isNaN(date.getTime()) ? null : date;
@@ -83,7 +127,7 @@ const OrderPayment = () => {
     return (
         <div style={styles.page}>
             <div style={styles.container}>
-                
+
                 {/* LEFT COLUMN: Order Review */}
                 <div style={styles.leftCol}>
                     <div style={styles.sectionHeader}>
@@ -182,6 +226,12 @@ const OrderPayment = () => {
                             </button>
 
                             <button
+                                onClick={handleHappyPathTest}
+                                style={{ backgroundColor: '#28a745', color: 'white', marginBottom: '1rem' }}
+                            >
+                                🚀 Preload Happy Path (Test Only)
+                            </button>
+                            <button
                                 style={{
                                     ...styles.cancelButton,
                                     opacity: isProcessing ? 0.5 : 1,
@@ -202,6 +252,7 @@ const OrderPayment = () => {
 };
 
 const styles = {
+
     page: { minHeight: '100vh', backgroundColor: '#f1f5f9', display: 'flex', justifyContent: 'center', padding: '60px 20px', fontFamily: 'system-ui, sans-serif' },
     container: { display: 'flex', width: '100%', maxWidth: '1100px', gap: '40px', flexWrap: 'wrap' },
     leftCol: { flex: '1.5', minWidth: '350px' },
@@ -237,5 +288,6 @@ const styles = {
     payButton: { width: '100%', backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '18px', borderRadius: '16px', fontSize: '16px', fontWeight: '700' },
     cancelButton: { width: '100%', backgroundColor: '#fff', color: '#f90000', border: '1px solid #f90000', padding: '14px', borderRadius: '16px', fontSize: '15px', fontWeight: '600' }
 };
+
 
 export default OrderPayment;

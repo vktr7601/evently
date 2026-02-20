@@ -7,8 +7,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   // const isAuthenticated = !!localStorage.getItem("userToken");
   const isAuth = false;
-  const [activeOrder, setActiveOrder] = useState(false);
-
   const handleSignOut = () => {
     localStorage.removeItem("userToken");
     navigate("/login");
@@ -48,9 +46,6 @@ const Navbar = () => {
              <li className="nav-item">
               <NavLink to="/admin/location/create" className="nav-link px-3">Create Location</NavLink>
             </li>
-            {localStorage.getItem('hasActiveOrder') && <li className="nav-item">
-              <NavLink to="/order/active" className="nav-link px-3">Active Order</NavLink>
-            </li>}
             {<li className="nav-item">
               <NavLink to="/orders" className="nav-link px-3">Orders</NavLink>
             </li>}

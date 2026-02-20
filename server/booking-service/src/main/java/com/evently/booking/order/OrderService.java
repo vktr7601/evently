@@ -4,12 +4,9 @@ import com.evently.booking.infrastructure.clients.eventsService.EventServiceClie
 import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceRequest;
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
-import com.evently.booking.infrastructure.exceptions.BookingUnavailableException;
-import com.evently.booking.infrastructure.exceptions.NoActiveOrderException;
-import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException;
-import com.evently.booking.infrastructure.exceptions.ProcessOrderException;
-import com.evently.booking.order.data.OrderStatus;
+import com.evently.booking.infrastructure.exceptions.*;
 import com.evently.booking.order.data.OrderMapper;
+import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.order.entities.*;
 import com.evently.booking.ticket.Ticket;
 import com.evently.booking.ticket.TicketService;
@@ -46,14 +43,15 @@ public class OrderService {
 
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
-        orderRepository.findPendingOrderByIdAndUserId(userId)
-                .map(order -> updateExistingOrder(order, orderRequest, userId))
-                .orElseGet(() -> createNewOrder(orderRequest, userId));
+        orderRepository.findPendingOrderByIdAndUserId(userId).map(order -> updateExistingOrder(order, orderRequest, userId)).orElseGet(() -> createNewOrder(orderRequest, userId));
     }
 
-    public OrderDetails getActiveUserOrder(Long userId) {
-        Order order = orderRepository.findPendingOrderByIdAndUserId(userId)
-                .orElseThrow(() -> new NoActiveOrderException(userId));
+    public OrderDetails getActiveUserOrder(Long userId) throws OrderExpiredException {
+        Order order =
+                orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() ->
+                        new OrderExpiredException("Your booking window has " +
+                                "timed out. " +
+                                "Please start a new order."));
 
         List<TicketListItem> listItems =
                 ticketService.getTicketsByOrderId(order.getId());
@@ -77,10 +75,8 @@ public class OrderService {
         if (!eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId())) {
             throw new BookingUnavailableException();
         }
-        List<Ticket> tickets = ticketService.getTicketsForEvent(
-                orderRequest.getEventLocationId(),
-                orderRequest.getTicketsCount()
-                , orderRequest.getEventStartTime());
+        List<Ticket> tickets =
+                ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), orderRequest.getTicketsCount(), orderRequest.getEventStartTime());
 
         int requested = orderRequest.getTicketsCount();
 
@@ -152,20 +148,17 @@ public class OrderService {
             throw new BookingUnavailableException();
         }
 
+
         List<Ticket> existingTickets = order.getTickets();
         Map<Long, List<Ticket>> ticketsByEventLocation =
-                existingTickets.stream()
-                        .filter(ticket -> ticket.getEventStartTime().equals(orderRequest.getEventStartTime()) && ticket.getEventLocationsId().equals(orderRequest.getEventLocationId()))
-                        .collect(Collectors.groupingBy(Ticket::getEventLocationsId));
+                existingTickets.stream().filter(ticket -> ticket.getEventStartTime().equals(orderRequest.getEventStartTime()) && ticket.getEventLocationsId().equals(orderRequest.getEventLocationId())).collect(Collectors.groupingBy(Ticket::getEventLocationsId));
 
         if (ticketsByEventLocation.isEmpty()) {
             if (!eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId())) {
                 throw new BookingUnavailableException();
             }
-            List<Ticket> tickets = ticketService.getTicketsForEvent(
-                    orderRequest.getEventLocationId(),
-                    orderRequest.getTicketsCount()
-                    , orderRequest.getEventStartTime());
+            List<Ticket> tickets =
+                    ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), orderRequest.getTicketsCount(), orderRequest.getEventStartTime());
 
             int requested = orderRequest.getTicketsCount();
 
@@ -180,10 +173,8 @@ public class OrderService {
         if (orderRequest.getTicketsCount() > ticketsByEventLocation.get(orderRequest.getEventLocationId()).size()) {
             int diff =
                     orderRequest.getTicketsCount() - ticketsByEventLocation.size();
-            List<Ticket> tickets = ticketService.getTicketsForEvent(
-                    orderRequest.getEventLocationId(),
-                    diff
-                    , orderRequest.getEventStartTime());
+            List<Ticket> tickets =
+                    ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), diff, orderRequest.getEventStartTime());
 //todo: this is buggy
             int requested = orderRequest.getTicketsCount();
 
@@ -229,8 +220,7 @@ public class OrderService {
         if (order.getAudit() != null && !order.getAudit().isEmpty()) {
             try {
                 return objectMapper.readValue(order.getAudit(),
-                        new TypeReference<List<TicketListItem>>() {
-                        });
+                        new TypeReference<List<TicketListItem>>() {});
             } catch (JsonProcessingException e) {
                 log.error("Failed to parse order audit for order: {}",
                         order.getNumber(), e);
@@ -243,9 +233,9 @@ public class OrderService {
 
     @Transactional
     void assignTicketsToOrder(Order order, List<Ticket> tickets) {
-        BigDecimal batchTotal = tickets.stream()
-                .map(Ticket::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal batchTotal =
+                tickets.stream().map(Ticket::getPrice).reduce(BigDecimal.ZERO
+                        , BigDecimal::add);
 
         BigDecimal currentTotal = order.getTotalPrice() != null ?
                 order.getTotalPrice() : BigDecimal.ZERO;
@@ -260,10 +250,15 @@ public class OrderService {
     }
 
     public void finishActiveUserOrder(Long userId,
-                                      FinishOrderRequest finishOrderRequest) throws ProcessOrderException {
+                                      FinishOrderRequest finishOrderRequest) throws ProcessOrderException, OrderExpiredException {
         Order order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
+        if (order.getStatus() == OrderStatus.EXPIRED) {
+            log.info("User {} attempted to pay for expired order {}", userId,
+                    order.getId());
 
+            throw new OrderExpiredException("Your booking window has timed " + "out. Please start a new order.");
+        }
         PaymentServiceRequest paymentServiceRequest =
                 new PaymentServiceRequest();
         paymentServiceRequest.setAmount(order.getTotalPrice());
@@ -279,11 +274,16 @@ public class OrderService {
             ticketService.finalizeOrder(order.getId());
             order.setStatus(OrderStatus.CONFIRMED);
             order.setActive(false);
-            order.setTransactionId(response.getBody().toString());
+            order.setTransactionId(response.getBody().getTransactionId());
             orderRepository.save(order);
         } else {
-            throw new ProcessOrderException(response.getBody());
+            if (response.getBody().getMessage().startsWith("Invalid card")) {
+                throw new ProcessOrderException(response.getBody());
+            }
+            System.out.println();
         }
+
+
     }
 
     @Transactional
@@ -294,8 +294,7 @@ public class OrderService {
 
 
         Order order = orderRepository.findByOrderNumberAndUserId(number,
-                userId).orElseThrow(
-                () -> new NoActiveOrderException(userId));
+                userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
         List<Ticket> tickets = order.getTickets();
 
@@ -335,8 +334,7 @@ public class OrderService {
 
     public boolean isOrderRefundable(Long userId, Long number) {
         Order order = orderRepository.findByOrderNumberAndUserId(number,
-                userId).orElseThrow(
-                () -> new NoActiveOrderException(userId));
+                userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
         List<Ticket> tickets = order.getTickets();
 
@@ -352,8 +350,7 @@ public class OrderService {
 
 
     public Order findByOrderNumberAndUserId(Long number, Long userId) {
-        return orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(
-                () -> new NoActiveOrderException(userId));
+        return orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(() -> new NoActiveOrderException(userId));
     }
 
     public void save(Order order) {

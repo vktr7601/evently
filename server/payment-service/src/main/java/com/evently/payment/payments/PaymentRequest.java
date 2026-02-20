@@ -9,14 +9,14 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class PaymentRequest {
-    @JsonProperty("order_id")
+    @JsonProperty("orderId")
     private long orderId;
     @JsonProperty("amount")
     private BigDecimal amount;
-    @JsonProperty("card_number")
+    @JsonProperty("cardNumber")
     private String cardNumber;
-    @JsonProperty("card_expiry")
+    @JsonProperty("cardExpiry")
     private String cardExpiry;
-    @JsonProperty("card_cvv")
+    @JsonProperty("cardCvv")
     private String cardCvv;
 }
