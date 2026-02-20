@@ -1,175 +1,152 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 const OrderDetails = () => {
     const { number } = useParams();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
                 const res = await axios.get(`http://localhost:8081/orders/details/${number}`, {
                     headers: { "X-User-Id": 1 }
                 });
-                console.log("Fetched order details:", res.data);
                 setOrder(res.data);
             } catch (err) {
                 console.error("Error fetching order:", err);
             } finally {
-                setLoading(false); // Stop loading regardless of success/fail
+                setLoading(false);
             }
         };
         fetchOrderDetails();
     }, [number]);
 
-const downloadS3Image = async (imageUrl) => {
-    // Extract 'ancient_city_of_nesebar.jpg' from the URL automatically
-    // const fileName = imageUrl.split('/').pop();
-
-    try {
-        const response = await fetch('https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ancient_city_of_nesebar.jpg', {
-            method: 'GET',
-            mode: 'cors', // Crucial for S3 downloads
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = 'hello'; // Uses the extracted name
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        // Cleanup
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-
-    } catch (err) {
-        console.error("S3 Download failed. Ensure CORS is configured on bucket 'evently-spring':", err);
-        alert("Could not download image. Please check your connection or bucket permissions.");
-    }
-};
-
-    // GUARD: If data isn't here yet, show this instead
-    if (loading) return <div style={styles.container}>Loading order details...</div>;
-    if (!order) return <div style={styles.container}>Order not found.</div>;
-    const parseDate = (dateString) => {
-        if (!dateString) return "Date TBD";
-
-        const date = new Date(dateString);
-
-        // Check if the string was a valid date
-        if (isNaN(date.getTime())) return "Invalid Date";
-
-        return date.toLocaleString('en-US', {
-            weekday: 'short',
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    const downloadS3Image = async (imageUrl) => {
+        try {
+            // Using your specific S3 link as per your snippet
+            const response = await fetch('https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ancient_city_of_nesebar.jpg');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `Ticket-${number}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            alert("Could not download ticket image.");
+        }
     };
 
+    if (loading) return <div className="container mt-5 text-center text-muted">Loading order details...</div>;
+    if (!order) return <div className="container mt-5 text-center text-danger">Order not found.</div>;
+
     return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={styles.title}>Order Details</h1>
-                <div style={styles.badgeContainer}>
-                    <span style={{ ...styles.badge, ...getStatusStyle(order.status) }}>
-                        {order.status.replace('_', ' ')}
-                    </span>
+        <div className="container my-5" style={{ maxWidth: '1100px' }}>
+            
+            {/* --- TOP SECTION: ORDER OVERVIEW --- */}
+            <div className="card border-0 shadow-lg rounded-4 overflow-hidden mb-5">
+                <div className="card-header bg-white border-0 p-4 pt-5">
+                    <div className="d-flex justify-content-between align-items-start">
+                        <div>
+                            <Link to="/orders" className="text-decoration-none small fw-bold text-uppercase text-primary mb-2 d-block">
+                                ← Back to My Orders
+                            </Link>
+                            <h2 className="fw-extrabold mb-1">Order #{order.number}</h2>
+                            <p className="text-muted mb-0">Placed on {new Date(order.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
+                            {order.transactionId === "NOT_APPLICABLE" ? (
+                                <span className="badge bg-secondary-subtle text-secondary mt-2">No Transaction Applicable</span>
+                            ) : (
+                                <span className="badge bg-info-subtle text-info mt-2">Transaction ID: {order.transactionId}</span>
+                            )}
+                        </div>
+                        <span className={`badge rounded-pill px-4 py-2 fs-6 ${
+                            order.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'
+                        }`}>
+                            {order.status.replace('_', ' ')}
+                        </span>
+                    </div>
                 </div>
-            </div>
-
-            <div style={styles.contentGrid}>
-                <div style={styles.leftCol}>
-                    <h3 style={styles.sectionTitle}>Items</h3>
-                    {order.ticketListItems.map(ticket => (
-                        <div key={ticket.id} style={styles.ticketCard}>
-                            <div style={styles.ticketIcon}>🎟️</div>
-                            <div style={styles.ticketInfo}>
-                                <h4 style={styles.eventName}>{ticket.eventName}</h4>
-                                <p style={styles.location}>📍 {ticket.eventLocationName}</p>
-                                <p style={styles.date}>{parseDate(ticket.eventDate)}</p>
-                                <p style={styles.ticketId}>Ticket #{ticket.number}</p>
-                                <button onClick={() => downloadS3Image(ticket.imageUrl)}> Download ticket</button>
-                            </div>
-                            <div style={styles.ticketPrice}>
-                                ${ticket.price.toFixed(2)}
-                            </div>
+                
+                <div className="card-body p-4 pb-5">
+                    <div className="row g-4 text-center text-md-start">
+                        <div className="col-md-3 border-end-md">
+                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Total Amount</label>
+                            <h3 className="fw-bold text-success mb-0">${order.totalPrice.toFixed(2)}</h3>
                         </div>
-                    ))}
-                </div>
-
-                <div style={styles.rightCol}>
-                    <div style={styles.summaryCard}>
-                        <h3 style={styles.sectionTitle}>Summary</h3>
-                        <div style={styles.summaryRow}>
-                            <span>Order Number</span>
-                            <span style={styles.bold}>{order.number}</span>
+                        <div className="col-md-3 border-end-md">
+                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Payment Method</label>
+                            <h5 className="fw-bold mb-0">Credit Card</h5>
                         </div>
-                        <div style={styles.summaryRow}>
-                            <span>Order Date</span>
-                            <span style={styles.bold}>{order.createdAt}</span>
+                        <div className="col-md-3 border-end-md">
+                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Total Items</label>
+                            <h5 className="fw-bold mb-0">{order.tickets.length} Tickets</h5>
                         </div>
-                        <hr style={styles.divider} />
-                        <div style={styles.totalRow}>
-                            <span>Total Amount</span>
-                            <span style={styles.totalAmount}>${order.totalPrice.toFixed(2)}</span>
+                        <div className="col-md-3 d-flex align-items-center justify-content-center justify-content-md-end">
+                            {order.status === "PENDING_PAYMENT" ? (
+                                <button className="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow">
+                                    Complete Payment
+                                </button>
+                            ) : (
+                                <button className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                                    Download Invoice
+                                </button>
+                            )}
                         </div>
-
-                    
-                        {order.status === "PENDING_PAYMENT" && (
-                            <button style={styles.payButton}>Complete Payment</button>
-                        )}
                     </div>
                 </div>
             </div>
+
+            {/* --- BOTTOM SECTION: TICKETS LIST --- */}
+            <div className="mb-4">
+                <h4 className="fw-bold mb-4">Your Tickets</h4>
+                {order.tickets.map((ticket) => (
+                    <div key={ticket.id} className="card border-0 shadow-sm rounded-4 p-4 mb-3">
+                        <div className="row align-items-center g-4">
+                            {/* 1. Event Info */}
+                            <div className="col-md-4 border-end-md">
+                                <h5 className="fw-bold mb-1 text-primary">{ticket.eventName}</h5>
+                                <div className="text-secondary small fw-medium">
+                                     {ticket.eventLocationName}
+                                </div>
+                            </div>
+
+                            {/* 2. Schedule */}
+                            <div className="col-md-3 border-end-md">
+                                <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Date And Time</label>
+                                <h6 className="fw-bold mb-0">
+                                    {new Date(ticket.eventStartTime).toLocaleString(undefined, {
+                                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                    })}
+                                </h6>
+                            </div>
+
+                            {/* 3. Ticket Number */}
+                            <div className="col-md-2 border-end-md">
+                                <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Ticket ID</label>
+                                <code className="fw-bold text-dark fs-6">#{ticket.number}</code>
+                            </div>
+
+                            {/* 4. Action */}
+                            <div className="col-md-3 text-md-end">
+                                <button 
+                                    onClick={() => downloadS3Image(ticket.imageUrl)}
+                                    className="btn btn-light border rounded-pill px-4 py-2 fw-bold w-100"
+                                >
+                                    <i className="bi bi-download me-2"></i> Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
         </div>
     );
-};
-
-const getStatusStyle = (status) => {
-    if (status === "PENDING_PAYMENT") return { backgroundColor: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5' };
-    return { backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #dcfce7' };
-};
-
-const styles = {
-    container: { maxWidth: '1000px', margin: '40px auto', padding: '0 20px', fontFamily: 'system-ui, sans-serif' },
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
-    title: { fontSize: '28px', fontWeight: '800', color: '#1e293b' },
-    badge: { padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' },
-    contentGrid: { display: 'flex', gap: '30px', flexWrap: 'wrap' },
-    leftCol: { flex: '2', minWidth: '350px' },
-    rightCol: { flex: '1', minWidth: '300px' },
-    sectionTitle: { fontSize: '16px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '15px' },
-    ticketCard: {
-        display: 'flex', backgroundColor: '#fff', padding: '20px', borderRadius: '16px',
-        border: '1px solid #e2e8f0', marginBottom: '15px', alignItems: 'center'
-    },
-    ticketIcon: { fontSize: '32px', marginRight: '20px' },
-    ticketInfo: { flex: 1 },
-    eventName: { margin: '0 0 5px 0', fontSize: '18px', color: '#0f172a' },
-    location: { margin: 0, fontSize: '14px', color: '#64748b' },
-    date: { margin: '5px 0', fontSize: '14px', fontWeight: '600', color: '#2563eb' },
-    ticketId: { margin: 0, fontSize: '12px', color: '#94a3b8' },
-    ticketPrice: { fontSize: '18px', fontWeight: '800', color: '#1e293b' },
-    summaryCard: { backgroundColor: '#f8fafc', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' },
-    summaryRow: { display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px', color: '#475569' },
-    divider: { border: 'none', borderTop: '1px solid #e2e8f0', margin: '20px 0' },
-    totalRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    totalAmount: { fontSize: '24px', fontWeight: '800', color: '#0f172a' },
-    bold: { fontWeight: '700', color: '#0f172a' },
-    payButton: {
-        width: '100%', marginTop: '20px', padding: '14px', backgroundColor: '#2563eb',
-        color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer'
-    }
 };
 
 export default OrderDetails;

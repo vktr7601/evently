@@ -8,12 +8,12 @@ import com.evently.booking.infrastructure.exceptions.BookingUnavailableException
 import com.evently.booking.infrastructure.exceptions.NoActiveOrderException;
 import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException;
 import com.evently.booking.infrastructure.exceptions.ProcessOrderException;
-import com.evently.booking.order.data.OrderMapper;
 import com.evently.booking.order.data.OrderStatus;
-import com.evently.booking.order.data.OrdersMapper;
+import com.evently.booking.order.data.OrderMapper;
 import com.evently.booking.order.entities.*;
 import com.evently.booking.ticket.Ticket;
 import com.evently.booking.ticket.TicketService;
+import com.evently.booking.ticket.data.TicketNumberGenerator;
 import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.entities.TicketListItem;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final TicketService ticketService;
-    //    private final OrderMapper orderMapper;
-    private final OrdersMapper ordersMapper;
+
+    private final OrderMapper orderMapper;
     private final ObjectMapper objectMapper;
     private final PaymentServiceClient paymentServiceClient;
     private final EventServiceClient eventServiceClient;
@@ -254,7 +254,7 @@ public class OrderService {
         tickets.forEach(ticket -> {
             ticket.setUserId(order.getUserId());
             ticket.setStatus(TicketStatus.PENDING_PAYMENT);
-
+            ticket.setNumber(TicketNumberGenerator.generateV7());
             order.addTicket(ticket);
         });
     }
@@ -362,7 +362,7 @@ public class OrderService {
 
 
     OrderDetails mapToDto(Order order, List<TicketListItem> listItems) {
-        OrderDetails orderDto = ordersMapper.toDto(order, listItems);
+        OrderDetails orderDto = orderMapper.toDto(order, listItems);
 
         BigDecimal totalSum =
                 listItems.stream().map(TicketListItem::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);

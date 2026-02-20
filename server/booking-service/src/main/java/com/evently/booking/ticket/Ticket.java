@@ -6,10 +6,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import utils.BaseEntity;
-import utils.NumberGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -20,8 +20,8 @@ public class Ticket extends BaseEntity {
     private Long userId;
     @Column(name = "eventLocationId", nullable = false)
     private Long eventLocationsId;
-    @Column(name = "number")
-    private long number;
+    @Column(name = "number", unique = true)
+    private UUID number;
     @Column(name = "eventStartTime")
     private LocalDateTime eventStartTime;
     @Enumerated(EnumType.STRING)
@@ -35,7 +35,6 @@ public class Ticket extends BaseEntity {
     @Override
     public void onCreate() {
         super.onCreate();
-        number = NumberGenerator.generateUniqueNumber();
         status = TicketStatus.AVAILABLE;
     }
 }

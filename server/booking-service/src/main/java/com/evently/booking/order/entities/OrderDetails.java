@@ -31,6 +31,8 @@ public class OrderDetails implements Serializable {
     private LocalDateTime expirationTime;
     @JsonProperty("createdAt")
     private Instant createdAt;
+    @JsonProperty("transactionId")
+    private String transactionId;
     @JsonProperty("tickets")
     private List<TicketListItem> ticketListItems;
 }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import OrderListItem from './OrderListItem';
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
@@ -22,15 +22,16 @@ const OrderList = () => {
                 <p>You have no orders yet.</p>
             ) : (
                 <div className="row">
-                {orders.map(order => (
-                    <div key={order.number} className="col-12 col-md-6 col-lg-4 mb-4">
-                        <OrderListItem order={order} />
-                    </div>
-                ))}
-            </div>
+                    {orders.map(order => (
+                        // col-12 ensures each order takes up the full width, stacking vertically
+                        <div key={order.number} className="col-12 mb-3">
+                            <OrderListItem order={order} />
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
-    );      
+    );
 }
 
 export default OrderList;

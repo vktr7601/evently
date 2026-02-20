@@ -4,8 +4,8 @@ import com.evently.booking.infrastructure.clients.eventsService.EventServiceClie
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
 import com.evently.booking.order.data.OrderStatus;
-import com.evently.booking.ticket.data.TicketMapper;
 import com.evently.booking.ticket.data.TicketStatus;
+import com.evently.booking.ticket.data.TicketsMapper;
 import com.evently.booking.ticket.entities.TicketListItem;
 import dtos.TicketsCreated;
 import events.eventCreated.TicketsCreationEvent;
@@ -28,10 +28,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketService {
     private final TicketRepository ticketRepository;
-    private final TicketMapper ticketMapper;
+    private final TicketsMapper ticketsMapper;
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
-
 
     @Transactional
     public void createTickets(List<TicketsCreationEvent> data) {
@@ -45,9 +44,7 @@ public class TicketService {
         List<TicketsCreationEvent> list = data.stream().map(x -> {
             if (ticketRepository.isPersisted(x.getEventLocationId(),
                     x.getEventStartTime())) {
-                log.warn("Tickets for event location ID {} and date time {} " +
-                                "already exist. Skipping creation.",
-                        x.getEventLocationId(), x.getEventStartTime());
+                log.warn("Tickets for event location ID {} and date time {} " + "already exist. Skipping creation.", x.getEventLocationId(), x.getEventStartTime());
                 return null; // Skip this ticket allocation
             }
 
@@ -63,7 +60,7 @@ public class TicketService {
 
         for (TicketsCreationEvent ticketsCreationEvent : list) {
             for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
-                Ticket ticket = ticketMapper.convert(ticketsCreationEvent);
+                Ticket ticket = ticketsMapper.convert(ticketsCreationEvent);
                 tickets.add(ticket);
             }
         }
@@ -186,35 +183,31 @@ public class TicketService {
         return discardedTickets;
     }
 
-    private List<TicketListItem> enrichTicketsWithEventDetails(List<Ticket> ticketList) {
+    List<TicketListItem> enrichTicketsWithEventDetails(List<Ticket> ticketList) {
         List<Long> eventLocationIds = extractEventLocationIds(ticketList);
+
         List<EventsLocationsDto> locations =
                 eventServiceClient.getLocations(eventLocationIds);
+
         Map<Long, EventsLocationsDto> locationsMap =
                 toEventLocationsMap(locations);
 
-        List<TicketListItem> listItems = ticketList.stream().map(ticket -> {
+        return ticketList.stream().map(ticket -> {
             var eventLocation = locationsMap.get(ticket.getEventLocationsId());
-            return ticketMapper.toListItem(ticket, eventLocation.getEventName(),
+            return ticketsMapper.toListItem(ticket,
+                    eventLocation.getEventName(),
                     eventLocation.getLocationName());
         }).toList();
-
-
-        return listItems;
     }
 
-    private Map<Long, EventsLocationsDto> toEventLocationsMap(List<EventsLocationsDto> eventsLocations) {
+    Map<Long, EventsLocationsDto> toEventLocationsMap(List<EventsLocationsDto> eventsLocations) {
         log.info("Building event locations map for {} locations",
                 eventsLocations.size());
-        return eventsLocations.stream()
-                .collect(Collectors.toMap(EventsLocationsDto::getId,
-                        Function.identity()));
+        return eventsLocations.stream().collect(Collectors.toMap(EventsLocationsDto::getId, Function.identity()));
     }
 
     private List<Long> extractEventLocationIds(List<Ticket> tickets) {
-        return tickets.stream()
-                .map(Ticket::getEventLocationsId)
-                .toList();
+        return tickets.stream().map(Ticket::getEventLocationsId).toList();
     }
 
 }
