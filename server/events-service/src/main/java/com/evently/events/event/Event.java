@@ -1,9 +1,7 @@
 package com.evently.events.event;
 
-import com.evently.events.eventLocations.EventsLocations;
-import com.evently.events.eventsCategories.EventsCategories;
-
-import com.evently.events.performers.Performer;
+import com.evently.events.artists.Artist;
+import com.evently.events.eventsLocations.EventsLocations;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,16 +14,25 @@ import java.util.List;
 @Entity
 @Table(name = "events")
 public class Event extends BaseEntity {
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    public List<EventsLocations> eventsLocations;
+    @OneToMany(mappedBy = "event")
+    public List<EventsLocations> eventLocations;
     @Column(name = "name", unique = true, nullable = false, length = 256)
     private String name;
     @Column(name = "description", nullable = false, length = 1024)
     private String description;
+    @Column(name = "image_url")
+    private String imageUrl;
     @ManyToOne
-    @JoinColumn(name = "performer_id")
-    public Performer performer;
+    @JoinColumn(name = "artist_id", nullable = false)
+    private Artist artist;
 
-    @OneToMany(mappedBy = "event")
-    public List<EventsCategories> eventsCategories;
+    @Column(name = "active")
+    private boolean isActive;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        //todo: change to false
+        isActive = true;
+    }
 }

@@ -1,6 +1,9 @@
 package com.evently.users.user;
 
-import com.evently.users.userPreferences.UserPreferences;
+import com.evently.users.artistFollow.ArtistFollow;
+import com.evently.users.categoryFollow.CategoryFollow;
+import com.evently.users.locationFollow.LocationFollow;
+import com.evently.users.user.entities.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -38,5 +41,29 @@ public class User extends BaseEntity {
     public UserRole userRole;
 
     @OneToMany(mappedBy = "user")
-    public List<UserPreferences> userPreferencesList;
+    public List<CategoryFollow> categoryFollowList;
+
+    @OneToMany(mappedBy = "user")
+    List<LocationFollow> locationFollows;
+    @OneToMany(mappedBy = "user")
+    List<ArtistFollow> artistFollows;
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        userRole = UserRole.USER;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+            "firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", age=" + age +
+            ", email='" + email + '\'' +
+            ", userRole=" + userRole +
+            ", userPreferencesList=" + categoryFollowList +
+            '}';
+    }
 }

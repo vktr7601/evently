@@ -1,0 +1,13 @@
+package com.evently.notification.notifications;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
+
+@FeignClient(name = "user-service-client", url = "http://localhost:8085")
+public interface UserServiceClient {
+    @PostMapping("/preferences")
+    List<Long> fetchUserIds(@RequestBody List<Long> data);
+}

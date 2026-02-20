@@ -1,16 +1,17 @@
 package com.evently.events.category.entities;
 
 import com.evently.events.category.Category;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface CategoryMapper {
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "eventsCategories", ignore = true)
-    Category toEntity(CategoryRequest dto);
+@Component
+public class CategoryMapper {
+    public Category toEntity(CategoryRequest dto) {
+        Category category = new Category();
+        category.setName(dto.getName());
+        return category;
+    }
 
-    CategoryDto toDto(Category entity);
+    public CategoryDto toDto(Category entity) {
+        return new CategoryDto(entity.getId(), entity.getName());
+    }
 }

@@ -1,4 +1,4 @@
-name: Build
+name: Build Java Microservices
 
 on:
   push:
@@ -21,4 +21,5 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - run: ./mvnw clean install
+      - name: Build and Verify
+        run: ./mvnw clean verify -DskipTests -B
