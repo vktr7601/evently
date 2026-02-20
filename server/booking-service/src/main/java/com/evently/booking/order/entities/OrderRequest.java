@@ -5,18 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderRequest {
-    @JsonProperty("event_location_id")
+public class OrderRequest implements Serializable {
+    @JsonProperty("eventLocationId")
     private long eventLocationId;
-    @JsonProperty("tickets_count")
+    @JsonProperty("ticketsCount")
     private int ticketsCount;
-    @JsonProperty("date_time")
-    private LocalDateTime dateTime;
+    @JsonProperty("eventStartTime")
+    private LocalDateTime eventStartTime;
     @JsonProperty("promo_code")
     private String promoCode;
 }

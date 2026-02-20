@@ -21,11 +21,11 @@ public interface EventsCategoriesRepository extends BaseRepository<EventsCategor
     List<EventCategoriesDto> findAllEventsByCategoryName(@Param("categoryName") String categoryName);
 
     @Query(value = """
-          SELECT new com.evently.events.category.entities.CategoryDto(ec.name, ec.id)
-          FROM EventsCategories c
-          JOIN Category ec ON c.category.id = ec.id
-          WHERE c.event.id = :id
-        """)
+              SELECT new com.evently.events.category.entities.CategoryDto( ec.id, ec.name)
+              FROM EventsCategories c
+              JOIN Category ec ON c.category.id = ec.id
+              WHERE c.event.id = :id
+            """)
     List<CategoryDto> findEventCategoriesByEventId(@Param("id") Long id);
 
     @Query("""

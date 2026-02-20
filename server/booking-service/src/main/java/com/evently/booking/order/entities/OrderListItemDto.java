@@ -1,13 +1,12 @@
 package com.evently.booking.order.entities;
 
-import com.evently.booking.order.OrderStatus;
+import com.evently.booking.order.data.OrderStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter(AccessLevel.PRIVATE)

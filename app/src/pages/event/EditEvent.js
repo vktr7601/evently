@@ -14,6 +14,15 @@ const EditEvent = () => {
         eventLocations: [{ locationId: '', eventDate: '', tickets: 1, price: 0 }]
     });
 
+    const removeLocation = (index) => {
+        if (eventData.eventLocations.length > 1) {
+            const newLocations = eventData.eventLocations.filter((_, i) => i !== index);
+            setEventData({ ...eventData, eventLocations: newLocations });
+        } else {
+            alert("At least one location is required.");
+        }
+    };
+
     const [locations, setLocations] = useState([]);
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +58,7 @@ const EditEvent = () => {
                         description: data.description,
                         categories: data.categories ? data.categories.map(c => c.id) : [],
                         eventLocations: data.eventLocations.map(loc => ({
+                            eventLocationId: loc.eventLocationId,
                             locationId: loc.locationId, // Keep this for the value
                             eventDate: loc.eventStartTime ? loc.eventStartTime.substring(0, 16) : '', // Changed from date to eventDate
                             tickets: loc.ticketsCount,
@@ -84,7 +94,7 @@ const EditEvent = () => {
     const addLocation = () => {
         setEventData({
             ...eventData,
-            eventLocations: [...eventData.eventLocations, { locationId: '', eventDate: '', tickets: 1, price: 0 }]
+            eventLocations: [...eventData.eventLocations, {  eventLocationId: '', locationId: '', eventDate: '', tickets: 1, price: 0 }]
         });
     };
 
@@ -198,7 +208,16 @@ const EditEvent = () => {
                                         onChange={(e) => updateLocation(index, 'price', e.target.value)}
                                     />
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeLocation(index)}
+                                    style={styles.removeBtn}
+                                    title="Remove this location"
+                                >
+                                    ✕
+                                </button>
                             </div>
+
                         ))}
                         <button type="button" onClick={addLocation} style={styles.addBtn}>+ Add Another Location</button>
                     </section>

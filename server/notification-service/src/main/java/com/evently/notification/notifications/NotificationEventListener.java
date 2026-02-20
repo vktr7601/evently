@@ -2,7 +2,7 @@ package com.evently.notification.notifications;
 
 import com.evently.notification.notificationContent.NotificationContent;
 import com.evently.notification.notificationContent.NotificationContentRepository;
-import dtos.EventCreated;
+import events.eventCreated.EventCreated;
 import dtos.KafkaTopics;
 import dtos.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;

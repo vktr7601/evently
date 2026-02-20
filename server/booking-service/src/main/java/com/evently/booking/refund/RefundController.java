@@ -1,6 +1,6 @@
 package com.evently.booking.refund;
 
-import com.evently.booking.exceptions.OrderNotRefundableException;
+import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException;
 import dtos.Headers;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

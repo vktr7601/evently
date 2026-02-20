@@ -9,8 +9,11 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.List;
 
+import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PUBLIC;
+
 @Getter
-@Setter
+@Setter(PRIVATE)
 @NoArgsConstructor
 public class ArtistDetails implements Serializable {
     @JsonProperty("id")
@@ -21,8 +24,9 @@ public class ArtistDetails implements Serializable {
     private String bio;
     @JsonProperty("imageUrl")
     private String imageUrl;
-    @JsonProperty("locations")
-    private List<EventsLocationsDto> locations;
+    @Setter(PUBLIC)
+    @JsonProperty("eventLocations")
+    private List<EventsLocationsDto> eventLocations;
 
     public ArtistDetails(long id, String name, String bio, String imageUrl) {
         setId(id);

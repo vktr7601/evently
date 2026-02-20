@@ -24,6 +24,7 @@ import Orders from './pages/order/Orders';
 import OrderDetails from './pages/order/OrderDetails';
 import CreateEvent from './pages/event/CreateEvent';
 import EditEvent from './pages/event/EditEvent';
+import CreateLocation from './pages/location/CreateLocation';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/details/:number" element={<OrderDetails />} />
             <Route path="/admin/event-management/:id" element={<EditEvent />} />
+            <Route path="/admin/location/create" element={<CreateLocation />} />
           </Routes>
         </div>
       </main>

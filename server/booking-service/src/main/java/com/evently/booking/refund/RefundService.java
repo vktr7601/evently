@@ -1,17 +1,17 @@
 package com.evently.booking.refund;
 
-import com.evently.booking.exceptions.OrderNotRefundableException;
-import com.evently.booking.exceptions.ProcessOrderException;
+import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException;
+import com.evently.booking.infrastructure.exceptions.ProcessOrderException;
 import com.evently.booking.order.Order;
 import com.evently.booking.order.OrderService;
-import com.evently.booking.order.OrderStatus;
-import com.evently.booking.order.PaymentClient;
-import com.evently.booking.order.entities.PaymentServiceResponse;
+import com.evently.booking.order.data.OrderStatus;
+import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
+import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
 import com.evently.booking.order.entities.RefundRequest;
 import com.evently.booking.ticket.Ticket;
 import com.evently.booking.ticket.TicketService;
 import com.evently.booking.ticket.entities.TicketListItem;
-import com.evently.booking.ticket.entities.TicketStatus;
+import com.evently.booking.ticket.data.TicketStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RefundService {
     private final OrderService orderService;
-    private final PaymentClient paymentClient;
+    private final PaymentServiceClient paymentServiceClient;
     private final ObjectMapper objectMapper;
     private final TicketService ticketService;
 
@@ -37,7 +37,7 @@ public class RefundService {
 
         boolean canRefund = true;
         for (Ticket ticket : tickets) {
-            if (ticket.getDateTime().isBefore(LocalDateTime.now().plusHours(2))) {
+            if (ticket.getEventStartTime().isBefore(LocalDateTime.now().plusHours(2))) {
                 canRefund = false;
                 break;
             }
@@ -73,7 +73,7 @@ public class RefundService {
         RefundRequest refundRequest = new RefundRequest();
         refundRequest.setAmount(order.getTotalPrice());
         refundRequest.setTransactionId(order.getTransactionId());
-        ResponseEntity<PaymentServiceResponse> response = paymentClient.processRefund(refundRequest);
+        ResponseEntity<PaymentServiceResponse> response = paymentServiceClient.processRefund(refundRequest);
         if (response.getBody().isSuccess()) {
             for (Ticket ticket : tickets) {
                 ticket.setStatus(TicketStatus.AVAILABLE);
@@ -113,6 +113,6 @@ public class RefundService {
     }
 
     boolean isTicketRefundable(Ticket ticket) {
-        return !ticket.getDateTime().isBefore(LocalDateTime.now().plusHours(2));
+        return !ticket.getEventStartTime().isBefore(LocalDateTime.now().plusHours(2));
     }
 }

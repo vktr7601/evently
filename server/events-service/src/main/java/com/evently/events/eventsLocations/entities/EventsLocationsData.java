@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @ValidLocationData
 @NoArgsConstructor
 public class EventsLocationsData {
+    @JsonProperty("eventLocationId")
+    private Long eventLocationId;
     @JsonProperty("locationId")
     private long locationId;
     @JsonProperty("eventDate")

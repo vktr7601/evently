@@ -1,7 +1,7 @@
 package com.evently.events.locations;
 
-import com.evently.events.locations.entities.LocationDetailsDto;
-import com.evently.events.locations.entities.LocationListItemDto;
+import com.evently.events.locations.entities.LocationDetails;
+import com.evently.events.locations.entities.LocationListItem;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,7 +22,7 @@ public interface LocationRepository extends BaseRepository<Location> {
     List<Location> findAllByNameIn(@Param("names") List<String> names);
 
     @Query("""
-            SELECT new com.evently.events.locations.entities.LocationListItemDto(
+            SELECT new com.evently.events.locations.entities.LocationListItem(
                 l.id,
                 l.name,
                 l.description,
@@ -30,10 +30,10 @@ public interface LocationRepository extends BaseRepository<Location> {
             )
             FROM Location l
         """)
-    List<LocationListItemDto> findAllLocationItems();
+    List<LocationListItem> findAllLocationItems();
 
     @Query("""
-            SELECT new com.evently.events.locations.entities.LocationDetailsDto(
+            SELECT new com.evently.events.locations.entities.LocationDetails(
                 l.id,
                 l.name,
                 l.description,
@@ -42,7 +42,7 @@ public interface LocationRepository extends BaseRepository<Location> {
             FROM Location l
             WHERE l.id = :id
         """)
-    Optional<LocationDetailsDto> findLocationDtoById(@Param("id") Long id);
+    Optional<LocationDetails> findLocationDtoById(@Param("id") Long id);
 
     @Query("""
             SELECT l

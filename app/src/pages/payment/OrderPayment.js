@@ -107,7 +107,7 @@ const OrderPayment = () => {
                                         </div>
                                         <div style={styles.infoCol}>
                                             <h4 style={styles.eventNameText}>{t.eventName}</h4>
-                                            <p style={styles.locationLabel}>📍 {t.eventLocationName || 'General Admission'}</p>
+                                            <p style={styles.locationLabel}>{t.eventLocationName || 'General Admission'}</p>
                                         </div>
                                         <div style={styles.priceCol}>
                                             <span style={styles.priceText}>${t.price?.toFixed(2)}</span>

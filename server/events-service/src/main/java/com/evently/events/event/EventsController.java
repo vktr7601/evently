@@ -37,7 +37,7 @@ public class EventsController {
 
         EventDetailDto eventDetailDto = eventService.findEventDetailsById(id);
 
-        log.info("Response sent: Successfully fetched details for event: {}", eventDetailDto.getName());
+        log.info("Response sent: Successfully fetched details for event: {}", eventDetailDto.getEventName());
         return ResponseEntity.ok(eventDetailDto);
     }
 
@@ -50,7 +50,7 @@ public class EventsController {
     public ResponseEntity<EventDetailDto> createEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
         EventDetailDto createdEvent = eventService.createEvent(createEventRequest);
 
-        log.info("Response sent: Successfully created event: {}", createdEvent.getName());
+        log.info("Response sent: Successfully created event: {}", createdEvent.getEventName());
 
         return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
     }
@@ -70,5 +70,13 @@ public class EventsController {
         log.info("Response sent: Successfully fetched location details for event ID: {}", id);
 
         return ResponseEntity.ok(eventsLocationsDto);
+    }
+
+
+    @PostMapping("/clear-past-events")
+    public ResponseEntity<String> triggerEventsClearing() {
+        var processedIds = eventService.clearHistoryEvents();
+
+        return ResponseEntity.ok("Successfully cleared past events. Processed event IDs: " + processedIds);
     }
 }

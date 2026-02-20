@@ -62,19 +62,20 @@ VALUES (1, 1), (1, 9), -- Vasko: Concerts, Culture
        (8, 1), (8, 9)  -- Vasko Sunset: Concerts, Culture
   ON CONFLICT DO NOTHING;
 -- 6. Events Locations
-INSERT INTO events_locations (event_id, location_id, date, total_tickets, price, status, updated_at, created_at)
-VALUES (1, 1, '2026-03-15 20:00:00', 15000, 85.00, 'AVAILABLE', now(), now()),
-       (1, 7, '2026-03-22 19:30:00', 600, 120.00, 'SOLD_OUT', now(), now()),
-       (2, 1, '2026-04-10 21:00:00', 18000, 150.00, 'AVAILABLE', now(), now()),
-       (3, 2, '2026-05-05 20:00:00', 3000, 65.00, 'AVAILABLE', now(), now()),
-       (4, 9, '2026-05-20 19:00:00', 1500, 40.00, 'AVAILABLE', now(), now()),
-       (4, 3, '2026-05-28 20:00:00', 4000, 55.00, 'AVAILABLE', now(), now()),
-       (5, 4, '2026-07-15 23:00:00', 1000, 45.00, 'AVAILABLE', now(), now()),
-       (5, 10, '2026-02-28 22:00:00', 2000, 35.00, 'AVAILABLE', now(), now()),
-       (6, 5, '2026-04-18 20:30:00', 5000, 45.00, 'AVAILABLE', now(), now()),
-       (7, 10, '2026-03-05 23:30:00', 2000, 50.00, 'AVAILABLE', now(), now()),
-       (7, 8, '2026-03-12 22:00:00', 8000, 40.00, 'AVAILABLE', now(), now()),
-       (8, 6, '2026-08-20 20:30:00', 1200, 100.00, 'SOLD_OUT', now(), now());
+INSERT INTO events_locations (id, event_id, location_id, date, total_tickets, price, status, updated_at, created_at)
+VALUES (1, 1, 1, '2026-02-20 20:00:00', 50, 85.00, 'PENDING_TICKETS', now(), now()),
+       (2, 1, 7, '2026-02-22 19:30:00', 50, 120.00, 'CANCELLED', now(), now()),
+       (3, 2, 1, '2026-04-10 21:00:00', 50, 150.00, 'AVAILABLE', now(), now()),
+       (4, 3, 2, '2026-05-05 20:00:00', 50, 65.00, 'AVAILABLE', now(), now()),
+       (5, 4, 9, '2026-05-20 19:00:00', 50, 40.00, 'AVAILABLE', now(), now()),
+       (6, 4, 3, '2026-05-28 20:00:00', 50, 55.00, 'AVAILABLE', now(), now()),
+       (7, 5, 4, '2026-07-15 23:00:00', 20, 45.00, 'AVAILABLE', now(), now()),
+       (8, 5, 10, '2026-02-28 22:00:00', 21, 35.00, 'AVAILABLE', now(), now()),
+       (9, 6, 5, '2026-04-18 20:30:00', 22, 45.00, 'AVAILABLE', now(), now()),
+       (10, 7, 10, '2026-03-05 23:30:00', 23, 50.00, 'AVAILABLE', now(), now()),
+       (11, 7, 8, '2026-03-12 22:00:00', 24, 40.00, 'AVAILABLE', now(), now()),
+       (12, 8, 6, '2026-08-20 20:30:00', 25, 100.00, 'SOLD_OUT', now(), now())
+  ON CONFLICT (id) DO NOTHING;
 
 -- 7. Corrected Sequence Syncs
 SELECT setval(pg_get_serial_sequence('artists', 'id'), (SELECT MAX(id) FROM artists));

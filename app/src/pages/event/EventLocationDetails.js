@@ -10,6 +10,7 @@ const LocationDetails = () => {
     const [occurrence, setOccurrence] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showMaintenanceMode, setShowMaintenanceMode] = useState(false);
 
     // User interaction state
     const [quantity, setQuantity] = useState(1);
@@ -41,8 +42,9 @@ const LocationDetails = () => {
                 }
             });
 
-            // 2. Create Order (if 204 No Content)
-            if (availRes.status === 204) {
+
+            if (availRes.status === 200) {
+                localStorage.setItem('hasActiveOrder', true);
                 const orderRes = await axios.post("http://localhost:8081/orders", {
                     event_location_id: occurrence.eventLocationId,
                     tickets_count: quantity,
@@ -58,9 +60,15 @@ const LocationDetails = () => {
                 navigate(`/order/active/`);
             }
         } catch (err) {
-            const status = err.response?.status;
-            if (status === 400) setError('Insufficient tickets available.');
-            else if (status === 404) setError('Event or tickets not found.');
+            console.error("Data:", err.response.data);
+        console.error("Status:", err.response.status);
+           // const status = err.response?.status;
+            if (err.response?.status === 400) setError('Insufficient tickets available.');
+            if (err.response?.status === 409) {
+                setError("Insufficient tickets available. This event may have just sold out. Please try again."); 
+                setShowMaintenanceMode(true);
+            }
+            else if (err.status === 404) setError('Event or tickets not found.');
             else setError('Service unavailable. Please try again later.');
         }
     };
@@ -119,28 +127,49 @@ const LocationDetails = () => {
                             {/* Quantity Selection */}
                             <div className="col-md-2">
                                 <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Quantity</label>
-                                <select
-                                    className="form-select border-0 bg-light fw-bold py-2"
-                                    value={quantity}
-                                    onChange={(e) => setQuantity(parseInt(e.target.value))}
-                                    disabled={!isAvailable}
-                                >
-                                    {[1, 2, 3, 4, 5, 6].map(num => (
-                                        <option key={num} value={num}>{num} Tickets</option>
-                                    ))}
-                                </select>
+                                <div className="d-flex align-items-center bg-light rounded px-2 py-1">
+                                    <button
+                                        className="btn btn-sm btn-outline-secondary border-0 px-2"
+                                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                        disabled={!isAvailable || quantity <= 1}
+                                    >−</button>
+                                    <span className="fw-bold mx-3">{quantity}</span>
+                                    <button
+                                        className="btn btn-sm btn-outline-secondary border-0 px-2"
+                                        onClick={() => setQuantity(q => Math.min(8, q + 1))}
+                                        disabled={!isAvailable}
+                                    >+</button>
+                                </div>
                             </div>
 
                             {/* CTA Button */}
                             <div className="col-md-3 text-md-end">
-                                <button
-                                    onClick={handleBooking}
-                                    disabled={!isAvailable}
-                                    className={`btn btn-lg rounded-pill px-5 py-3 fw-bold transition-all w-100 ${isAvailable ? 'btn-primary shadow' : 'btn-secondary opacity-50'
-                                        }`}
-                                >
-                                    {isAvailable ? 'Book Now' : 'Sold Out'}
-                                </button>
+
+                                {showMaintenanceMode ? (
+                                    <button
+                                        disabled
+                                        className="btn btn-danger rounded-pill px-5 py-2 shadow-sm"
+                                        style={{
+                                            opacity: 1,           // Prevents the "faded" look
+                                            backgroundColor: '#dc3545', // Standard Bootstrap Red
+                                            borderColor: '#dc3545',
+                                            cursor: 'not-allowed' // Shows a "prohibited" icon on hover
+                                        }}
+                                    >
+
+                                        Temporarily Unavailable
+                                    </button>
+
+                                ) : (
+                                    <button
+                                        onClick={handleBooking}
+                                        disabled={!isAvailable}
+                                        className={`btn btn-lg rounded-pill px-5 py-3 fw-bold transition-all w-100 ${isAvailable ? 'btn-primary shadow' : 'btn-secondary opacity-50'
+                                            }`}
+                                    >
+                                        {isAvailable ? 'Book Now' : 'Sold Out'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

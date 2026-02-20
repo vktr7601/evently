@@ -17,11 +17,16 @@ import java.util.List;
 @Setter(AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Added for Jackson/Redis
 public class EventDetailDto implements Serializable {
+    @JsonProperty("id")
     private long id;
-    private String name;
+    @JsonProperty("eventName")
+    private String eventName;
+    @JsonProperty("eventDescription")
     private String description;
+    @JsonProperty("eventImageUrl")
     private String imageUrl;
     @JsonIgnoreProperties("events")
+    @JsonProperty("artist")
     private Artist artist;
     @Setter(AccessLevel.PUBLIC)
     @JsonProperty("categories")
@@ -29,11 +34,11 @@ public class EventDetailDto implements Serializable {
 
     @Setter(AccessLevel.PUBLIC)
     @JsonProperty("eventLocations")
-    private List<EventsLocationsDto> eventLocationData;
+    private List<EventsLocationsDto> eventsLocations;
 
-    public EventDetailDto(long id, String name, String description, String imageUrl, Artist artist) {
+    public EventDetailDto(long id, String eventName, String description, String imageUrl, Artist artist) {
         setId(id);
-        setName(name);
+        setEventName(eventName);
         setDescription(description);
         setImageUrl(imageUrl);
         setArtist(artist);

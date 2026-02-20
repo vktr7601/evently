@@ -1,0 +1,18 @@
+package com.evently.booking.infrastructure.clients.paymentService;
+
+import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceRequest;
+import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
+import com.evently.booking.order.entities.RefundRequest;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+
+@FeignClient(name = "payment-service", url = "http://localhost:8084")
+public interface PaymentServiceClient {
+
+    @PostMapping("/payments/process")
+    ResponseEntity<PaymentServiceResponse> processPayment(PaymentServiceRequest paymentServiceRequest);
+
+    @PostMapping("/payments/refund")
+    ResponseEntity<PaymentServiceResponse> processRefund(RefundRequest refundRequest);
+}

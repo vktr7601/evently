@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 @Setter
 public class UserRequest {
-    @JsonProperty("first_name")
+    @JsonProperty("firstName")
     private String firstName;
-    @JsonProperty("last_name")
+    @JsonProperty("lastName")
     private String lastName;
     @JsonProperty("email")
     private String email;
@@ -19,6 +19,12 @@ public class UserRequest {
     private int age;
     @JsonProperty("password")
     private String password;
-    @JsonProperty("events_preferences")
+    @JsonProperty("confirmPassword")
+    private String confirmPassword;
+    @JsonProperty("eventsCategories")
     private List<Long> categories;
+    @JsonProperty("locations")
+    private List<Long> locations;
+    @JsonProperty("isSubscribedToNewsletter")
+    private boolean isSubscribedToNewsletter;
 }

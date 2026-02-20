@@ -1,5 +1,6 @@
 package com.evently.booking.order;
 
+import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,15 +21,15 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 public class Order extends BaseEntity {
-    @Column(name = "user_id")
+    @Column(name = "userId")
     private long userId;
-    @Column(name = "total_price")
+    @Column(name = "totalPrice")
     private BigDecimal totalPrice = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
-    @Column(name = "expiration_time")
+    @Column(name = "expirationTime")
     private LocalDateTime expirationTime;
     @Column(name = "number")
     private Long number;
@@ -37,11 +38,11 @@ public class Order extends BaseEntity {
     @Column(name = "audit")
     @JdbcTypeCode(SqlTypes.JSON)
     private String audit;
-    @Column(name = "transaction_id")
+    @Column(name = "transactionId")
     private String transactionId;
-    @Column(name = "refund_id")
+    @Column(name = "refundId")
     private String refundId;
-    @Column(name = "refund_time")
+    @Column(name = "refundTime")
     private LocalDateTime refundTime;
 
     public void addTicket(Ticket ticket) {

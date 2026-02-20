@@ -6,7 +6,7 @@ import { useState } from 'react';
 const Navbar = () => {
   const navigate = useNavigate();
   // const isAuthenticated = !!localStorage.getItem("userToken");
-  const isAuth = true;
+  const isAuth = false;
   const [activeOrder, setActiveOrder] = useState(false);
 
   const handleSignOut = () => {
@@ -44,6 +44,9 @@ const Navbar = () => {
             )}
             <li className="nav-item">
               <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
+            </li>
+             <li className="nav-item">
+              <NavLink to="/admin/location/create" className="nav-link px-3">Create Location</NavLink>
             </li>
             {localStorage.getItem('hasActiveOrder') && <li className="nav-item">
               <NavLink to="/order/active" className="nav-link px-3">Active Order</NavLink>

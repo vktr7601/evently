@@ -1,7 +1,7 @@
 package com.evently.booking.ticket;
 
 import com.evently.booking.order.Order;
-import com.evently.booking.ticket.entities.TicketStatus;
+import com.evently.booking.ticket.data.TicketStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,14 +16,14 @@ import java.time.LocalDateTime;
 @Setter
 @Table(name = "tickets")
 public class Ticket extends BaseEntity {
-    @Column(name = "user_id")
+    @Column(name = "userId")
     private Long userId;
-    @Column(name = "events_locations_id", nullable = false)
+    @Column(name = "eventLocationId", nullable = false)
     private Long eventLocationsId;
     @Column(name = "number")
     private long number;
-    @Column(name = "date")
-    private LocalDateTime dateTime;
+    @Column(name = "eventStartTime")
+    private LocalDateTime eventStartTime;
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
     @Column(name = "price")

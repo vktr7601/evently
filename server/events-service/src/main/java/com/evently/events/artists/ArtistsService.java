@@ -2,15 +2,15 @@ package com.evently.events.artists;
 
 import com.evently.events.artists.entities.ArtistDetails;
 import com.evently.events.artists.entities.ArtistListItem;
-import com.evently.events.artists.entities.ArtistMapper;
-import com.evently.events.config.S3BucketService;
 import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import com.evently.events.eventsLocations.entities.FetchMode;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,23 +19,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArtistsService {
     private final ArtistsRepository artistsRepository;
-    private final S3BucketService s3BucketService;
-    private final ArtistMapper mapper;
     private final EventsLocationsService eventsLocationsService;
 
-    @Cacheable(cacheNames = "artists", key = "#id")
+    //    @Cacheable(cacheNames = "artists", key = "#id")
     public ArtistDetails findArtistDetails(long id) {
-        ArtistDetails artistDetailsDto = artistsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Artist with id " + id + " not found"));
-        List<EventsLocationsDto> allUpcomingEventsByArtistId = eventsLocationsService.findAllUpcomingEventsByArtistId(artistDetailsDto.getId());
+        log.info("Getting artist details for id {}", id);
+        ArtistDetails artistDetailsDto = artistsRepository.findArtistDetails(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Artist with" +
+                        " id " + id + "was not found"));
 
-        artistDetailsDto.setLocations(allUpcomingEventsByArtistId);
+        log.info("Found artist details for id {}", id);
+        List<EventsLocationsDto> artistEventLocations =
+                eventsLocationsService.findAllUpcomingEventsByArtistId(artistDetailsDto.getId(), FetchMode.WITH_AVAILABILITY);
+        log.info("Found artist details for id {}", artistDetailsDto.getId());
+        artistDetailsDto.setEventLocations(artistEventLocations);
 
+        log.info("Found artist details for id {}", artistDetailsDto.getId());
         return artistDetailsDto;
     }
 
     @Cacheable(cacheNames = "artists", key = "'allArtistsSortedByDateDesc'")
     public List<ArtistListItem> findAllArtistsSortedByDateDesc() {
-        List<ArtistListItem> allArtistsSortedByDateDesc = artistsRepository.findAllArtistsSortedByDateDesc();
+        List<ArtistListItem> allArtistsSortedByDateDesc =
+                artistsRepository.findAllArtistsSortedByDateDesc();
 
         log.info("Found {} artists sorted", allArtistsSortedByDateDesc.size());
 
@@ -43,27 +49,14 @@ public class ArtistsService {
     }
 
 
-    public Artist findById(Long id) {
-
+    @Transactional
+    public Artist findById(Long id) throws ResourceNotFoundException {
         Artist artist = artistsRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Artist with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Artist with" +
+                        " id " + id + " not found"));
 
         log.info("Found {} artist", artist.getName());
 
         return artist;
     }
-
-//    public ArtistsDto savePerformer(ArtistRequest artistRequest) {
-//        String imageUrl = "";
-//        try {
-//            imageUrl = s3BucketService.uploadFile(artistRequest.getImage());
-//            var performer = mapper.mapToEntity(artistRequest);
-//            performer.setImageUrl(imageUrl);
-//            Artist savedEntity = artistsRepository.save(performer);
-//            return mapper.mapToDto(performer);
-//        } catch (Exception e) {
-//            s3BucketService.deleteFile(imageUrl);
-//        }
-//        return null;
-//    }
 }

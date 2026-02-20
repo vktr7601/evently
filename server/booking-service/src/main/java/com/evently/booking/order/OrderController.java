@@ -1,8 +1,7 @@
 package com.evently.booking.order;
 
-import com.evently.booking.exceptions.OrderNotRefundableException;
 import com.evently.booking.order.entities.FinishOrderRequest;
-import com.evently.booking.order.entities.OrderDetailsDto;
+import com.evently.booking.order.entities.OrderDetails;
 import com.evently.booking.order.entities.OrderListItemDto;
 import com.evently.booking.order.entities.OrderRequest;
 import dtos.Headers;
@@ -26,7 +25,7 @@ public class OrderController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<OrderDetailsDto> getActive(@RequestHeader(Headers.USER_ID) Long userId) {
+    public ResponseEntity<OrderDetails> getActive(@RequestHeader(Headers.USER_ID) Long userId) {
         var result = orderService.getActiveUserOrder(userId);
         return ResponseEntity.ok(orderService.getActiveUserOrder(userId));
     }
@@ -51,7 +50,7 @@ public class OrderController {
     }
 
     @GetMapping("/details/{number}")
-    public ResponseEntity<OrderDetailsDto> getOrderDetails(@RequestHeader(Headers.USER_ID) Long userId, @PathVariable Long number) {
+    public ResponseEntity<OrderDetails> getOrderDetails(@RequestHeader(Headers.USER_ID) Long userId, @PathVariable Long number) {
         var orderDetails = orderService.getOrderDetails(userId, number);
         return ResponseEntity.ok(orderDetails);
     }

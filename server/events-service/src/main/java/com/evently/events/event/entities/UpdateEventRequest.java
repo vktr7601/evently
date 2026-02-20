@@ -2,6 +2,7 @@ package com.evently.events.event.entities;
 
 import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class UpdateEventRequest implements Serializable {
     private String description;
     @JsonProperty("categories")
     List<Long> categories;
+    @Valid
     @JsonProperty("eventLocations")
     public List<EventsLocationsData> eventLocations;
 }

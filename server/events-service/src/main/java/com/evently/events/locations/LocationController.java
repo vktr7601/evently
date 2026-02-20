@@ -1,7 +1,9 @@
 package com.evently.events.locations;
 
-import com.evently.events.locations.entities.LocationDetailsDto;
-import com.evently.events.locations.entities.LocationListItemDto;
+import com.evently.events.eventsLocations.EventsLocationsService;
+import com.evently.events.eventsLocations.entities.FetchMode;
+import com.evently.events.locations.entities.LocationDetails;
+import com.evently.events.locations.entities.LocationListItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +20,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationController {
     private final LocationService locationService;
+    private final EventsLocationsService eventsLocationsService;
 
     @GetMapping
-    public ResponseEntity<List<LocationListItemDto>> getLocationListItems() {
+    public ResponseEntity<List<LocationListItem>> getAll() {
         log.info("Received request to fetch all location items for listing.");
 
-        List<LocationListItemDto> locationListItemDtos = locationService.findAllLocationItems();
+        List<LocationListItem> locationListItems = locationService.getAll();
 
-        log.info("Successfully retrieved {} location items.", locationListItemDtos.size());
+        log.info("Successfully retrieved {} location items.",
+                locationListItems.size());
 
-        return ResponseEntity.ok(locationListItemDtos);
+        return ResponseEntity.ok(locationListItems);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LocationDetailsDto> getLocationDetails(@PathVariable Long id) {
-        return ResponseEntity.ok(locationService.findLocationDetailsById(id));
+    public ResponseEntity<LocationDetails> getById(@PathVariable Long id) {
+        log.info("Received request to fetch location details for location " +
+                "with id {}.", id);
+        LocationDetails locationDetails =
+                eventsLocationsService.findLocationDetails(id,
+                        FetchMode.WITH_AVAILABILITY);
+
+        log.info("Successfully fetched location details for location with id " +
+                "{}.", id);
+
+        return ResponseEntity.ok(locationDetails);
     }
 }

@@ -5,8 +5,6 @@ import com.evently.events.category.entities.CategoryMapper;
 import com.evently.events.category.entities.CategoryRequest;
 import exceptions.DuplicateResourceException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +13,14 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-
 @RequiredArgsConstructor
 public class CategoryService {
-    private static final Logger log = LoggerFactory.getLogger(CategoryService.class);
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
     @Transactional
     public CategoryDto create(CategoryRequest request) {
-        if (categoryRepository.existsByName(request.name()))
+        if (categoryRepository.existsByName(request.getName()))
             throw new DuplicateResourceException("Category already exists");
 
         Category category = categoryMapper.toEntity(request);

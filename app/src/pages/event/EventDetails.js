@@ -4,7 +4,7 @@ import axios from 'axios';
 
 
 const EventDetails = () => {
-    const [isAdmin, setIsAdmin] = useState(true); 
+    const [isAdmin, setIsAdmin] = useState(true);
     const { id } = useParams();
     const [event, setEvent] = useState(null);
 
@@ -18,6 +18,35 @@ const EventDetails = () => {
                 console.error("Error fetching event:", err);
             });
     }, [id]);
+
+    const renderBookingButton = (loc) => {
+        switch (loc.eventsLocationsStatus) {
+            case 'AVAILABLE':
+                return (
+                    <Link to={`/event-details/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                        Book Tickets
+                    </Link>
+                );
+            case 'CANCELLED':
+                return (
+                    <button className="btn btn-outline-danger rounded-pill px-5 py-2 disabled" disabled>
+                        Cancelled
+                    </button>
+                );
+            case 'PENDING_TICKETS':
+                return (
+                    <button className="btn btn-warning rounded-pill px-5 py-2 disabled" disabled>
+                        Coming Soon
+                    </button>
+                );
+            default: 
+                return (
+                    <button className="btn btn-secondary rounded-pill px-5 py-2 disabled" disabled>
+                        Sold Out
+                    </button>
+                );
+        }
+    };
 
     if (!event) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
 
@@ -117,16 +146,7 @@ const EventDetails = () => {
 
                                             {/* Action Column */}
                                             <div className="col-md-3 text-md-end mt-3 mt-md-0">
-                                                {loc.eventsLocationsStatus === 'AVAILABLE' ? (
-
-                                                    <Link to={`/event-details/${loc.eventLocationId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
-                                                        Book Tickets
-                                                    </Link>
-                                                ) : (
-                                                    <button className="btn btn-secondary rounded-pill px-5 py-2 disabled" disabled>
-                                                        Sold Out
-                                                    </button>
-                                                )}
+                                                {renderBookingButton(loc)}
                                             </div>
                                         </div>
                                     </div>

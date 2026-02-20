@@ -6,8 +6,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface LocationMapper {
-    LocationListItemDto toDto(Location location);
-
     @Mapping(target = "imageUrl", source = "imageUrl", ignore = true)
     Location toEntity(LocationRequest locationRequest);
 }
