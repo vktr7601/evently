@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,9 @@ public class TicketService {
 
     @Transactional
     public void createTickets(List<TicketsCreationEvent> data) {
+        LocalDateTime now = LocalDateTime.now();
+        log.info("Start Time" + LocalDateTime.now());
+
         if (data == null || data.isEmpty()) {
             log.warn("No ticket allocations provided. Skipping ticket " +
                     "creation.");
@@ -72,7 +76,12 @@ public class TicketService {
         ticketsCreated.setEventLocationIds(eventLocationIds);
         eventPublisher.publishEvent(ticketsCreated);
 
+        log.info("End Time" + LocalDateTime.now());
 
+
+        LocalDateTime now1 = LocalDateTime.now();
+        Duration res = Duration.between(now, now1);
+        log.info("Total tickets created: " + res);
     }
 
     public boolean checkAvailability(long locationEventsId, int ticketCounts) {

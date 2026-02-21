@@ -265,7 +265,6 @@ public class OrderService {
         paymentServiceRequest.setCardNumber(finishOrderRequest.getCardNumber().trim());
         paymentServiceRequest.setCardExpiry(finishOrderRequest.getCardExpiry().trim());
         paymentServiceRequest.setCardCvv(finishOrderRequest.getCardCvv().trim());
-        paymentServiceRequest.setUserId(userId);
         paymentServiceRequest.setOrderId(order.getId());
 
         ResponseEntity<PaymentServiceResponse> response =
@@ -276,6 +275,7 @@ public class OrderService {
             order.setActive(false);
             order.setTransactionId(response.getBody().getTransactionId());
             orderRepository.save(order);
+            //raiseEvent which will send emial to the user
         } else {
             if (response.getBody().getMessage().startsWith("Invalid card")) {
                 throw new ProcessOrderException(response.getBody());

@@ -30,12 +30,6 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getActiveUserOrder(userId));
     }
 
-//    @PutMapping("/expire")
-//    public ResponseEntity<?> expireActiveUserOrder(@RequestHeader("X-User-Id") Long userId) {
-//        orderService.expireActiveUserOrder(userId);
-//        return ResponseEntity.noContent().build();
-//    }
-
     @DeleteMapping("/cancel")
     public ResponseEntity<?> cancelOrder(@RequestHeader(Headers.USER_ID) Long userId) {
         orderService.cancelActiveOrder(userId);

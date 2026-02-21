@@ -3,14 +3,14 @@ services:
     image: postgres:latest
     container_name: postgres-microservices
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
     ports:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - ticket-network
+#    networks:
+#      - ticket-network
 
   eureka:
     image: eureka
@@ -18,52 +18,52 @@ services:
     ports:
       - "8761:8761"
     networks:
-      - ticket-network
+      - evently-network
 
-  api-gateway:
-    image: evently-gateway
-    container_name: evently-api-gateway
-    restart: on-failure
-    ports:
-      - "9000:9000"
-    depends_on:
-      - eureka
-    networks:
-      - ticket-network
+#  api-gateway:
+#    image: evently-gateway
+#    container_name: evently-api-gateway
+#    restart: on-failure
+#    ports:
+#      - "9000:9000"
+#    depends_on:
+#      - eureka
+#    networks:
+#      - ticket-network
 
-  events-service:
-    image: events-service
-    container_name: events-service
-    ports:
-      - "8082:8082"
-    environment:
-      EUREKA_SERVER: http://eureka:8761/eureka/
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    depends_on:
-      - eureka
-      - postgres
-      - kafka
-    networks:
-      - ticket-network
+#  events-service:
+#    image: events-service
+#    container_name: events-service
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      EUREKA_SERVER: http://eureka:8761/eureka/
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#    depends_on:
+#      - eureka
+#      - postgres
+#      - kafka
+#    networks:
+#      - ticket-network
 
-  front-end:
-    image: react-app
-    container_name: react-app-fronted
-    ports:
-      - "3000:3000"
-    depends_on:
-      - events-service
-    networks:
-      - ticket-network
+#  front-end:
+#    image: react-app
+#    container_name: react-app-fronted
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - events-service
+#    networks:
+#      - ticket-network
 
   kafka:
     image: apache/kafka:latest
     container_name: message-broker
     ports:
       - "9092:9092"
-    networks:
-      - ticket-network
+#    networks:
+#      - ticket-network
 
   redis:
     image: redis:latest
@@ -73,8 +73,8 @@ services:
     command: ["redis-server", "--aclfile", "/etc/redis/users.acl"]
     ports:
       - "6379:6379"
-    networks:
-      - ticket-network
+#    networks:
+#      - evently-network
 
   redis-insight:
     image: redis/redisinsight:latest
@@ -83,9 +83,9 @@ services:
       - "5540:5540"
     depends_on:
       - redis
-    networks:
-      - ticket-network
+#    networks:
+#      - evently-network
 
 networks:
-  ticket-network:
+  evently-network:
     driver: bridge

@@ -28,6 +28,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+      order_inserts: true
+      order_updates: true
+      jdbc:
+        batch_size: 50
     defer-datasource-initialization: true
     show-sql: true
     hbm2ddl:
@@ -45,7 +49,16 @@ aws:
     region: us-east-1
     access-key: AKIA4HB7X5DXB45HRBQ7
     secret-key: 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
-
+debug:
+  logging:
+    level:
+      org:
+        springframework:
+          web: DEBUG
+          jdbc: DEBUG
+          orm: DEBUG
+          data: DEBUG
+          hibernate: DEBUG
 #
 #eureka:
 #  client:

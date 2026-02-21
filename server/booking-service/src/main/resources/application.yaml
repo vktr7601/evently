@@ -1,9 +1,6 @@
 spring:
   application:
     name: booking-service
-  jackson:
-    serialization:
-      write-date-keys-as-timestamps: false
   sql:
     init:
       mode: always
@@ -11,6 +8,15 @@ spring:
     url: jdbc:postgresql://localhost:5432/booking_db
     username: admin
     password: adminPassword
+  logging:
+    level:
+      org:
+        springframework:
+          web: DEBUG
+          jdbc: DEBUG
+          orm: DEBUG
+          data: DEBUG
+          hibernate: DEBUG
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -34,11 +40,11 @@ spring:
 server:
   port: 8081
 
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      defaultZone: http://localhost:8761/eureka/
-#  instance:
-#    prefer-ip-address: true
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
