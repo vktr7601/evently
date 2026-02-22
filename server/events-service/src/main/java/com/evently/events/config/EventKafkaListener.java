@@ -6,12 +6,14 @@ import dtos.KafkaTopics;
 import dtos.TicketsCreated;
 import events.eventCreated.EventCreated;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class EventKafkaListener {
 
@@ -41,6 +43,7 @@ public class EventKafkaListener {
 
     @KafkaListener(topics = KafkaTopics.TICKETS_CREATED)
     public void handleTicketsCreated(TicketsCreated ticketsCreated) {
+        log.info("Received tickets created event: {}", ticketsCreated);
         eventsLocationsService.markAsActive(ticketsCreated.getEventLocationIds());
     }
 }

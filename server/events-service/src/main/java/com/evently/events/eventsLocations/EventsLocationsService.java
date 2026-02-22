@@ -3,7 +3,10 @@ package com.evently.events.eventsLocations;
 
 import com.evently.events.config.EventLocationsMapper;
 import com.evently.events.event.Event;
-import com.evently.events.eventsLocations.entities.*;
+import com.evently.events.eventsLocations.entities.EventsLocationsData;
+import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import com.evently.events.eventsLocations.entities.EventsLocationsStatus;
+import com.evently.events.eventsLocations.entities.FetchMode;
 import com.evently.events.infra.exceptions.LocationCollisionException;
 import com.evently.events.locations.Location;
 import com.evently.events.locations.LocationService;
@@ -63,10 +66,14 @@ public class EventsLocationsService {
         List<Location> locations =
                 locationService.findAllByEventLocationsData(eventLocationData);
 
+
+        validateNoArtistSchedulingConflicts(event, eventLocationData);
+
         Map<Long, Location> locationsMap = locations.stream()
                 .collect(Collectors.toMap(Location::getId,
                         Function.identity()));
 
+        validateNoLocationSchedulingConflicts(eventLocationData, locationsMap);
         List<EventsLocations> eventsLocations = eventLocationData.stream()
                 .map(data -> eventsLocationMapper.toEntity(event, data,
                         locationsMap.get(data.getLocationId())))
@@ -249,7 +256,7 @@ public class EventsLocationsService {
         Map<Long, Set<LocalDateTime>> allUpcomingEventsByArtistIdMap =
                 allUpcomingEventsByArtistId.stream().collect(Collectors.groupingBy(EventsLocationsDto::getLocationId, Collectors.mapping(EventsLocationsDto::getEventStartTime, Collectors.toSet())));
         Map<Long, Set<LocalDateTime>> eventLocationDataMap =
-                eventLocationData.stream().collect(Collectors.groupingBy(EventsLocationsData::getLocationId, Collectors.mapping(EventsLocationsData::getEventDate, Collectors.toSet())));
+                eventLocationData.stream().collect(Collectors.groupingBy(EventsLocationsData::getLocationId, Collectors.mapping(EventsLocationsData::getEventStartTime, Collectors.toSet())));
 
         List<String> collisions = new ArrayList<>();
 
@@ -280,11 +287,11 @@ public class EventsLocationsService {
     void validateNoLocationSchedulingConflicts(List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) throws LocationCollisionException {
         List<String> collisions = new ArrayList<>();
         eventLocationData.forEach(x -> {
-            LocalDate date = x.getEventDate().toLocalDate();
+            LocalDate date = x.getEventStartTime().toLocalDate();
             LocalDateTime startOfDay = date.atStartOfDay();
             LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
             if (eventsLocationsRepository.hasEventForLocationInSpecificDate(x.getLocationId(), startOfDay, endOfDay)) {
-                collisions.add("Event already exists for location: " + locationMap.get(x.getLocationId()).getName() + " on date: " + x.getEventDate());
+                collisions.add("Event already exists for location: " + locationMap.get(x.getLocationId()).getName() + " on date: " + x.getEventStartTime());
             }
         });
 

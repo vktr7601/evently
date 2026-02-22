@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -370,4 +371,7 @@ public class OrderService {
     }
 
 
+    public void saveAll(Set<Order> orders) {
+        orderRepository.saveAll(orders);
+    }
 }

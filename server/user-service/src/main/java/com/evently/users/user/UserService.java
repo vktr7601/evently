@@ -5,6 +5,7 @@ import com.evently.users.config.KakfaProducer;
 import com.evently.users.exceptions.DuplicateEmailException;
 import com.evently.users.user.entities.UserMapper;
 import com.evently.users.user.entities.UserRequest;
+import com.evently.users.user.entities.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,12 +28,18 @@ public class UserService {
             throw new DuplicateEmailException(userRequest.getEmail());
 
         User user = userMapper.toEntity(userRequest);
+        if (userRequest.getEmail().contains("@admin.evently.com")) {
+            user.setUserRole(UserRole.ADMIN);
+        } else {
+            user.setUserRole(UserRole.USER);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
 
         log.info("User  {} has been registered successfully", user);
 
-        // userPreferencesService.addPreferences(user, userRequest.getPreferences());
+        // userPreferencesService.addPreferences(user, userRequest
+        // .getPreferences());
 
         kafkaProducer.sendUserRegisteredEvent(userMapper.toUserRegisteredEvent(user));
 

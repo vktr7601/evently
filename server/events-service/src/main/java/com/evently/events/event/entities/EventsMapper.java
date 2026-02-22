@@ -12,7 +12,7 @@ import java.util.List;
 public class EventsMapper {
 
 
-    public Event toEntity(CreateEventRequest dto) {
+    public Event toEntity(EventCreate dto) {
         if (dto == null) {
             return null;
         }
@@ -24,7 +24,7 @@ public class EventsMapper {
         return event;
     }
 
-    public Event toEntity(CreateEventRequest dto, Artist artist) {
+    public Event toEntity(EventCreate dto, Artist artist) {
         if (dto == null && artist == null) {
             return null;
         }

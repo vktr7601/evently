@@ -6,7 +6,6 @@ const OrderListItem = ({ order }) => {
         <div key={order.number} className="card border-0 shadow-sm rounded-4 p-4 mb-3 overflow-hidden">
             <div className="row align-items-center g-4">
 
-                {/* 1. Date Column */}
                 <div className="col-md-2 border-end-md">
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Order Date</label>
                     <h5 className="fw-bold mb-0">
@@ -18,13 +17,13 @@ const OrderListItem = ({ order }) => {
                     </h5>
                 </div>
 
-                {/* 2. Order Reference */}
+
                 <div className="col-md-3 border-end-md">
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Reference</label>
                     <h5 className="fw-bold mb-0 text-dark">#{order.number}</h5>
                 </div>
 
-                {/* 3. Total Price */}
+
                 <div className="col-md-2 border-end-md">
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Amount</label>
                     <h4 className="fw-bold mb-0 text-success">
@@ -32,7 +31,6 @@ const OrderListItem = ({ order }) => {
                     </h4>
                 </div>
 
-                {/* 4. Status Badge */}
                 <div className="col-md-2">
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Status</label>
                     <span className={`badge rounded-pill px-3 py-2 ${order.orderStatus === 'COMPLETED' ? 'bg-success-subtle text-success' :
@@ -43,7 +41,6 @@ const OrderListItem = ({ order }) => {
                     </span>
                 </div>
 
-                {/* 5. CTA Button */}
                 <div className="col-md-3 text-md-end">
                     {order.orderStatus === 'PENDING_PAYMENT' ? (
                         <Link to="/order/active" className="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm w-100">
@@ -63,14 +60,14 @@ const OrderListItem = ({ order }) => {
 
 export default OrderListItem;
 
-const getStatusStyles = (status) => {
-    switch (status) {
-        case 'COMPLETED': return { backgroundColor: '#ecfdf5', color: '#059669' }; // Green
-        case 'CANCELLED': return { backgroundColor: '#fef2f2', color: '#dc2626' }; // Red
-        case 'PENDING': return { backgroundColor: '#eff6ff', color: '#2563eb' };   // Blue
-        default: return { backgroundColor: '#f9fafb', color: '#6b7280' };
-    }
-};
+// const getStatusStyles = (status) => {
+//     switch (status) {
+//         case 'COMPLETED': return { backgroundColor: '#ecfdf5', color: '#059669' }; // Green
+//         case 'CANCELLED': return { backgroundColor: '#fef2f2', color: '#dc2626' }; // Red
+//         case 'PENDING': return { backgroundColor: '#eff6ff', color: '#2563eb' };   // Blue
+//         default: return { backgroundColor: '#f9fafb', color: '#6b7280' };
+//     }
+// };
 
 // const styles = {
 //     orderRow: {

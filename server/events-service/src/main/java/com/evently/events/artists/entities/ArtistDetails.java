@@ -2,6 +2,7 @@ package com.evently.events.artists.entities;
 
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import static lombok.AccessLevel.PUBLIC;
 @Getter
 @Setter(PRIVATE)
 @NoArgsConstructor
+@AllArgsConstructor
 public class ArtistDetails implements Serializable {
     @JsonProperty("id")
     private long id;
@@ -27,11 +29,4 @@ public class ArtistDetails implements Serializable {
     @Setter(PUBLIC)
     @JsonProperty("eventLocations")
     private List<EventsLocationsDto> eventLocations;
-
-    public ArtistDetails(long id, String name, String bio, String imageUrl) {
-        setId(id);
-        setName(name);
-        setBio(bio);
-        setImageUrl(imageUrl);
-    }
 }

@@ -3,6 +3,8 @@ package com.evently.booking.ticket;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
+import com.evently.booking.order.Order;
+import com.evently.booking.order.OrderService;
 import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.data.TicketsMapper;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ public class TicketService {
     private final TicketsMapper ticketsMapper;
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
+    private final OrderService orderService;
 
     @Transactional
     public void createTickets(List<TicketsCreationEvent> data) {
@@ -219,4 +223,65 @@ public class TicketService {
         return tickets.stream().map(Ticket::getEventLocationsId).toList();
     }
 
+    public void cancelTicketsForEvents(List<Long> eventsLocationsIds) {
+        int totalCancelled =
+                ticketRepository.updateTicketStatusByEventLocationIds(eventsLocationsIds, TicketStatus.CANCELED);
+        List<Ticket> tickets =
+                ticketRepository.findAllTicketsWithOrdersByLocationIds(eventsLocationsIds);
+
+
+        // 2. Group these affected tickets by their Order
+        Map<Order, List<Ticket>> cancelledTicketsByOrder = tickets.stream()
+                .collect(Collectors.groupingBy(Ticket::getOrder));
+
+        cancelledTicketsByOrder.forEach((order, cancelledTickets) -> {
+            // 3. Get total tickets originally in this order
+            int totalTicketsInOrder = order.getTickets().size();
+            int cancelledTicketsCount = cancelledTickets.size();
+
+            BigDecimal refundAmount = cancelledTickets.stream()
+                    .map(Ticket::getPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // 5. Determine Refund Type
+            boolean isFullRefund =
+                    (cancelledTicketsCount == totalTicketsInOrder);
+
+            if (isFullRefund) {
+                log.info("Order {}: FULL REFUND initiated for amount {}",
+                        order.getId(), refundAmount);
+                order.setStatus(OrderStatus.REFUNDED);
+            } else {
+                log.info("Order {}: PARTIAL REFUND initiated for amount {}",
+                        order.getId(), refundAmount);
+                order.setStatus(OrderStatus.PARTIALLY_REFUNDED);
+            }
+
+            cancelledTickets.forEach(t -> t.setStatus(TicketStatus.CANCELED));
+
+            // 7. Emit Kafka Event for Payment/Notification service
+//            emitRefundEvent(order, refundAmount, isFullRefund,
+//                    cancelledTickets);
+        });
+
+        orderService.saveAll(cancelledTicketsByOrder.keySet());
+
+//        // 3. Process each order
+//        ticketsByOrder.forEach((order, orderTickets) -> {
+//            BigDecimal refundAmount = orderTickets.stream()
+//                    .map(Ticket::getPrice)
+//                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//            // TODO: Call PaymentService.refund(order.getPaymentId(),
+//            //  refundAmount)
+//            log.info("Initiating refund of {} for Order {}", refundAmount,
+//                    order.getId());
+//
+//            // 4. Update ticket statuses
+//            orderTickets.forEach(t -> t.setStatus(TicketStatus
+//            .REFUND_INITIATED));
+//        });
+
+        ticketRepository.saveAll(tickets);
+    }
 }

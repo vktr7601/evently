@@ -3,9 +3,9 @@ package com.evently.events.event.entities;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class CreateEventValidator implements ConstraintValidator<ValidCreateEvent, CreateEventRequest> {
+public class CreateEventValidator implements ConstraintValidator<ValidCreateEvent, EventCreate> {
     @Override
-    public boolean isValid(CreateEventRequest createEventRequest, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(EventCreate createEventRequest, ConstraintValidatorContext constraintValidatorContext) {
 
         boolean isValid = true;
 

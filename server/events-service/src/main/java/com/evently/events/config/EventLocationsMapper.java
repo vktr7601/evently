@@ -17,7 +17,7 @@ public class EventLocationsMapper {
         EventsLocations entity = new EventsLocations();
         entity.setEvent(event);
         entity.setLocation(location);
-        entity.setDate(data.getEventDate());
+        entity.setDate(data.getEventStartTime());
         entity.setTotalTickets(data.getTickets());
         entity.setPrice(data.getPrice());
         entity.setEventsLocationsStatus(EventsLocationsStatus.PENDING_TICKETS);

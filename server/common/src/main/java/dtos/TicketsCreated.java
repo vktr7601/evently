@@ -14,4 +14,11 @@ import java.util.List;
 public class TicketsCreated implements Serializable {
     @JsonProperty("eventLocationIds")
     private List<Long> eventLocationIds;
+
+    @Override
+    public String toString() {
+        return "TicketsCreated{" +
+                "eventLocationIds=" + eventLocationIds +
+                '}';
+    }
 }

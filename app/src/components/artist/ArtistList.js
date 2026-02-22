@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
-import axios from 'axios';
 import ArtistListItem from "./ArtistListItem";
+import axios from "axios";
 
 const ArtistList = () => {
     const [artists, setArtists] = useState([]);

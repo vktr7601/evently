@@ -8,10 +8,10 @@ const EditEvent = () => {
 
     const [eventData, setEventData] = useState({
         eventName: '',
-        description: '',
-        artistName: '',
-        categories: [],
-        eventLocations: [{ locationId: '', eventDate: '', tickets: 1, price: 0 }]
+        eventDescription: '',
+        artistId: '',
+        eventCategories: [],
+        eventLocations: [{ eventLocationId: '', locationId: '', eventStartTime: '', ticketsCount: 1, pricePerTicket: 0 }]
     });
 
     const removeLocation = (index) => {
@@ -54,15 +54,15 @@ const EditEvent = () => {
                     console.log("Mapping data for form:", data);
 
                     setEventData({
-                        eventName: data.name,
-                        description: data.description,
-                        categories: data.categories ? data.categories.map(c => c.id) : [],
+                        eventName: data.eventName,
+                        eventDescription: data.eventDescription,
+                        eventCategories: data.categories ? data.categories.map(c => c.id) : [],
                         eventLocations: data.eventLocations.map(loc => ({
-                            eventLocationId: loc.eventLocationId,
-                            locationId: loc.locationId, // Keep this for the value
-                            eventDate: loc.eventStartTime ? loc.eventStartTime.substring(0, 16) : '', // Changed from date to eventDate
-                            tickets: loc.ticketsCount,
-                            price: loc.pricePerTicket
+                            id: loc.id,
+                            locationId: loc.locationId,
+                            eventStartTime: loc.eventStartTime ? loc.eventStartTime.substring(0, 16) : '',
+                            ticketsCount: loc.ticketsCount,
+                            pricePerTicket: loc.pricePerTicket
                         }))
                     });
 
@@ -78,15 +78,15 @@ const EditEvent = () => {
     const handleCategoryChange = (catId) => {
         setEventData(prev => ({
             ...prev,
-            categories: prev.categories.includes(catId)
-                ? prev.categories.filter(id => id !== catId)
-                : [...prev.categories, catId]
+            eventCategories: prev.eventCategories.includes(catId)
+                ? prev.eventCategories.filter(id => id !== catId)
+                : [...prev.eventCategories, catId]
         }));
     };
 
     const updateLocation = (index, field, value) => {
         const newLocations = [...eventData.eventLocations];
-        newLocations[index][field] = (field === 'price' || field === 'tickets' || field === 'locationId')
+        newLocations[index][field] = (field === 'pricePerTicket' || field === 'ticketsCount' || field === 'locationId')
             ? Number(value) : value;
         setEventData({ ...eventData, eventLocations: newLocations });
     };
@@ -94,13 +94,14 @@ const EditEvent = () => {
     const addLocation = () => {
         setEventData({
             ...eventData,
-            eventLocations: [...eventData.eventLocations, {  eventLocationId: '', locationId: '', eventDate: '', tickets: 1, price: 0 }]
+            eventLocations: [...eventData.eventLocations, { eventLocationId: '', locationId: '', eventStartTime: '', ticketsCount: 1, pricePerTicket: 0 }]
         });
     };
 
     const handleUpdate = () => {
         // Send as PUT request for editing
         console.log(eventData);
+        console.log(JSON.stringify(eventData)); 
         axios.put(`http://localhost:8082/events/${id}`, eventData)
             .then(() => {
                 alert("Event updated successfully!");
@@ -139,8 +140,8 @@ const EditEvent = () => {
                             <label style={styles.label}>Description</label>
                             <textarea
                                 style={{ ...styles.input, height: '100px', resize: 'none' }}
-                                value={eventData.description}
-                                onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                                value={eventData.eventDescription}
+                                onChange={(e) => setEventData({ ...eventData, eventDescription: e.target.value })}
                             />
                         </div>
                     </section>
@@ -156,7 +157,7 @@ const EditEvent = () => {
                                             key={cat.id}
                                             type="button"
                                             onClick={() => handleCategoryChange(cat.id)}
-                                            style={eventData.categories.includes(cat.id) ? styles.pillActive : styles.pill}
+                                            style={eventData.eventCategories.includes(cat.id) ? styles.pillActive : styles.pill}
                                         >
                                             {cat.name}
                                         </button>
@@ -186,8 +187,8 @@ const EditEvent = () => {
                                     <input
                                         type="datetime-local"
                                         style={styles.input}
-                                        value={loc.eventDate} // This matches the key in state now
-                                        onChange={(e) => updateLocation(index, 'eventDate', e.target.value)}
+                                        value={loc.eventStartTime} // This matches the key in state now
+                                        onChange={(e) => updateLocation(index, 'eventStartTime', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ flex: 1 }}>
@@ -195,8 +196,8 @@ const EditEvent = () => {
                                     <input
                                         type="number"
                                         style={styles.input}
-                                        value={loc.tickets}
-                                        onChange={(e) => updateLocation(index, 'tickets', e.target.value)}
+                                        value={loc.ticketsCount}
+                                        onChange={(e) => updateLocation(index, 'ticketsCount', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ flex: 1 }}>
@@ -204,8 +205,8 @@ const EditEvent = () => {
                                     <input
                                         type="number"
                                         style={styles.input}
-                                        value={loc.price}
-                                        onChange={(e) => updateLocation(index, 'price', e.target.value)}
+                                        value={loc.pricePerTicket}
+                                        onChange={(e) => updateLocation(index, 'pricePerTicket', e.target.value)}
                                     />
                                 </div>
                                 <button

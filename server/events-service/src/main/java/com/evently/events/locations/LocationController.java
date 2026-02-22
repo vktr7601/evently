@@ -4,13 +4,11 @@ import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.FetchMode;
 import com.evently.events.locations.entities.LocationDetails;
 import com.evently.events.locations.entities.LocationListItem;
+import com.evently.events.locations.entities.LocationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -46,5 +44,12 @@ public class LocationController {
                 "{}.", id);
 
         return ResponseEntity.ok(locationDetails);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createLocation(@RequestBody LocationRequest locationRequest) {
+        System.out.println();
+
+        return null;
     }
 }

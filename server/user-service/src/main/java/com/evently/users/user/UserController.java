@@ -26,21 +26,23 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody UserRequest userRequest) {
-
         userService.createUser(userRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User registered successfully"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message"
+                , "User registered successfully"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<JWTResponse> login(@RequestBody LoginRequest loginRequest) {
-        String autToken = authService.authenticateAndGenerateToken(loginRequest.getEmail(), loginRequest.getPassword());
+        String autToken =
+                authService.authenticateAndGenerateToken(loginRequest.getEmail(), loginRequest.getPassword());
 
         return ResponseEntity.ok(new JWTResponse(autToken));
     }
 
     @GetMapping("/details")
-    public ResponseEntity<UserDetailsDto> userDetails(@RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity<UserDetailsDto> userDetails(@RequestHeader("X-User" +
+            "-Id") Long userId) {
         return ResponseEntity.ok(null);
     }
 }

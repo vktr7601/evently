@@ -18,7 +18,8 @@ public interface ArtistsRepository extends JpaRepository<Artist, Long> {
                     a.id,
                     a.name,
                     a.bio,
-                    a.imageUrl)
+                    a.imageUrl,
+                    null)
             FROM Artist a
             WHERE a.id = :id
             """)

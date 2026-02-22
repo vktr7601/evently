@@ -12,15 +12,15 @@ import java.util.List;
 @Getter
 @Setter
 @ValidCreateEvent
-public class CreateEventRequest {
+public class EventCreate {
     @JsonProperty("eventName")
     public String name;
-    @JsonProperty("description")
+    @JsonProperty("eventDescription")
     public String description;
     @JsonProperty("eventLocations")
     @Valid
     public List<EventsLocationsData> eventLocations = new ArrayList<>();
-    @JsonProperty("categories")
+    @JsonProperty("eventCategories")
     public List<Long> categories = new ArrayList<>();
     @JsonProperty("artistId")
     public Long artistId;

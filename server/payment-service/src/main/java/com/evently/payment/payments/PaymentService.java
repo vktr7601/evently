@@ -13,13 +13,14 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentGateway paymentGateway;
 
-    public PaymentGatewayResponse processPayment(Long userId, PaymentRequest paymentRequest) {
+    public PaymentGatewayResponse processPayment(Long userId,
+                                                 PaymentRequest paymentRequest) {
 
         PaymentGatewayResponse gatewayResponse = paymentGateway.charge(
-            paymentRequest.getAmount(),
-            paymentRequest.getCardNumber(),
-            paymentRequest.getCardExpiry(),
-            paymentRequest.getCardCvv()
+                paymentRequest.getAmount(),
+                paymentRequest.getCardNumber(),
+                paymentRequest.getCardExpiry(),
+                paymentRequest.getCardCvv()
         );
 
         Payment payment = new Payment();
@@ -49,14 +50,15 @@ public class PaymentService {
 
             // Simulate a 95% success rate
             if (Math.random() > 0.05) {
-                return new RefundResponse(true, "REF-" + UUID.randomUUID(), "Refund successful");
+                return new RefundResponse(true, "REF-" + UUID.randomUUID(),
+                        "Refund successful");
             } else {
-                return new RefundResponse(false, null, "Bank rejected the refund: Insufficient merchant funds");
+                return new RefundResponse(false, null, "Bank rejected the " +
+                        "refund: Insufficient merchant funds");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return new RefundResponse(false, null, "Internal system error");
         }
     }
-
 }

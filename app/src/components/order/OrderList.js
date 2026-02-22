@@ -23,7 +23,6 @@ const OrderList = () => {
             ) : (
                 <div className="row">
                     {orders.map(order => (
-                        // col-12 ensures each order takes up the full width, stacking vertically
                         <div key={order.number} className="col-12 mb-3">
                             <OrderListItem order={order} />
                         </div>

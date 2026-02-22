@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../components/system/ErrorModal';
 
@@ -6,26 +6,52 @@ const CreateEvent = () => {
     const [errorState, setErrorState] = useState({ show: false, title: '', messages: [] });
     const [eventData, setEventData] = useState({
         eventName: '',
-        description: '',
+        eventDescription: '',
         artistId: '',
-        categories: [],
-        eventLocations: [{ locationId: '', eventDate: '', tickets: 1, price: 0 }]
+        eventCategories: [],
+        eventLocations: [{ locationId: '', eventStartTime: '', ticketsCount: 1, pricePerTicket: 0 }]
     });
 
+    const [locations, setLocations] = useState([]);
+    const [artists, setArtists] = useState([]);
+    const [categories, setCategories] = useState([]);
+
+    // --- Fetch Data ---
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [locRes, artRes, catRes] = await Promise.all([
+                    axios.get('http://localhost:8082/locations'),
+                    axios.get('http://localhost:8082/artists'),
+                    axios.get('http://localhost:8082/categories')
+                ]);
+                setLocations(locRes.data);
+                setArtists(artRes.data);
+                setCategories(catRes.data);
+            } catch (err) {
+                console.error("Error fetching initial data:", err);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // --- Handlers ---
     const handleError = (err) => {
         let title = "Submission Failed";
         let messages = ["An unexpected error occurred. Please try again."];
 
         if (err.response) {
             const status = err.response.status;
-
             if (status === 400) {
                 title = "Validation Errors";
-                // Convert Spring's validation map { field: message } into an array of strings
-                messages = Object.values(err.response.data);
+                // If response.data is an object {field: msg}, extract values. 
+                // If it's already an array/string, handle accordingly.
+                messages = typeof err.response.data === 'object' 
+                    ? Object.values(err.response.data) 
+                    : [err.response.data];
             } else if (status === 409) {
                 title = "Schedule Conflict";
-                messages = [err.response.data]; // The conflict message from Java
+                messages = [err.response.data];
             } else if (status === 500) {
                 title = "Server Error";
                 messages = ["Our systems are having trouble. Please contact support."];
@@ -33,99 +59,66 @@ const CreateEvent = () => {
         } else if (err.request) {
             messages = ["Unable to reach the server. Please check your internet connection."];
         }
-
         setErrorState({ show: true, title, messages });
     };
-
-    const [locations, setLocations] = useState([]);
-    const [artists, setArtists] = useState([]);
-    const [categories, setCategories] = useState([]);
-
-    useEffect(() => {
-        axios.get(`http://localhost:8082/locations`)
-            .then(res => {
-                console.log("Fetched locations:", res.data);
-                setLocations(res.data);
-            })
-            .catch(err => {
-                console.error("Error fetching venue details:", err);
-            });
-    }, []);
-
-    useEffect(() => {
-        axios.get(`http://localhost:8082/artists`)
-            .then(res => {
-                setArtists(res.data);
-            })
-            .catch(err => {
-                console.error("Error fetching artists:", err);
-            });
-    }, []);
-
-
-    useEffect(() => {
-        axios.get(`http://localhost:8082/categories`)
-            .then(res => {
-                setCategories(res.data);
-            })
-            .catch(err => {
-                console.error("Error fetching categories:", err);
-            });
-    }, []);
-
 
     const handleCategoryChange = (id) => {
         setEventData(prev => ({
             ...prev,
-            categories: prev.categories.includes(id)
-                ? prev.categories.filter(catId => catId !== id)
-                : [...prev.categories, id]
+            eventCategories: prev.eventCategories.includes(id)
+                ? prev.eventCategories.filter(catId => catId !== id)
+                : [...prev.eventCategories, id]
         }));
     };
 
     const updateLocation = (index, field, value) => {
-        const newLocations = [...eventData.eventLocations];
-        console.log(`Updating index ${index}, field ${field} with value:`, value);
-        newLocations[index][field] = (field === 'price' || field === 'tickets' || field === 'locationId')
-            ? Number(value) : value;
-        setEventData({ ...eventData, eventLocations: newLocations });
-    };
-
-    const addLocation = () => {
-        setEventData({
-            ...eventData,
-            eventLocations: [...eventData.eventLocations, { locationId: '', eventDate: '', tickets: 1, price: 0 }]
+        setEventData(prev => {
+            const updatedLocations = prev.eventLocations.map((loc, i) => {
+                if (i === index) {
+                    // CRITICAL FIX: Don't convert Date strings to Numbers
+                    const isNumberField = ['locationId', 'ticketsCount', 'pricePerTicket'].includes(field);
+                    const processedValue = isNumberField && value !== '' ? Number(value) : value;
+                    
+                    return { ...loc, [field]: processedValue };
+                }
+                return loc;
+            });
+            return { ...prev, eventLocations: updatedLocations };
         });
     };
 
-    const createEvent = () => {
-        const payload = {
-            eventName: eventData.eventName,
-            description: eventData.description,
-            categories: eventData.categories,
-            artistId: eventData.artistId, // 
-            eventLocations: eventData.eventLocations.map(loc => ({
-                locationId: loc.locationId,
-                eventDate: loc.date || loc.eventDate, // Ensure this matches your LocalDateTime field
-                tickets: loc.tickets,
-                price: loc.price
-            }))
-        };
-        console.log("Event Data State:", eventData);
-        axios.post(`http://localhost:8082/events`, payload)
-            .then(res => {
-                // This only runs for 200-299 status codes
-                console.log("Event created successfully:", res.data);
-                alert("Event created successfully!");
-            })
-            .catch(err => handleError(err));
-    }
+    const addLocation = () => {
+        setEventData(prev => ({
+            ...prev,
+            eventLocations: [...prev.eventLocations, { locationId: '', eventStartTime: '', ticketsCount: 1, pricePerTicket: 0 }]
+        }));
+    };
 
     const removeLocation = (index) => {
         if (eventData.eventLocations.length > 1) {
-            const newLocs = eventData.eventLocations.filter((_, i) => i !== index);
-            setEventData({ ...eventData, eventLocations: newLocs });
+            setEventData(prev => ({
+                ...prev,
+                eventLocations: prev.eventLocations.filter((_, i) => i !== index)
+            }));
         }
+    };
+
+    const createEvent = () => {
+        // Construct payload specifically to match your Java CreateEventRequest
+        const payload = {
+            eventName: eventData.eventName,
+            eventDescription: eventData.eventDescription,
+            eventCategories: eventData.eventCategories,
+            artistId: eventData.artistId,
+            eventLocations: eventData.eventLocations
+        };
+
+        axios.post(`http://localhost:8082/events`, payload)
+            .then(res => {
+                alert("Event created successfully!");
+                console.log("Success:", res.data);
+            })
+            .catch(err => handleError(err));
     };
 
     return (
@@ -136,7 +129,7 @@ const CreateEvent = () => {
                     <p style={styles.subtitle}>Fill in the details below to publish your event on Evently.</p>
                 </header>
 
-                <form style={styles.formCard}>
+                <form style={styles.formCard} onSubmit={(e) => e.preventDefault()}>
                     {/* SECTION 1: BASIC INFO */}
                     <section style={styles.section}>
                         <h3 style={styles.sectionTitle}>1. Basic Information</h3>
@@ -145,16 +138,18 @@ const CreateEvent = () => {
                             <input
                                 type="text"
                                 style={styles.input}
+                                value={eventData.eventName}
                                 placeholder="e.g. Molec: Summer Night Plovdiv"
                                 onChange={(e) => setEventData({ ...eventData, eventName: e.target.value })}
                             />
                         </div>
                         <div style={styles.inputGroup}>
-                            <label style={styles.label}>Description</label>
+                            <label style={styles.label}>Event Description</label>
                             <textarea
                                 style={{ ...styles.input, height: '100px', resize: 'none' }}
+                                value={eventData.eventDescription}
                                 placeholder="What is this event about?"
-                                onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                                onChange={(e) => setEventData({ ...eventData, eventDescription: e.target.value })}
                             />
                         </div>
                     </section>
@@ -165,7 +160,11 @@ const CreateEvent = () => {
                         <div style={styles.grid2}>
                             <div style={styles.inputGroup}>
                                 <label style={styles.label}>Artist / Performer</label>
-                                <select style={styles.input} onChange={(e) => setEventData({ ...eventData, artistId: Number(e.target.value) })}>
+                                <select 
+                                    style={styles.input} 
+                                    value={eventData.artistId}
+                                    onChange={(e) => setEventData({ ...eventData, artistId: Number(e.target.value) })}
+                                >
                                     <option value="">Choose Artist</option>
                                     {artists.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                 </select>
@@ -178,7 +177,7 @@ const CreateEvent = () => {
                                             key={cat.id}
                                             type="button"
                                             onClick={() => handleCategoryChange(cat.id)}
-                                            style={eventData.categories.includes(cat.id) ? styles.pillActive : styles.pill}
+                                            style={eventData.eventCategories.includes(cat.id) ? styles.pillActive : styles.pill}
                                         >
                                             {cat.name}
                                         </button>
@@ -188,28 +187,48 @@ const CreateEvent = () => {
                         </div>
                     </section>
 
+                    {/* SECTION 3: DATES & LOCATIONS */}
                     <section style={styles.section}>
                         <h3 style={styles.sectionTitle}>3. Dates & Locations</h3>
                         {eventData.eventLocations.map((loc, index) => (
                             <div key={index} style={styles.locationRow}>
                                 <div style={{ flex: 2 }}>
                                     <label style={styles.miniLabel}>Location</label>
-                                    <select style={styles.input} value={loc.locationId} onChange={(e) => updateLocation(index, 'locationId', e.target.value)}>
+                                    <select 
+                                        style={styles.input} 
+                                        value={loc.locationId} 
+                                        onChange={(e) => updateLocation(index, 'locationId', e.target.value)}
+                                    >
                                         <option value="">Select Location</option>
                                         {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                                     </select>
                                 </div>
                                 <div style={{ flex: 2 }}>
                                     <label style={styles.miniLabel}>Date & Time</label>
-                                    <input type="datetime-local" style={styles.input} onChange={(e) => updateLocation(index, 'eventDate', e.target.value)} />
+                                    <input 
+                                        type="datetime-local" 
+                                        style={styles.input} 
+                                        value={loc.eventStartTime}
+                                        onChange={(e) => updateLocation(index, 'eventStartTime', e.target.value)} 
+                                    />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <label style={styles.miniLabel}>Tickets</label>
-                                    <input type="number" style={styles.input} onChange={(e) => updateLocation(index, 'tickets', e.target.value)} />
+                                    <input 
+                                        type="number" 
+                                        style={styles.input} 
+                                        value={loc.ticketsCount}
+                                        onChange={(e) => updateLocation(index, 'ticketsCount', e.target.value)} 
+                                    />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <label style={styles.miniLabel}>Price (USD)</label>
-                                    <input type="number" style={styles.input} onChange={(e) => updateLocation(index, 'price', e.target.value)} />
+                                    <input 
+                                        type="number" 
+                                        style={styles.input} 
+                                        value={loc.pricePerTicket}
+                                        onChange={(e) => updateLocation(index, 'pricePerTicket', e.target.value)} 
+                                    />
                                 </div>
                                 {eventData.eventLocations.length > 1 && (
                                     <button type="button" onClick={() => removeLocation(index)} style={styles.removeBtn}>×</button>
@@ -219,23 +238,23 @@ const CreateEvent = () => {
                         <button type="button" onClick={addLocation} style={styles.addBtn}>+ Add Another Location</button>
                     </section>
 
-                    <button type="button" onClick={() => createEvent()}>Publish Event</button>
+                    <button type="button" style={styles.submitBtn} onClick={createEvent}>
+                        Publish Event
+                    </button>
                 </form>
             </div>
 
-            <>
-                <ErrorModal
-                    show={errorState.show}
-                    title={errorState.title}
-                    messages={errorState.messages}
-                    onClose={() => setErrorState({ ...errorState, show: false })}
-                />
-                {/* Your existing form code */}
-            </>
+            <ErrorModal
+                show={errorState.show}
+                title={errorState.title}
+                messages={errorState.messages}
+                onClose={() => setErrorState({ ...errorState, show: false })}
+            />
         </div>
     );
 };
 
+// ... styles object remains the same ...
 const styles = {
     page: { backgroundColor: '#f4f7fa', minHeight: '100vh', padding: '60px 20px', fontFamily: '"Inter", sans-serif' },
     container: { maxWidth: '900px', margin: '0 auto' },

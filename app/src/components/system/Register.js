@@ -2,6 +2,43 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Hero from './Hero';
+import MessageModal from './MessageModal';
+import RegisterDataGenerator from '../../utils/RegisterDataGenerator';
+
+const FormField = ({ label, children }) => (
+    <div className="mb-3">
+        <label className="form-label small fw-bold text-muted">{label}</label>
+        {children}
+    </div>
+);
+
+const TagSelector = ({ label, icon, items, selected, onToggle, getLabel, getId }) => (
+    <div className="mb-4 p-4 rounded-4 border bg-white shadow-sm">
+        <label className="form-label small fw-bold text-dark d-block mb-3">
+            <i className={`bi ${icon} text-primary me-2`}></i>{label}
+        </label>
+        <div className="d-flex flex-wrap gap-2">
+            {items.map((item) => {
+                const isActive = selected.some(s => s.id === getId(item));
+                return (
+                    <button
+                        key={getId(item)}
+                        type="button"
+                        onClick={() => onToggle(item)}
+                        className={`btn btn-sm rounded-pill px-3 py-2 ${
+                            isActive ? 'btn-primary shadow-sm' : 'btn-outline-light text-dark border-secondary-subtle'
+                        }`}
+                    >
+                        {getLabel(item)}
+                        {isActive && <i className="bi bi-check-lg ms-1"></i>}
+                    </button>
+                );
+            })}
+        </div>
+    </div>
+);
+
+const ADMIN_EMAIL_DOMAIN = '@admin.evently.com';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -9,6 +46,8 @@ const Register = () => {
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [role, setRole] = useState('USER');
+    const [modal, setModal] = useState({ show: false, title: '', messages: '', type: 'info' });
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -16,74 +55,84 @@ const Register = () => {
         age: '',
         email: '',
         password: '',
-        selectedCategories: [],
-        selectedLocations: []
+        confirmPassword: '',
+        eventsCategories: [],
+        locations: [],
+        subscribeNewsletter: false
     });
 
     useEffect(() => {
-        
-        axios.get("http://localhost:8082/categories")
-            .then(res => {
-                const data = Array.isArray(res.data) ? res.data : res.data?.content || [];
-                setCategories(data);
-            })
-            .catch(err => console.error("Categories fetch error:", err));
-    }, []);
-
-    useEffect(() => {
-        axios.get("http://localhost:8082/locations")
-            .then(res => {
-                const data = Array.isArray(res.data) ? res.data : res.data?.content || [];
-                setLocations(data);
-            })
-            .catch(err => console.error("Locations fetch error:", err));
+        const fetchMasterData = async () => {
+            try {
+                const [locRes, catRes] = await Promise.all([
+                    axios.get('http://localhost:8082/locations'),
+                    axios.get('http://localhost:8082/categories')
+                ]);
+                setLocations(locRes.data);
+                setCategories(catRes.data);
+            } catch (err) {
+                console.error("Error fetching master data:", err);
+            }
+        };
+        fetchMasterData();
     }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCategoryToggle = (category) => {
+    const handleToggle = (key, item) => {
         setFormData(prev => {
-            const isSelected = prev.selectedCategories.some(c => c.id === category.id);
+            const isSelected = prev[key].some(s => s.id === item.id);
             return {
                 ...prev,
-                selectedCategories: isSelected
-                    ? prev.selectedCategories.filter(c => c.id !== category.id)
-                    : [...prev.selectedCategories, category]
-            };
-        });
-    };
-
-    const handleLocationToggle = (location) => {
-        setFormData(prev => {
-            const isSelected = prev.selectedLocations.some(l => l.id === location.id);
-            return {
-                ...prev,
-                selectedLocations: isSelected
-                    ? prev.selectedLocations.filter(l => l.id !== location.id)
-                    : [...prev.selectedLocations, location]
+                [key]: isSelected
+                    ? prev[key].filter(s => s.id !== item.id)
+                    : [...prev[key], item]
             };
         });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (formData.password !== formData.confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+        if (role === 'ADMIN' && !formData.email.includes(ADMIN_EMAIL_DOMAIN)) {
+            setError(`Admin accounts require an ${ADMIN_EMAIL_DOMAIN} email address.`);
+            return;
+        }
+        if (role === 'USER' && formData.email.includes(ADMIN_EMAIL_DOMAIN)) {
+            setError("Regular accounts cannot use an admin email address.");
+            return;
+        }
         setLoading(true);
         setError("");
         const payload = {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
             age: formData.age,
             email: formData.email,
             password: formData.password,
-            events_preferences: formData.selectedCategories.map(cat => cat.id),
-            location_preferences: formData.selectedLocations.map(loc => loc.id)
+            confirmPassword: formData.confirmPassword,
+            eventsCategories: formData.eventsCategories.map(c => c.id),
+            locations: formData.locations.map(l => l.id),
+            isSubscribedToNewsletter: formData.subscribeNewsletter
         };
         try {
-            await axios.post("http://localhost:8085/user/register", payload);
-            navigate('/login');
+            const res = await axios.post('http://localhost:8085/user/register', payload);
+            console.log("Registration successful:", res.data);
+            setModal({
+                show: true,
+                title: 'Registration Successful',
+                messages: [
+                    `Welcome, ${formData.firstName}! Your account has been created.`,
+                    'You will be redirected to the login page.'
+                ],
+                type: 'success'
+            });
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed. Please try again.");
         } finally {
@@ -91,8 +140,39 @@ const Register = () => {
         }
     };
 
+    const fillTestData = () => {
+        const generated = role === 'ADMIN'
+            ? RegisterDataGenerator.generateAdmin()
+            : RegisterDataGenerator.generateUser(categories, locations);
+        setFormData(prev => ({ ...prev, ...generated }));
+        console.log('[Test Data] Generated credentials:', { email: generated.email, password: generated.password });
+        setModal({
+            show: true,
+            title: 'Test Data Generated',
+            messages: [
+                `Email: ${generated.email}`,
+                `Password: ${generated.password}`,
+                'Full credentials have also been logged to the console (F12).'
+            ],
+            type: 'info'
+        });
+    };
+
+    const passwordMismatch = formData.confirmPassword && formData.password !== formData.confirmPassword;
+    const passwordMatch = formData.confirmPassword && formData.password === formData.confirmPassword;
+
     return (
         <div className="bg-light min-vh-100">
+            <MessageModal
+                show={modal.show}
+                title={modal.title}
+                messages={modal.messages}
+                type={modal.type}
+                onClose={() => {
+                    if (modal.type === 'success') navigate('/login');
+                    setModal(prev => ({ ...prev, show: false }));
+                }}
+            />
             <Hero
                 badge="✨ Start Your Journey"
                 title="Join the Evently"
@@ -105,10 +185,14 @@ const Register = () => {
             <div className="container" style={{ marginTop: "-50px", position: "relative", zIndex: "10" }}>
                 <div className="row justify-content-center">
                     <div className="col-12 col-lg-8 col-xl-7">
-
                         <div className="card shadow-lg border-0 rounded-4">
                             <div className="card-body p-4 p-md-5">
-                                <h4 className="fw-black text-dark mb-4">Create Account</h4>
+                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 className="fw-black text-dark mb-0">Create Account</h4>
+                                    <button type="button" className="btn btn-sm btn-outline-secondary rounded-pill px-3" onClick={fillTestData}>
+                                        <i className="bi bi-lightning me-1"></i>Fill Test Data
+                                    </button>
+                                </div>
 
                                 {error && (
                                     <div className="alert alert-danger border-0 small py-2 mb-4 text-center">
@@ -117,124 +201,112 @@ const Register = () => {
                                 )}
 
                                 <form onSubmit={handleSubmit}>
-                                    <div className="mb-3">
-                                        <label className="form-label small fw-bold text-muted">FIRST NAME</label>
-                                        <input
-                                            name="firstName"
-                                            type="text"
-                                            className="form-control bg-light border-0 py-2"
-                                            placeholder="John"
-                                            value={formData.firstName}
-                                            onChange={handleChange}
-                                            required
-                                        />
+                                    <div className="mb-4">
+                                        <label className="form-label small fw-bold text-muted d-block">ACCOUNT TYPE</label>
+                                        <div className="d-flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setRole('USER')}
+                                                className={`btn flex-fill rounded-pill py-2 fw-bold ${role === 'USER' ? 'btn-primary shadow-sm' : 'btn-outline-secondary'}`}
+                                            >
+                                                <i className="bi bi-person me-2"></i>Regular User
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setRole('ADMIN')}
+                                                className={`btn flex-fill rounded-pill py-2 fw-bold ${role === 'ADMIN' ? 'btn-dark shadow-sm' : 'btn-outline-secondary'}`}
+                                            >
+                                                <i className="bi bi-shield-lock me-2"></i>Admin
+                                            </button>
+                                        </div>
+                                        {role === 'ADMIN' && (
+                                            <div className="mt-2 small text-muted">
+                                                <i className="bi bi-info-circle me-1"></i>
+                                                Admin accounts require an <span className="fw-bold text-dark">{ADMIN_EMAIL_DOMAIN}</span> email address.
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="mb-3">
-                                        <label className="form-label small fw-bold text-muted">LAST NAME</label>
-                                        <input
-                                            name="lastName"
-                                            type="text"
-                                            className="form-control bg-light border-0 py-2"
-                                            placeholder="Doe"
-                                            value={formData.lastName}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+                                    <FormField label="FIRST NAME">
+                                        <input name="firstName" type="text" className="form-control bg-light border-0 py-2" placeholder="John" value={formData.firstName} onChange={handleChange} required />
+                                    </FormField>
 
-                                    <div className="mb-3">
-                                        <label className="form-label small fw-bold text-muted">AGE</label>
-                                        <input
-                                            name="age"
-                                            type="number"
-                                            className="form-control bg-light border-0 py-2"
-                                            placeholder="21"
-                                            value={formData.age}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
+                                    <FormField label="LAST NAME">
+                                        <input name="lastName" type="text" className="form-control bg-light border-0 py-2" placeholder="Doe" value={formData.lastName} onChange={handleChange} required />
+                                    </FormField>
 
-                                    <div className="mb-3">
-                                        <label className="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
-                                        <input
-                                            name="email"
-                                            type="email"
-                                            className="form-control bg-light border-0 py-2"
-                                            placeholder="john@example.com"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+                                    <FormField label="AGE">
+                                        <input name="age" type="number" className="form-control bg-light border-0 py-2" placeholder="21" value={formData.age} onChange={handleChange} />
+                                    </FormField>
+
+                                    <FormField label="EMAIL ADDRESS">
+                                        <input name="email" type="email" className="form-control bg-light border-0 py-2" placeholder={role === 'ADMIN' ? `john${ADMIN_EMAIL_DOMAIN}` : 'john@example.com'} value={formData.email} onChange={handleChange} required />
+                                    </FormField>
+
+                                    <FormField label="PASSWORD">
+                                        <input name="password" type="password" className="form-control bg-light border-0 py-2" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
+                                    </FormField>
 
                                     <div className="mb-4">
-                                        <label className="form-label small fw-bold text-muted">PASSWORD</label>
+                                        <label className="form-label small fw-bold text-muted">CONFIRM PASSWORD</label>
                                         <input
-                                            name="password"
+                                            name="confirmPassword"
                                             type="password"
-                                            className="form-control bg-light border-0 py-2"
+                                            className={`form-control bg-light border-0 py-2 ${passwordMismatch ? 'is-invalid' : passwordMatch ? 'is-valid' : ''}`}
                                             placeholder="••••••••"
-                                            value={formData.password}
+                                            value={formData.confirmPassword}
                                             onChange={handleChange}
                                             required
                                         />
+                                        {passwordMismatch && <div className="invalid-feedback">Passwords do not match.</div>}
+                                        {passwordMatch && <div className="valid-feedback">Passwords match.</div>}
                                     </div>
 
-                                    <div className="mb-4 p-4 rounded-4 border bg-white shadow-sm">
-                                        <label className="form-label small fw-bold text-dark d-block mb-3">
-                                            <i className="bi bi-stars text-primary me-2"></i>Select Your Interests
-                                        </label>
-                                        <div className="d-flex flex-wrap gap-2">
-                                            {categories.map((cat) => {
-                                                const isActive = formData.selectedCategories.some(c => c.id === cat.id);
-                                                return (
-                                                    <button
-                                                        key={cat.id}
-                                                        type="button"
-                                                        onClick={() => handleCategoryToggle(cat)}
-                                                        className={`btn btn-sm rounded-pill px-3 py-2 ${
-                                                            isActive ? 'btn-primary shadow-sm' : 'btn-outline-light text-dark border-secondary-subtle'
-                                                        }`}
-                                                    >
-                                                        {cat.categoryName || cat.name}
-                                                        {isActive && <i className="bi bi-check-lg ms-1"></i>}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
+                                    {role === 'USER' && (
+                                        <>
+                                            <TagSelector
+                                                label="Select Your Interests"
+                                                icon="bi-stars"
+                                                items={categories}
+                                                selected={formData.eventsCategories}
+                                                onToggle={(cat) => handleToggle('eventsCategories', cat)}
+                                                getLabel={(cat) => cat.categoryName || cat.name}
+                                                getId={(cat) => cat.id}
+                                            />
 
-                                    <div className="mb-5 p-4 rounded-4 border bg-white shadow-sm">
-                                        <label className="form-label small fw-bold text-dark d-block mb-3">
-                                            <i className="bi bi-geo-alt text-primary me-2"></i>Select Your Locations
+                                            <TagSelector
+                                                label="Select Your Locations"
+                                                icon="bi-geo-alt"
+                                                items={locations}
+                                                selected={formData.locations}
+                                                onToggle={(loc) => handleToggle('locations', loc)}
+                                                getLabel={(loc) => loc.name}
+                                                getId={(loc) => loc.id}
+                                            />
+                                        </>
+                                    )}
+
+                                    <div className="mb-4 d-flex align-items-start gap-2">
+                                        <input
+                                            id="subscribeNewsletter"
+                                            name="subscribeNewsletter"
+                                            type="checkbox"
+                                            className="form-check-input mt-1 flex-shrink-0"
+                                            checked={formData.subscribeNewsletter}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, subscribeNewsletter: e.target.checked }))}
+                                        />
+                                        <label htmlFor="subscribeNewsletter" className="form-check-label small text-muted" style={{ cursor: 'pointer' }}>
+                                            <span className="fw-bold text-dark">Subscribe to our newsletter</span><br />
+                                            Get early access to new events, exclusive offers, and updates straight to your inbox.
                                         </label>
-                                        <div className="d-flex flex-wrap gap-2">
-                                            {locations.map((loc) => {
-                                                const isActive = formData.selectedLocations.some(l => l.id === loc.id);
-                                                return (
-                                                    <button
-                                                        key={loc.id}
-                                                        type="button"
-                                                        onClick={() => handleLocationToggle(loc)}
-                                                        className={`btn btn-sm rounded-pill px-3 py-2 ${
-                                                            isActive ? 'btn-primary shadow-sm' : 'btn-outline-light text-dark border-secondary-subtle'
-                                                        }`}
-                                                    >
-                                                        {loc.name}
-                                                        {isActive && <i className="bi bi-check-lg ms-1"></i>}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
                                     </div>
 
                                     <button
                                         type="submit"
-                                        className="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm transition-hover"
+                                        className={`btn w-100 rounded-pill py-3 fw-bold shadow-sm ${role === 'ADMIN' ? 'btn-dark' : 'btn-primary'}`}
                                         disabled={loading}
                                     >
-                                        {loading ? "Creating Account..." : "Complete Registration"}
+                                        {loading ? "Creating Account..." : role === 'ADMIN' ? "Register as Admin" : "Register as User"}
                                     </button>
                                 </form>
                             </div>

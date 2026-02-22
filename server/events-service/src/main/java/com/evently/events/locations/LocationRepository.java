@@ -33,15 +33,16 @@ public interface LocationRepository extends BaseRepository<Location> {
     List<LocationListItem> findAllLocationItems();
 
     @Query("""
-            SELECT new com.evently.events.locations.entities.LocationDetails(
-                l.id,
-                l.name,
-                l.description,
-                l.imageUrl
-            )
-            FROM Location l
-            WHERE l.id = :id
-        """)
+                SELECT new com.evently.events.locations.entities.LocationDetails(
+                    l.id,
+                    l.name,
+                    l.description,
+                    l.imageUrl,
+                   null
+                )
+                FROM Location l
+                WHERE l.id = :id
+            """)
     Optional<LocationDetails> findLocationDtoById(@Param("id") Long id);
 
     @Query("""

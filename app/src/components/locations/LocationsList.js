@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import LocationsListItem from './LocationsListItem';
 const LocationsList = () => {
-    const [locations, setEvents] = useState([]);
+    const [location, setEvents] = useState([]);
    
     useEffect(() => {
         axios.get("http://localhost:8082/locations")
@@ -21,8 +21,8 @@ const LocationsList = () => {
             </div>
 
             <div className="row">
-                {locations.map(location => (
-                    <div key={location.id} className="col-12 col-md-6 col-lg-4 mb-4">
+                {location.eventLocations.map(loc => (
+                    <div key={loc.id} className="col-12 col-md-6 col-lg-4 mb-4">
                         <LocationsListItem location={location} />
                     </div>
                 ))}

@@ -1,9 +1,9 @@
 package com.evently.events.event;
 
-import com.evently.events.event.entities.CreateEventRequest;
+import com.evently.events.event.entities.EventCreate;
 import com.evently.events.event.entities.EventDetailDto;
 import com.evently.events.event.entities.EventListItemDto;
-import com.evently.events.event.entities.UpdateEventRequest;
+import com.evently.events.event.entities.EventUpdate;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,11 @@ public class EventsController {
     public ResponseEntity<List<EventListItemDto>> getAllEvents() {
         log.info("Request received: Fetching all events sorted by date.");
 
-        List<EventListItemDto> events = eventService.findAllEventsSortedByDateDesc();
+        List<EventListItemDto> events =
+                eventService.findAllEventsSortedByDateDesc();
 
-        log.info("Response sent: Successfully fetched {} events.", events.size());
+        log.info("Response sent: Successfully fetched {} events.",
+                events.size());
         return ResponseEntity.ok(events);
     }
 
@@ -37,7 +39,8 @@ public class EventsController {
 
         EventDetailDto eventDetailDto = eventService.findEventDetailsById(id);
 
-        log.info("Response sent: Successfully fetched details for event: {}", eventDetailDto.getEventName());
+        log.info("Response sent: Successfully fetched details for event: {}",
+                eventDetailDto.getEventName());
         return ResponseEntity.ok(eventDetailDto);
     }
 
@@ -47,17 +50,21 @@ public class EventsController {
     }
 
     @PostMapping
-    public ResponseEntity<EventDetailDto> createEvent(@Valid @RequestBody CreateEventRequest createEventRequest) {
-        EventDetailDto createdEvent = eventService.createEvent(createEventRequest);
+    public ResponseEntity<EventDetailDto> createEvent( @RequestBody EventCreate createEventRequest) {
+        EventDetailDto createdEvent =
+                eventService.createEvent(createEventRequest);
 
-        log.info("Response sent: Successfully created event: {}", createdEvent.getEventName());
+        log.info("Response sent: Successfully created event: {}",
+                createdEvent.getEventName());
 
         return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDetailDto> updateEvent(@PathVariable Long id, @RequestBody UpdateEventRequest updateEventRequest) {
-        EventDetailDto eventDetailDto = eventService.updateEvent(id, updateEventRequest);
+    public ResponseEntity<EventDetailDto> updateEvent(@PathVariable Long id,
+                                                      @RequestBody EventUpdate updateEventRequest) {
+        EventDetailDto eventDetailDto = eventService.updateEvent(id,
+                updateEventRequest);
 
 
         return ResponseEntity.ok(eventDetailDto);
@@ -66,8 +73,10 @@ public class EventsController {
 
     @GetMapping("/{id}/location")
     public ResponseEntity<EventsLocationsDto> getLocation(@PathVariable Long id) {
-        EventsLocationsDto eventsLocationsDto = eventService.getEventLocationData(id);
-        log.info("Response sent: Successfully fetched location details for event ID: {}", id);
+        EventsLocationsDto eventsLocationsDto =
+                eventService.getEventLocationData(id);
+        log.info("Response sent: Successfully fetched location details for " +
+                "event ID: {}", id);
 
         return ResponseEntity.ok(eventsLocationsDto);
     }
@@ -77,6 +86,7 @@ public class EventsController {
     public ResponseEntity<String> triggerEventsClearing() {
         var processedIds = eventService.clearHistoryEvents();
 
-        return ResponseEntity.ok("Successfully cleared past events. Processed event IDs: " + processedIds);
+        return ResponseEntity.ok("Successfully cleared past events. Processed" +
+                " event IDs: " + processedIds);
     }
 }

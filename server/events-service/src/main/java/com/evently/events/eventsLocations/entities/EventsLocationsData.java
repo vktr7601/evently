@@ -14,14 +14,14 @@ import java.time.LocalDateTime;
 @ValidLocationData
 @NoArgsConstructor
 public class EventsLocationsData {
-    @JsonProperty("eventLocationId")
-    private Long eventLocationId;
+    @JsonProperty("id")
+    private Long id;
     @JsonProperty("locationId")
     private long locationId;
-    @JsonProperty("eventDate")
-    private LocalDateTime eventDate;
-    @JsonProperty("tickets")
+    @JsonProperty("eventStartTime")
+    private LocalDateTime eventStartTime;
+    @JsonProperty("ticketsCount")
     private int tickets;
-    @JsonProperty("price")
+    @JsonProperty("pricePerTicket")
     private BigDecimal price;
 }

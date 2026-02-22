@@ -64,4 +64,14 @@ public class BookingServiceExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.GONE);
     }
+
+//    public ResponseEntity<ErrorResponse> handleException(LocationCollisionException ex, HttpServletRequest request) {
+//        ErrorResponse error = new ErrorResponse(
+//                HttpStatus.GONE.value(),
+//                "Order Expired",
+//                ex(),
+//                LocalDateTime.now(),
+//                request.getRequestURI()
+//        );
+//    }
 }

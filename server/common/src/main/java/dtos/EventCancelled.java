@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,5 +15,5 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class EventCancelled implements Serializable {
     @JsonProperty("eventLocationsId")
-    private long eventLocationId;
+    private List<Long> eventsLocationsIds;
 }

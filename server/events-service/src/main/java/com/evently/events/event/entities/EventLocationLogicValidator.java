@@ -9,14 +9,14 @@ public class EventLocationLogicValidator implements ConstraintValidator<ValidLoc
     public boolean isValid(EventsLocationsData eventsLocationsData, ConstraintValidatorContext constraintValidatorContext) {
 
         boolean isValid = true;
-        if (eventsLocationsData.getEventDate() == null) {
+        if (eventsLocationsData.getEventStartTime() == null) {
             addViolation(constraintValidatorContext, "eventDate", "Event date must be provided.");
             isValid = false;
         } else {
-            if (eventsLocationsData.getEventDate().getYear() < java.time.LocalDate.now().getYear()) {
+            if (eventsLocationsData.getEventStartTime().getYear() < java.time.LocalDate.now().getYear()) {
                 addViolation(constraintValidatorContext, "eventDate", "The year provided is invalid or in the distant past.");
                 isValid = false;
-            } else if (eventsLocationsData.getEventDate().isBefore(java.time.LocalDateTime.now().plusDays(2))) {
+            } else if (eventsLocationsData.getEventStartTime().isBefore(java.time.LocalDateTime.now().plusDays(2))) {
                 addViolation(constraintValidatorContext, "eventDate", "Event date must be at least 48 hours from now.");
                 isValid = false;
             }

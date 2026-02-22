@@ -15,12 +15,12 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateEventRequest implements Serializable {
+public class EventUpdate implements Serializable {
     @JsonProperty("eventName")
     private String eventName;
-    @JsonProperty("description")
-    private String description;
-    @JsonProperty("categories")
+    @JsonProperty("eventDescription")
+    private String eventDescription;
+    @JsonProperty("eventCategories")
     List<Long> categories;
     @Valid
     @JsonProperty("eventLocations")
