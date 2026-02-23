@@ -70,14 +70,17 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
 //    @Modifying // Required for DML operations
 //    @Transactional // Required to allow the update
-//    @Query("UPDATE Ticket t SET t.status = :newStatus WHERE t.eventLocation.id IN :ids")
+//    @Query("UPDATE Ticket t SET t.status = :newStatus WHERE t.eventLocation
+//    .id IN :ids")
 //    int updateTicketStatusByEventLocationIds(
 //            @Param("ids") List<Long> ids,
 //            @Param("newStatus") TicketStatus newStatus
 //    );
 
-//    @Query("SELECT t FROM Ticket t JOIN FETCH t.order WHERE t.eventLocationsId.id IN :ids AND t.status != 'REFUNDED'")
-//    List<Ticket> findAllTicketsWithOrdersByLocationIds(@Param("ids") List<Long> ids);
+    //    @Query("SELECT t FROM Ticket t JOIN FETCH t.order WHERE t
+    //    .eventLocationsId.id IN :ids AND t.status != 'REFUNDED'")
+//    List<Ticket> findAllTicketsWithOrdersByLocationIds(@Param("ids")
+//    List<Long> ids);
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Transactional
     @Query("UPDATE Ticket t SET t.status = 'DISCARDED' " +
@@ -85,6 +88,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     int discardAllUnboughtTickets(@Param("ids") List<Long> ids);
 
 
-    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.eventLocationsId = :locId AND t.status = :status")
-    int countByLocationAndStatus(@Param("locId") long locId, @Param("status") TicketStatus status);
+    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.eventLocationsId = :locId " +
+            "AND t.status = :status")
+    int countByLocationAndStatus(@Param("locId") long locId,
+                                 @Param("status") TicketStatus status);
+
+    @Modifying
+    @Query("UPDATE Ticket t SET t.eventStartTime = :startTime WHERE t" +
+            ".eventLocationsId = :locationId")
+    void updateStartTimeByLocationId(@Param("locationId") Long locationId,
+                                     @Param("startTime") LocalDateTime startTime);
 }

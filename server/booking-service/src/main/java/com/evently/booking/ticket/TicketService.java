@@ -8,6 +8,8 @@ import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.data.TicketsMapper;
 import com.evently.booking.ticket.entities.TicketListItem;
 import dtos.TicketsCreated;
+import events.eventCreated.EventTicketsBulkUpdate;
+import events.eventCreated.EventTicketsUpdate;
 import events.eventCreated.TicketsCreationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -225,6 +227,33 @@ public class TicketService {
         return tickets.stream().map(Ticket::getEventLocationsId).toList();
     }
 
+    @Transactional
+    public void processBulkUpdate(EventTicketsBulkUpdate bulkEvent) {
+        log.info("Processing bulk update for Event ID: {} with {} location updates",
+                bulkEvent.getEventId(), bulkEvent.getUpdates().size());
+
+        for (EventTicketsUpdate update : bulkEvent.getUpdates()) {
+            long locationId = update.getEventLocationId();
+
+            // 1. Update Date (Applies to ALL tickets for this location)
+            if (update.isDateUpdated()) {
+                log.debug("Updating start time for location {} to {}", locationId, update.getNewStartTime());
+                ticketRepository.updateStartTimeByLocationId(locationId, update.getNewStartTime());
+            }
+
+//            // 2. Update Price (Applies ONLY to AVAILABLE tickets)
+//            if (update.isPriceUpdated()) {
+//                log.debug("Updating price for available tickets at location {} to {}", locationId, update.getNewPrice());
+//                ticketRepository.updatePriceByLocationIdAndStatus(locationId, update.getNewPrice(), TicketStatus.AVAILABLE);
+//            }
+//
+//            // 3. Adjust Inventory (Add or remove tickets)
+//            if (update.isTicketCountUpdated()) {
+//                log.debug("Adjusting ticket count for location {} to {}", locationId, update.getNewTicketsCount());
+//                adjustTicketInventory(update, locationId);
+//            }
+        }
+    }
 //    public void cancelTicketsForEvents(List<Long> eventsLocationsIds) {
 //        int totalCancelled =
 //                ticketRepository.updateTicketStatusByEventLocationIds

@@ -3,6 +3,7 @@ package com.evently.events.config;
 import dtos.EventCancelled;
 import dtos.EventFinished;
 import events.eventCreated.EventCreated;
+import events.eventCreated.EventTicketsBulkUpdate;
 import events.eventCreated.NewLocationsAdded;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,5 +30,9 @@ public class KafkaProducer {
 
     public void sendNewLocationsAdded(NewLocationsAdded message) {
         kafkaTemplate.send(NEW_EVENT_LOCATIONS_ADDED, message);
+    }
+
+    public void sendEventsTicketBulkUpdate(EventTicketsBulkUpdate message) {
+        kafkaTemplate.send(EVENT_TICKETS_BULK_UPDATE, message);
     }
 }

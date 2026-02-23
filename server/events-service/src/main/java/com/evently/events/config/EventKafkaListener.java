@@ -5,6 +5,7 @@ import dtos.EventFinished;
 import dtos.KafkaTopics;
 import dtos.TicketsCreated;
 import events.eventCreated.EventCreated;
+import events.eventCreated.EventTicketsBulkUpdate;
 import events.eventCreated.NewLocationsAdded;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,12 @@ public class EventKafkaListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleEventArchived(NewLocationsAdded eventFinished) {
         kafkaProducer.sendNewLocationsAdded(eventFinished);
+    }
+
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleEventArchived(EventTicketsBulkUpdate eventFinished) {
+        kafkaProducer.sendEventsTicketBulkUpdate(eventFinished);
     }
 
     @KafkaListener(topics = KafkaTopics.TICKETS_CREATED)

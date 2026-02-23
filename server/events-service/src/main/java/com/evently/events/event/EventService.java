@@ -18,9 +18,7 @@ import com.evently.events.eventsLocations.entities.EventsLocationsStatus;
 import com.evently.events.eventsLocations.entities.FetchMode;
 import com.evently.events.locations.LocationService;
 import dtos.EventFinished;
-import events.eventCreated.EventCreated;
-import events.eventCreated.NewLocationsAdded;
-import events.eventCreated.TicketsCreationEvent;
+import events.eventCreated.*;
 import exceptions.DuplicateResourceException;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -192,7 +190,7 @@ public class EventService {
                         .toList();
 
         if (!updates.isEmpty()) {
-          //  processUpdates(updates);
+            processUpdates(updates);
         }
 
         eventRepository.save(event);
@@ -200,7 +198,9 @@ public class EventService {
         return findEventDetailsById(event.getId());
     }
 
-    private void processDeletions(List<Long> deletedIds) {}
+    private void processDeletions(List<Long> deletedIds) {
+
+    }
 
     //this is invoked by the frontend
     public EventsLocationsDto getEventLocationData(Long eventId) {
@@ -216,66 +216,25 @@ public class EventService {
                         updates.stream().map(EventsLocationsData::getId).toList()
                 ).stream().collect(Collectors.toMap(EventsLocations::getId,
                         loc -> loc));
-
+        EventTicketsBulkUpdate eventTicketsBulkUpdate =
+                new EventTicketsBulkUpdate();
         for (EventsLocationsData req : updates) {
+
             EventsLocations entity = existingMap.get(req.getId());
+            EventTicketsUpdate eventTicketsUpdate = new EventTicketsUpdate();
             if (entity == null) continue;
 
-            // --- SCENARIO 1: Event Start Time Changed ---
-//            if (!entity.getDate().equals(req.getEventStartTime())) {
-//                // Keep ticket start time relative to the new event time
-//                java.time.Duration offset = java.time.Duration.between(
-//                        entity.getDate(),
-//                        entity.getDate()
-//                );
-//                entity.setDate(req.getEventStartTime());
-//
-////                entity.setTicketStartTime(req.getEventStartTime().plus
-////                        (offset));
-//
-//                log.info("Location {}: Date changed. Shifted ticket start
-//                        .", entity.getId());
-//            }
-//
-//            // --- SCENARIO 2: Price Reduced ---
-//            if (req.getPrice().compareTo(entity.getPricePerTicket()) < 0) {
-//                log.warn("Location {}: Price reduced from {} to {}.
-//                Consider refunding early buyers.",
-//                        entity.getId(), entity.getPricePerTicket(), req
-//                        .getPrice());
-//
-//                entity.setPricePerTicket(req.getPrice());
-//            } else {
-//                entity.setPricePerTicket(req.getPrice());
-//            }
-//
-//            // --- SCENARIO 3: Tickets Added (Capacity Increase) ---
-//            int oldCapacity = entity.getTicketsCount();
-//            int newCapacity = req.getTickets();
-//
-//            if (newCapacity > oldCapacity) {
-//                log.info("Location {}: Capacity increased by {} tickets.",
-//                        entity.getId(), (newCapacity - oldCapacity));
-//                entity.setTicketsCount(newCapacity);
-//            }
-//            // Safety Check: If capacity is REDUCED, ensure we haven't sold
-//            more than the new limit
-//            else if (newCapacity < oldCapacity) {
-            int booked =
-                    bookingServiceClient.getAvailableTickets(entity.getId()).getBody();
-
-            if (req.getTickets() < booked) {
-
+            if (!entity.getDate().equals(req.getEventStartTime())) {
+                eventTicketsUpdate.setNewStartTime(req.getEventStartTime());
+                eventTicketsUpdate.setDateUpdated(true);
+                entity.setDate(req.getEventStartTime());
             }
-//                if (newCapacity < booked) {
-//                    throw new IllegalStateException("Cannot reduce capacity
-//                    below current bookings (" + booked + ")");
-//                }
-//                entity.setTicketsCount(newCapacity);
-//            }
-        }
 
+            eventTicketsBulkUpdate.getUpdates().add(eventTicketsUpdate);
+        }
         eventsLocationsRepository.saveAll(existingMap.values());
+
+        eventPublisher.publishEvent(eventTicketsBulkUpdate);
     }
 
     private void processAdditions(Event event,
