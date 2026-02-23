@@ -2,175 +2,120 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ErrorModal from '../../components/system/ErrorModal';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'; // Added these
+
+const CARD_ELEMENT_OPTIONS = {
+    hidePostalCode: true,
+    style: {
+        base: {
+            fontSize: '18px',
+            color: '#1e293b',
+            fontFamily: 'system-ui, sans-serif',
+            '::placeholder': { color: '#94a3b8' },
+        },
+        invalid: { color: '#ef4444', iconColor: '#ef4444' },
+    },
+};
 
 const OrderPayment = () => {
     const navigate = useNavigate();
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [modalTitle, setModalTitle] = useState("");
-    const [modalMessages, setModalMessages] = useState("");
+    const stripe = useStripe();
+    const elements = useElements();
+
+    // State
     const [order, setOrder] = useState(null);
-    const [timeLeft, setTimeLeft] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
     const [promoCode, setPromoCode] = useState("");
-    const [price, setPrice] = useState(0); // For dynamic price updates
+    const [timeLeft, setTimeLeft] = useState("");
+    
+    // UI Feedback State
+    const [modal, setModal] = useState({ open: false, title: "", message: "" });
 
-    // Payment form state
-    const [cardNumber, setCardNumber] = useState("");
-    const [expiry, setExpiry] = useState("");
-    const [cvc, setCvc] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMsg, setModalMsg] = useState("");
+    const userId = 1; // In production, get this from Auth context
+    const headers = useMemo(() => ({ "X-User-Id": userId }), [userId]);
 
-    const [isLoadingOrder, setIsLoadingOrder] = useState(false); // New safety flag
-
+    // 1. Fetch Active Order
     useEffect(() => {
-        // Prevent multiple simultaneous fetches
-        if (isLoadingOrder || order) return;
-
-        setIsLoadingOrder(true);
-        const headers = { "X-User-Id": 1 };
-
         axios.get(`http://localhost:8081/orders/active`, { headers })
-            .then(res => {
-                setOrder(res.data);
-                setIsLoadingOrder(false);
-            })
+            .then(res => setOrder(res.data))
             .catch(err => {
-                setIsLoadingOrder(false);
-                console.error("Error fetching active order:", err);
-                // If 410, you might want to redirect to events
-                if (err.response?.status === 410) {
+                if (err.response?.status === 404 || err.response?.status === 410) {
                     navigate('/events');
                 }
             });
-    }, []); // Technically correct, but added safety check above
-    const handleHappyPathTest = () => {
-        setCardNumber("4242 4242 4242 4242"); // Standard Stripe success card
-        setExpiry("12/28");
-        setCvc("123");
-        // You can also pre-set a valid promo code if you have one
-        if (typeof setPromoCode === 'function') setPromoCode("WELCOME20");
+    }, [navigate, headers]);
 
-        console.log("🧪 Test data preloaded: Happy Path");
-    };
-    const handlePayment = () => {
-        if (!cardNumber || !expiry || !cvc) {
-            setModalMsg("Please fill in all card details.");
-            setIsModalOpen(true);
-            return;
-        }
-
-        setIsProcessing(true);
-
-        // Calculate clean number INSIDE the handler
-        const sanitizedCard = cardNumber.replace(/\s+/g, '');
-
-        axios.post(`http://localhost:8081/orders/confirm`, {
-            card_number: sanitizedCard,
-            card_expiry: expiry,
-            card_cvv: cvc,
-            promo_code: promoCode || ""
-        }, { headers: { "X-User-Id": 1 } })
-            .then(() => {
-                setIsProcessing(false);
-                alert("Payment Successful!");
-                navigate('/orders');
-            })
-            .catch(err => {
-                setIsProcessing(false);
-
-                const errorData = err.response?.data;
-                const status = err.response?.status;
-                const errorCode = errorData?.errorCode;
-                const backendMessage = errorData?.message;
-
-                // Default title
-                setModalTitle("Transaction Issue");
-
-                // 1. Handle Business Logic Error Codes
-                switch (errorCode) {
-                    case 'PRICE_CHANGED':
-                        setModalTitle("Price Updated");
-                        // If backend sends multiple reasons, use array, otherwise wrap message
-                        setModalMessages([
-                            backendMessage || "The ticket price has changed.",
-                            "Please review the new total and click 'Pay' again to confirm."
-                        ]);
-                        if (errorData.newPrice) setPrice(errorData.newPrice);
-                        setIsModalOpen(true);
-                        return;
-
-                    case 'BOOKING_UNAVAILABLE':
-                        setModalTitle("Tickets Unavailable");
-                        setModalMessages("Sorry, someone else grabbed these tickets while you were checking out.");
-                        setIsModalOpen(true);
-                        return;
-
-                    case 'LOCATION_COLLISION':
-                        setModalTitle("Scheduling Conflict");
-                        // Here we handle the list of collisions you return from the backend
-                        setModalMessages(errorData.collisions || backendMessage);
-                        setIsModalOpen(true);
-                        return;
-                }
-
-                // 2. Handle HTTP Status Codes
-                if (status === 400) {
-                    setModalMessages(backendMessage || "Invalid card details or request data.");
-                } else if (status === 410) { // If you kept GONE for something specific
-                    setModalMessages("This offer is no longer available.");
-                } else {
-                    // Fallback for 500s or network errors
-                    setModalMessages(backendMessage || "A connection error occurred. Please try again.");
-                }
-
-                setIsModalOpen(true);
-            });
-    };
-
-    const handleCancel = () => {
-        axios.delete(`http://localhost:8081/orders/cancel`, { headers: { "X-User-Id": 1 } })
-            .then(() => {
-                alert("Order Cancelled");
-                setOrder(null);
-                navigate("/events");
-            })
-            .catch(err => {
-                setModalMsg("Your session expired. Please choose tickets again.");
-                setIsModalOpen(true);
-            });
-    };
-
-    const cleanCardNumber = cardNumber.replace(/\s+/g, ''); // Removes all spaces
-    const formatDateObj = (dateString) => {
-        const date = new Date(dateString);
-        return isNaN(date.getTime()) ? null : date;
-    };
-
-    const expiryDate = useMemo(() => order ? formatDateObj(order.expirationTime) : null, [order]);
+    // 2. Timer Logic
+    const expiryDate = useMemo(() => 
+        order?.expirationTime ? new Date(order.expirationTime) : null, 
+    [order]);
 
     useEffect(() => {
         if (!expiryDate) return;
-        const calculateTime = () => {
-            const now = new Date();
-            const diff = expiryDate - now;
+        const interval = setInterval(() => {
+            const diff = expiryDate - new Date();
             if (diff <= 0) {
                 setTimeLeft("Expired");
-                return;
+                clearInterval(interval);
+                navigate('/events');
+            } else {
+                const mins = Math.floor((diff / 1000 / 60) % 60);
+                const secs = Math.floor((diff / 1000) % 60);
+                setTimeLeft(`${mins}m ${secs}s`);
             }
-            const mins = Math.floor((diff / 1000 / 60) % 60);
-            const secs = Math.floor((diff / 1000) % 60);
-            setTimeLeft(`${mins}m ${secs}s`);
-        };
-        calculateTime();
-        const timer = setInterval(calculateTime, 1000);
-        return () => clearInterval(timer);
-    }, [expiryDate]);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [expiryDate, navigate]);
+
+    // 3. Handlers
+    const handlePayment = async () => {
+        if (!stripe || !elements) return;
+
+        setIsProcessing(true);
+        const cardElement = elements.getElement(CardElement);
+
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+            type: 'card',
+            card: cardElement,
+        });
+
+        if (error) {
+            setModal({ open: true, title: "Card Error", message: error.message });
+            setIsProcessing(false);
+            return;
+        }
+
+        try {
+            await axios.post(`http://localhost:8081/orders/confirm`, {
+                stripePaymentMethodId: paymentMethod.id,
+                promoCode: promoCode
+            }, { headers });
+            
+            navigate('/orders/success');
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || "Payment failed. Please try again.";
+            setModal({ open: true, title: "Transaction Failed", message: errorMsg });
+            setIsProcessing(false);
+        }
+    };
+
+    const handleCancel = async () => {
+        if (!window.confirm("Are you sure? Your tickets will be released.")) return;
+        
+        try {
+            await axios.delete(`http://localhost:8081/orders/active`, { headers });
+            navigate("/events");
+        } catch (err) {
+            navigate("/events");
+        }
+    };
+
+    if (!order) return <div style={styles.loading}>Loading your secure checkout...</div>;
 
     return (
         <div style={styles.page}>
             <div style={styles.container}>
-
-                {/* LEFT COLUMN: Order Review */}
+                {/* LEFT: Review */}
                 <div style={styles.leftCol}>
                     <div style={styles.sectionHeader}>
                         <h1 style={styles.mainTitle}>Review Your Order</h1>
@@ -178,34 +123,31 @@ const OrderPayment = () => {
                     </div>
 
                     <div style={styles.ticketList}>
-                        {order?.tickets ? order.tickets.map((t) => {
-                            const dateObj = formatDateObj(t.eventStartTime);
-                            return (
-                                <div key={t.id} style={styles.ticketCard}>
-                                    <div style={styles.ticketGrid}>
-                                        <div style={styles.dateCol}>
-                                            <div style={styles.dateDay}>
-                                                {dateObj?.toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
-                                            </div>
-                                            <div style={styles.dateTime}>
-                                                {dateObj?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </div>
+                        {order.tickets.map((t) => (
+                            <div key={t.id} style={styles.ticketCard}>
+                                <div style={styles.ticketGrid}>
+                                    <div style={styles.dateCol}>
+                                        <div style={styles.dateDay}>
+                                            {new Date(t.eventStartTime).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
                                         </div>
-                                        <div style={styles.infoCol}>
-                                            <h4 style={styles.eventNameText}>{t.eventName}</h4>
-                                            <p style={styles.locationLabel}>{t.eventLocationName || 'General Admission'}</p>
-                                        </div>
-                                        <div style={styles.priceCol}>
-                                            <span style={styles.priceText}>${t.price?.toFixed(2)}</span>
+                                        <div style={styles.dateTime}>
+                                            {new Date(t.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
+                                    <div style={styles.infoCol}>
+                                        <h4 style={styles.eventNameText}>{t.eventName}</h4>
+                                        <p style={styles.locationLabel}>{t.eventLocationName || 'General Admission'}</p>
+                                    </div>
+                                    <div style={styles.priceCol}>
+                                        <span style={styles.priceText}>${t.price?.toFixed(2)}</span>
+                                    </div>
                                 </div>
-                            );
-                        }) : <p>Loading your tickets...</p>}
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: Payment & Promo */}
+                {/* RIGHT: Payment */}
                 <div style={styles.rightCol}>
                     <div style={styles.paymentCard}>
                         <div style={styles.paymentHeader}>
@@ -216,29 +158,20 @@ const OrderPayment = () => {
                             </div>
                         </div>
 
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Card Number</label>
-                            <input type="text" placeholder="0000 0000 0000 0000" style={styles.input} value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                        <div style={styles.stripeInputWrapper}>
+                            <label style={styles.label}>Credit or Debit Card</label>
+                            <div style={styles.stripeElementContainer}>
+                                <CardElement options={CARD_ELEMENT_OPTIONS} />
+                            </div>
+                            <small style={styles.helperText}>Secured by Stripe. We do not store your card details.</small>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '15px', marginTop: '15px' }}>
-                            <div style={{ flex: 1 }}>
-                                <label style={styles.label}>Expiry</label>
-                                <input type="text" placeholder="MM/YY" style={styles.input} value={expiry} onChange={(e) => setExpiry(e.target.value)} />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <label style={styles.label}>CVC</label>
-                                <input type="text" placeholder="123" style={styles.input} value={cvc} onChange={(e) => setCvc(e.target.value)} />
-                            </div>
-                        </div>
-
-                        {/* PROMO SECTION INTEGRATED */}
                         <div style={styles.promoSection}>
                             <label style={styles.label}>Promo Code</label>
                             <div style={styles.promoInputGroup}>
                                 <input
                                     type="text"
-                                    style={{ ...styles.input, marginTop: 0 }}
+                                    style={styles.input}
                                     placeholder="GIFT2026"
                                     value={promoCode}
                                     onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
@@ -251,49 +184,35 @@ const OrderPayment = () => {
 
                         <div style={styles.totalRow}>
                             <span>Total</span>
-                            <span style={styles.totalAmount}>${order ? order.totalPrice.toFixed(2) : '0.00'}</span>
+                            <span style={styles.totalAmount}>${order.totalPrice.toFixed(2)}</span>
                         </div>
 
                         <div style={styles.buttonGroup}>
                             <button
-                                style={{
-                                    ...styles.payButton,
-                                    opacity: timeLeft === "Expired" || isProcessing ? 0.6 : 1,
-                                    cursor: (timeLeft === "Expired" || isProcessing) ? 'not-allowed' : 'pointer'
-                                }}
+                                style={{...styles.payButton, opacity: isProcessing ? 0.7 : 1}}
                                 onClick={handlePayment}
-                                disabled={timeLeft === "Expired" || isProcessing}
+                                disabled={isProcessing || !stripe}
                             >
-                                {isProcessing ? "Processing..." : timeLeft === "Expired" ? "Expired" : "Confirm & Pay"}
+                                {isProcessing ? "Processing..." : "Confirm & Pay"}
                             </button>
-
+                            
                             <button
-                                onClick={handleHappyPathTest}
-                                style={{ backgroundColor: '#28a745', color: 'white', marginBottom: '1rem' }}
-                            >
-                                🚀 Preload Happy Path (Test Only)
-                            </button>
-                            <button
-                                style={{
-                                    ...styles.cancelButton,
-                                    opacity: isProcessing ? 0.5 : 1,
-                                    cursor: isProcessing ? 'not-allowed' : 'pointer'
-                                }}
+                                style={styles.cancelButton}
                                 onClick={handleCancel}
                                 disabled={isProcessing}
                             >
-                                Cancel Order
+                                Release Tickets & Exit
                             </button>
                         </div>
                     </div>
                 </div>
-
             </div>
+
             <ErrorModal
-                show={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={modalTitle}
-                messages={modalMessages}
+                show={modal.open}
+                onClose={() => setModal({ ...modal, open: false })}
+                title={modal.title}
+                messages={modal.message}
             />
         </div>
     );
@@ -334,7 +253,43 @@ const styles = {
     totalAmount: { fontSize: '28px', fontWeight: '800', color: '#0f172a' },
     buttonGroup: { display: 'flex', flexDirection: 'column', gap: '12px' },
     payButton: { width: '100%', backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '18px', borderRadius: '16px', fontSize: '16px', fontWeight: '700' },
-    cancelButton: { width: '100%', backgroundColor: '#fff', color: '#f90000', border: '1px solid #f90000', padding: '14px', borderRadius: '16px', fontSize: '15px', fontWeight: '600' }
+    cancelButton: { width: '100%', backgroundColor: '#fff', color: '#f90000', border: '1px solid #f90000', padding: '14px', borderRadius: '16px', fontSize: '15px', fontWeight: '600' },
+    stripeInputWrapper: {
+        marginTop: '25px',
+        marginBottom: '25px',
+    },
+    label: {
+        display: 'block',
+        fontSize: '14px',
+        fontWeight: '600',
+        color: '#475569',
+        marginBottom: '10px', // More space between label and input
+    },
+    stripeElementContainer: {
+        padding: '18px 14px', // Significant padding for a "spacious" feel
+        border: '1px solid #cbd5e1',
+        borderRadius: '14px',
+        backgroundColor: '#ffffff',
+        boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)', // Subtle depth
+        transition: 'border-color 0.2s ease',
+    },
+    helperText: {
+        display: 'block',
+        marginTop: '8px',
+        fontSize: '12px',
+        color: '#94a3b8',
+    },
+    cancelButton: { 
+    width: '100%', 
+    backgroundColor: 'transparent', 
+    color: '#64748b', // Subtle gray
+    border: 'none', 
+    padding: '10px', 
+    fontSize: '14px', 
+    fontWeight: '600',
+    textDecoration: 'underline',
+    cursor: 'pointer'
+}
 };
 
 

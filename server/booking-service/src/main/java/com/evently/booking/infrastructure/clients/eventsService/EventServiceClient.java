@@ -11,10 +11,9 @@ import java.util.List;
 
 @FeignClient(name = "event-service", url = "http://localhost:8082")
 public interface EventServiceClient {
-
     @PostMapping("/internal/event-locations/check-state/{id}")
     ResponseEntity<Boolean> checkEventLocationsStateById(@PathVariable Long id);
-//
+
     @PostMapping("/internal/event-locations/byIds")
     List<EventsLocationsDto> getLocations(@RequestBody List<Long> ids);
 }

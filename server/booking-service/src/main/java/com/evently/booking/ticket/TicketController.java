@@ -41,14 +41,4 @@ public class TicketController {
                 ticketService.getAvailableTicketsCount(eventLocationId);
         return ResponseEntity.ok().body(availableTickets);
     }
-
-    public void refundTicketRequest(@RequestHeader(Headers.USER_ID) Long userId, int ticketId) {
-        ticketService.refundTicket(userId, ticketId);
-    }
-
-
-    public void handleEventCancellationEvent(int eventLocations) {
-        Ticket allTicketsForSpecificEventLocation =
-                ticketService.findAllTicketsForSpecificEventLocation(eventLocations);
-    }
 }

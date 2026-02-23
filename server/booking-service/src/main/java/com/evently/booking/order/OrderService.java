@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,26 +42,23 @@ public class OrderService {
     private final ObjectMapper objectMapper;
     private final PaymentServiceClient paymentServiceClient;
     private final EventServiceClient eventServiceClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
-        orderRepository.findPendingOrderByIdAndUserId(userId)
-                .map(order -> updateExistingOrder(order, orderRequest, userId))
-                .orElseGet(() -> createNewOrder(orderRequest, userId));
+        orderRepository.findPendingOrderByIdAndUserId(userId).map(order -> updateExistingOrder(order, orderRequest, userId)).orElseGet(() -> createNewOrder(orderRequest, userId));
     }
 
     public OrderDetails getActiveUserOrder(Long userId) throws OrderExpiredException {
         Order order =
-                orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() ->
-                        new OrderExpiredException("Your booking window has " +
-                                "timed out. " +
-                                "Please start a new order."));
+                orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new OrderExpiredException("Your booking window has " + "timed out. " + "Please start a new order."));
 
         List<TicketListItem> listItems =
                 ticketService.getTicketsByOrderId(order.getId());
 
         return mapToDto(order, listItems);
     }
+
 
     public void cancelActiveOrder(long userId) {
         var order =
@@ -69,12 +67,11 @@ public class OrderService {
         updateOrderDetails(order, OrderStatus.CANCELLED);
     }
 
-    public void finishOrder(long userId, long orderId, String transactionId) {
-        var order = orderRepository.findPendingOrderByIdAndUserId(userId);
-    }
 
     @Transactional
     Order createNewOrder(OrderRequest orderRequest, long userId) {
+        //check if event location status was not changed during the user were
+        // selecting a ticket
         boolean isAvailable =
                 eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId()).getBody();
         if (!isAvailable) {
@@ -101,26 +98,25 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
     public void updateOrderDetails(Order order, OrderStatus status) {
         if (status == OrderStatus.CANCELLED || status == OrderStatus.EXPIRED) {
 
             List<TicketListItem> activeListItem =
                     ticketService.getTicketsByOrderId(order.getId());
+            activeListItem.forEach(x -> x.setStatus(TicketStatus.CANCELED));
 
             try {
                 String json = objectMapper.writeValueAsString(activeListItem);
                 order.setAudit(json);
             } catch (JsonProcessingException e) {
-                // Log this! Don't let a JSON error stop the cancellation logic
                 log.error("Failed to create audit log for order {}",
                         order.getId(), e);
             }
 
-            // 2. Update Order Stat
             order.setStatus(status);
             order.setActive(false);
 
-            // 3. Release the Tickets (The "Destructive" part)
             List<Ticket> tickets = order.getTickets();
             if (tickets != null) {
                 for (Ticket ticket : tickets) {
@@ -248,53 +244,49 @@ public class OrderService {
         Order order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
-        // 1. Check for any date drift
-        boolean dateChanged = order.getTickets().stream()
-                .anyMatch(t -> !t.getEventStartTime().equals(t.getOriginalEventStartTime()));
+        //todo: this is buggy
+        boolean dateChanged =
+                order.getTickets().stream().anyMatch(t -> !t.getEventStartTime().equals(t.getOriginalEventStartTime()));
 
-        // 2. Calculate current price total
-        BigDecimal latestTotal = order.getTickets().stream()
-                .map(Ticket::getPrice) // Assuming price is updated on the
-                // ticket
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal latestTotal =
+                order.getTickets().stream().map(Ticket::getPrice) // Assuming
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         boolean priceChanged =
                 latestTotal.compareTo(order.getTotalPrice()) != 0;
 
         if (dateChanged || priceChanged) {
-            // Sync the Order entity with reality
             order.setTotalPrice(latestTotal);
 
-            // IMPORTANT: Once the user is notified, we "accept" the new date
-            // as the new baseline
-            // by updating the originalEventStartTime to the current one
             order.getTickets().forEach(t -> t.setOriginalEventStartTime(t.getEventStartTime()));
-
             orderRepository.save(order);
-
-            throw new PriceChangedException(dateChanged ?
-                    "The event time has changed. Please confirm the new " +
-                            "details." :
-                    "The price has been updated.");
+            throw new PriceChangedException(dateChanged ? "The event time " +
+                    "has" + " changed. Please confirm the new " + "details."
+                    : "The " + "price has been updated.");
         }
+
         PaymentServiceRequest paymentServiceRequest =
                 new PaymentServiceRequest();
-        paymentServiceRequest.setAmount(latestTotal);
-        paymentServiceRequest.setCardNumber(finishOrderRequest.getCardNumber().trim());
-        paymentServiceRequest.setCardExpiry(finishOrderRequest.getCardExpiry().trim());
-        paymentServiceRequest.setCardCvv(finishOrderRequest.getCardCvv().trim());
-        paymentServiceRequest.setOrderId(order.getId());
-
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setAmount(order.getTotalPrice());
+        paymentRequest.setStripePaymentMethodId(finishOrderRequest.getStripePaymentMethodId());
+        paymentRequest.setAmount(order.getTotalPrice());
         ResponseEntity<PaymentServiceResponse> response =
-                paymentServiceClient.processPayment(paymentServiceRequest);
+                paymentServiceClient.processPayment(paymentRequest);
         if (response.getBody().isSuccess()) {
             ticketService.finalizeOrder(order.getId());
             order.setStatus(OrderStatus.CONFIRMED);
             order.setActive(false);
             order.setTotalPrice(latestTotal);
+            order.setReceiptUrl(response.getBody().getReceiptUrl());
             order.setTransactionId(response.getBody().getTransactionId());
             orderRepository.save(order);
-            //raiseEvent which will send emial to the user
+
+
+            OrderDetails orderDetails = getOrderDetails(userId,
+                    order.getNumber());
+
+            //  eventPublisher.publishEvent(new OrderCompletedEvent(order));
         } else {
             if (response.getBody().getMessage().startsWith("Invalid card")) {
                 throw new ProcessOrderException(response.getBody());
@@ -307,7 +299,7 @@ public class OrderService {
 
     @Transactional
     public void refundOrder(long number, long userId) throws OrderNotRefundableException {
-        if (!isOrderRefundable(userId, number)) {
+        if (!isWithinRefundPeriod(userId, number)) {
             throw new OrderNotRefundableException(number);
         }
 
@@ -351,20 +343,15 @@ public class OrderService {
 
     }
 
-    public boolean isOrderRefundable(Long userId, Long number) {
+    public boolean isWithinRefundPeriod(Long userId, Long number) {
         Order order = orderRepository.findByOrderNumberAndUserId(number,
                 userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
-        List<Ticket> tickets = order.getTickets();
-
-        boolean canRefund = true;
-        for (Ticket ticket : tickets) {
-            if (ticket.getEventStartTime().isBefore(LocalDateTime.now().plusHours(2))) {
-                canRefund = false;
-                break;
-            }
-        }
-        return canRefund;
+        return order.getTickets().stream().allMatch(ticket -> {
+            LocalDateTime refundDeadline =
+                    ticket.getEventStartTime().minusDays(1);
+            return LocalDateTime.now().isBefore(refundDeadline);
+        });
     }
 
 

@@ -13,10 +13,7 @@ public class PaymentRequest {
     private long orderId;
     @JsonProperty("amount")
     private BigDecimal amount;
-    @JsonProperty("cardNumber")
-    private String cardNumber;
-    @JsonProperty("cardExpiry")
-    private String cardExpiry;
-    @JsonProperty("cardCvv")
-    private String cardCvv;
+    @JsonProperty("stripePaymentMethodId")
+    private String stripePaymentMethodId;
+
 }

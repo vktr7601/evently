@@ -4,6 +4,10 @@ spring:
   sql:
     init:
       mode: always
+  thymeleaf:
+    suffix: .html
+    mode: HTML
+    prefix: classpath:/templates/
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_db
     username: admin

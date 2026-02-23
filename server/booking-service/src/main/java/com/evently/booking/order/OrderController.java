@@ -30,11 +30,10 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getActiveUserOrder(userId));
     }
 
-    @DeleteMapping("/cancel")
-    public ResponseEntity<?> cancelOrder(@RequestHeader(Headers.USER_ID) Long userId) {
+    @DeleteMapping("/active")
+    public ResponseEntity<Void> discardActiveOrder(@RequestHeader(Headers.USER_ID) Long userId) {
         orderService.cancelActiveOrder(userId);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build(); // 204 No Content is standard for successful DELETE
     }
 
     @GetMapping
@@ -54,5 +53,16 @@ public class OrderController {
     public ResponseEntity<?> confirmPayment(@RequestHeader(Headers.USER_ID) Long userId, @RequestBody FinishOrderRequest finishOrderRequest) {
         orderService.finishActiveUserOrder(userId, finishOrderRequest);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{orderNumber}/refund-eligibility")
+    public ResponseEntity<?> getRefundEligibility(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long orderNumber) {
+
+        boolean eligible = orderService.isWithinRefundPeriod(userId,
+                orderNumber);
+
+        return ResponseEntity.ok(eligible);
     }
 }

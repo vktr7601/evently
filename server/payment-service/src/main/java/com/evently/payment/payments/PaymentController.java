@@ -18,14 +18,14 @@ public class PaymentController {
         return ResponseEntity.ok().body(paymentGatewayResponse);
     }
 
-    @GetMapping("/history")
-    public void getPaymentHistory(@RequestHeader("X-User-Id") Long userId) {
-        paymentService.getPaymentHistory(userId);
-    }
-
-    @PostMapping("/refund")
-    public ResponseEntity<RefundResponse> refundPayment(@RequestBody RefundRequest refundRequest) {
-        RefundResponse paymentGatewayResponse = paymentService.processRefund(refundRequest);
-        return ResponseEntity.ok().body(paymentGatewayResponse);
-    }
+//    @GetMapping("/history")
+//    public void getPaymentHistory(@RequestHeader("X-User-Id") Long userId) {
+//        paymentService.getPaymentHistory(userId);
+//    }
+//
+//    @PostMapping("/refund")
+//    public ResponseEntity<RefundResponse> refundPayment(@RequestBody RefundRequest refundRequest) {
+//        RefundResponse paymentGatewayResponse = paymentService.processRefund(refundRequest);
+//        return ResponseEntity.ok().body(paymentGatewayResponse);
+//    }
 }

@@ -27,7 +27,8 @@ public class Order extends BaseEntity {
     private BigDecimal totalPrice = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch =
+            FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
     @Column(name = "expirationTime")
     private LocalDateTime expirationTime;
@@ -44,6 +45,8 @@ public class Order extends BaseEntity {
     private String refundId;
     @Column(name = "refundTime")
     private LocalDateTime refundTime;
+    @Column(name = "receiptUrl")
+    private String receiptUrl;
 
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);

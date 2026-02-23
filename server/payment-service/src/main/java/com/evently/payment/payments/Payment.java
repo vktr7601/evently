@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import utils.BaseEntity;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -14,6 +16,8 @@ public class Payment extends BaseEntity {
     private long userId;
     @Column(name = "order_id")
     private long orderId;
+    @Column(name = "amount")
+    private BigDecimal amount;
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
     @Column(name = "transaction_id")
