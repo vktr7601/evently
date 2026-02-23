@@ -245,7 +245,7 @@ public class EventService {
         EventTicketsBulkUpdate eventTicketsBulkUpdate =
                 new EventTicketsBulkUpdate();
         for (EventsLocationsData req : updates) {
-            EventsLocations entity = existingMap.get(req.getId());
+                EventsLocations entity = existingMap.get(req.getId());
             EventTicketsUpdate eventTicketsUpdate = new EventTicketsUpdate();
             eventTicketsUpdate.setEventLocationId(req.getId());
             if (entity == null) continue;

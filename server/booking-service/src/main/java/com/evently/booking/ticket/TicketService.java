@@ -3,6 +3,7 @@ package com.evently.booking.ticket;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
+import com.evently.booking.order.Order;
 import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.data.TicketsMapper;
@@ -307,5 +308,19 @@ public class TicketService {
         return ticketRepository.findAllByOrderId(orderId).stream()
                 .map(Ticket::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public boolean hasEventDateChangedForOrder(Order order) {
+        // Get the current start time from the first ticket in the order
+        // (Assuming all tickets in one order belong to the same event/location)
+        return ticketRepository.findAllByOrderId(order.getId()).stream()
+                .findFirst()
+                .map(ticket -> {
+                    LocalDateTime currentEventTime = ticket.getEventStartTime();
+                    // Compare with the time the order was originally associated with
+                    // If you don't store this on 'Order', you might need to add it!
+                    return !currentEventTime.equals(order.getCreatedAt());
+                })
+                .orElse(false);
     }
 }

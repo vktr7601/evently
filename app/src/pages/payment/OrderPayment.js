@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ErrorModal from '../../components/system/ErrorModal';
 
 const OrderPayment = () => {
     const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessages, setModalMessages] = useState("");
     const [order, setOrder] = useState(null);
     const [timeLeft, setTimeLeft] = useState("");
     const [promoCode, setPromoCode] = useState("");
+    const [price, setPrice] = useState(0); // For dynamic price updates
 
     // Payment form state
     const [cardNumber, setCardNumber] = useState("");
@@ -72,15 +76,53 @@ const OrderPayment = () => {
                 navigate('/orders');
             })
             .catch(err => {
-                if(err.response?.status === 400) {
-                    setModalMsg(err.response.data.message || "Payment Failed: Invalid card details or promo code.");
-                    setIsModalOpen(true);
-                    return;
-                }
                 setIsProcessing(false);
-                // USE YOUR MODAL HERE
-                const message = err.response?.data?.message || "Payment Failed: Please check your details.";
-                setModalMsg(message);
+
+                const errorData = err.response?.data;
+                const status = err.response?.status;
+                const errorCode = errorData?.errorCode;
+                const backendMessage = errorData?.message;
+
+                // Default title
+                setModalTitle("Transaction Issue");
+
+                // 1. Handle Business Logic Error Codes
+                switch (errorCode) {
+                    case 'PRICE_CHANGED':
+                        setModalTitle("Price Updated");
+                        // If backend sends multiple reasons, use array, otherwise wrap message
+                        setModalMessages([
+                            backendMessage || "The ticket price has changed.",
+                            "Please review the new total and click 'Pay' again to confirm."
+                        ]);
+                        if (errorData.newPrice) setPrice(errorData.newPrice);
+                        setIsModalOpen(true);
+                        return;
+
+                    case 'BOOKING_UNAVAILABLE':
+                        setModalTitle("Tickets Unavailable");
+                        setModalMessages("Sorry, someone else grabbed these tickets while you were checking out.");
+                        setIsModalOpen(true);
+                        return;
+
+                    case 'LOCATION_COLLISION':
+                        setModalTitle("Scheduling Conflict");
+                        // Here we handle the list of collisions you return from the backend
+                        setModalMessages(errorData.collisions || backendMessage);
+                        setIsModalOpen(true);
+                        return;
+                }
+
+                // 2. Handle HTTP Status Codes
+                if (status === 400) {
+                    setModalMessages(backendMessage || "Invalid card details or request data.");
+                } else if (status === 410) { // If you kept GONE for something specific
+                    setModalMessages("This offer is no longer available.");
+                } else {
+                    // Fallback for 500s or network errors
+                    setModalMessages(backendMessage || "A connection error occurred. Please try again.");
+                }
+
                 setIsModalOpen(true);
             });
     };
@@ -247,6 +289,12 @@ const OrderPayment = () => {
                 </div>
 
             </div>
+            <ErrorModal
+                show={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title={modalTitle}
+                messages={modalMessages}
+            />
         </div>
     );
 };

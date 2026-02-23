@@ -31,6 +31,10 @@ public class Ticket extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
+    @Column(name = "originalEventStartTime")
+    private LocalDateTime originalEventStartTime;
+
+    @Enumerated(EnumType.STRING)
 
     @Override
     public void onCreate() {

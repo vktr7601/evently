@@ -150,7 +150,7 @@ public class OrderService {
                               long userId) {
         var booleanRes =
                 eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId()).getBody();
-        if (booleanRes) {
+        if (!booleanRes) {
             throw new BookingUnavailableException();
         }
 
@@ -160,7 +160,7 @@ public class OrderService {
                 existingTickets.stream().filter(ticket -> ticket.getEventStartTime().equals(orderRequest.getEventStartTime()) && ticket.getEventLocationsId().equals(orderRequest.getEventLocationId())).collect(Collectors.groupingBy(Ticket::getEventLocationsId));
 
         if (ticketsByEventLocation.isEmpty()) {
-            if (booleanRes) {
+            if (!booleanRes) {
                 throw new BookingUnavailableException();
             }
             List<Ticket> tickets =
@@ -260,17 +260,38 @@ public class OrderService {
         Order order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
-        BigDecimal bigDecimal =
-                ticketService.calculateCurrentTotalForOrder(order.getId());
-        if (order.getStatus() == OrderStatus.EXPIRED) {
-            log.info("User {} attempted to pay for expired order {}", userId,
-                    order.getId());
+        // 1. Check for any date drift
+        boolean dateChanged = order.getTickets().stream()
+                .anyMatch(t -> !t.getEventStartTime().equals(t.getOriginalEventStartTime()));
 
-            throw new OrderExpiredException("Your booking window has timed " + "out. Please start a new order.");
+        // 2. Calculate current price total
+        BigDecimal latestTotal = order.getTickets().stream()
+                .map(Ticket::getPrice) // Assuming price is updated on the
+                // ticket
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        boolean priceChanged =
+                latestTotal.compareTo(order.getTotalPrice()) != 0;
+
+        if (dateChanged || priceChanged) {
+            // Sync the Order entity with reality
+            order.setTotalPrice(latestTotal);
+
+            // IMPORTANT: Once the user is notified, we "accept" the new date
+            // as the new baseline
+            // by updating the originalEventStartTime to the current one
+            order.getTickets().forEach(t -> t.setOriginalEventStartTime(t.getEventStartTime()));
+
+            orderRepository.save(order);
+
+            throw new PriceChangedException(dateChanged ?
+                    "The event time has changed. Please confirm the new " +
+                            "details." :
+                    "The price has been updated.");
         }
         PaymentServiceRequest paymentServiceRequest =
                 new PaymentServiceRequest();
-        paymentServiceRequest.setAmount(bigDecimal);
+        paymentServiceRequest.setAmount(latestTotal);
         paymentServiceRequest.setCardNumber(finishOrderRequest.getCardNumber().trim());
         paymentServiceRequest.setCardExpiry(finishOrderRequest.getCardExpiry().trim());
         paymentServiceRequest.setCardCvv(finishOrderRequest.getCardCvv().trim());
@@ -282,7 +303,7 @@ public class OrderService {
             ticketService.finalizeOrder(order.getId());
             order.setStatus(OrderStatus.CONFIRMED);
             order.setActive(false);
-            order.setTotalPrice(bigDecimal);
+            order.setTotalPrice(latestTotal);
             order.setTransactionId(response.getBody().getTransactionId());
             orderRepository.save(order);
             //raiseEvent which will send emial to the user

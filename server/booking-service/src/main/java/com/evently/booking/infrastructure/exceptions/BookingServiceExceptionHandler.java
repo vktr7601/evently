@@ -65,13 +65,17 @@ public class BookingServiceExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.GONE);
     }
 
-//    public ResponseEntity<ErrorResponse> handleException(LocationCollisionException ex, HttpServletRequest request) {
-//        ErrorResponse error = new ErrorResponse(
-//                HttpStatus.GONE.value(),
-//                "Order Expired",
-//                ex(),
-//                LocalDateTime.now(),
-//                request.getRequestURI()
-//        );
-//    }
+    @ExceptionHandler(PriceChangedException.class)
+    public ResponseEntity<ErrorResponse> handlePriceChanged(PriceChangedException ex, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .status(HttpStatus.CONFLICT.value()) // 409
+                .message(ex.getMessage())
+                .errorCode("PRICE_CHANGED") // Added for easier frontend
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 }

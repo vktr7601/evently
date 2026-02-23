@@ -16,6 +16,7 @@ public class TicketsMapper {
         ticket.setEventLocationsId(dto.getEventLocationId());
         ticket.setPrice(dto.getPricePerTicket());
         ticket.setEventStartTime(dto.getEventStartTime());
+        ticket.setEventStartTime(dto.getEventStartTime());
         ticket.setUserId(null);
         ticket.setStatus(TicketStatus.PENDING_PAYMENT);
 
