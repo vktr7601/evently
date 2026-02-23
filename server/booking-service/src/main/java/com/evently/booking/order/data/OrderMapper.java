@@ -17,6 +17,7 @@ public class OrderMapper {
         }
         if (Objects.isNull(order.getTransactionId())) {
             order.setTransactionId("NOT_APPLICABLE");
+            order.setReceiptUrl("NOT_APPLICABLE");
         }
         return new OrderDetails(
                 order.getId(),
@@ -26,7 +27,8 @@ public class OrderMapper {
                 order.getExpirationTime(),
                 order.getCreatedAt(),
                 order.getTransactionId(),
-                listItems != null ? listItems : Collections.emptyList()
+                listItems != null ? listItems : Collections.emptyList(),
+                order.getReceiptUrl()
         );
     }
 }

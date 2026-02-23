@@ -153,28 +153,15 @@ public class EventService {
                         "found"));
 
 
-// Map existing locations by ID for O(1) lookups
         Map<Long, EventsLocationsDto> existingLocsMap = eventsLocationsService
                 .findUpcomingEventLocationsByEventId(id, FetchMode.BASIC)
                 .stream()
                 .collect(Collectors.toMap(EventsLocationsDto::getId,
                         Function.identity()));
-        // 2. Identify the Deltas
         Set<Long> incomingIds = updateRequest.getEventLocations().stream()
                 .map(EventsLocationsData::getId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-
-        // --- BUCKET 1: DELETED (In DB, but not in Request) ---
-//        List<Long> deletedIds = existingLocs.stream()
-//                .map(EventsLocationsDto::getId)
-//                .filter(dbId -> !incomingIds.contains(dbId))
-//                .toList();
-
-//        if (!deletedIds.isEmpty()) {
-//            processDeletions(deletedIds);
-//        }
-
         // --- BUCKET 2: NEW (In Request, but no ID) ---
         List<EventsLocationsData> newLocData =
                 updateRequest.getEventLocations().stream()

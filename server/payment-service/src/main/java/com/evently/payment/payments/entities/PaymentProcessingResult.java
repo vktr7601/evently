@@ -1,14 +1,16 @@
-package com.evently.payment.payments.gateway;
+package com.evently.payment.payments.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Getter
 @AllArgsConstructor
-public class PaymentGatewayResponse implements Serializable {
+@NoArgsConstructor
+public class PaymentProcessingResult implements Serializable {
     @JsonProperty("transactionId")
     private String transactionId;
     @JsonProperty("isSuccessful")

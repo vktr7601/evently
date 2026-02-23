@@ -22,4 +22,6 @@ public class Payment extends BaseEntity {
     private PaymentStatus status;
     @Column(name = "transaction_id")
     private String transactionId;
+    @Column(name = "receiptUrl")
+    private String receiptUrl;
 }
