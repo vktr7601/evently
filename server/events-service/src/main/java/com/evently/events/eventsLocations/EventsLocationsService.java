@@ -59,7 +59,7 @@ public class EventsLocationsService {
 
     @Transactional
     public List<EventsLocationsDto> addLocationDetails(Event event,
-                                                       List<EventsLocationsData> eventLocationData) {
+                                                       List<EventsLocationsData> eventLocationData) throws LocationCollisionException {
         log.info("Linking event ID: {} with {} locations", event.getId(),
                 eventLocationData.size());
 
@@ -249,32 +249,33 @@ public class EventsLocationsService {
     @Transactional
     void validateNoArtistSchedulingConflicts(Event event,
                                              List<EventsLocationsData> eventLocationData) throws LocationCollisionException {
-        List<EventsLocationsDto> allUpcomingEventsByArtistId =
+        // 1. Fetch all upcoming events for this artist (regardless of location)
+        List<EventsLocationsDto> allUpcomingEventsByArtist =
                 fetchUpcomingEvents("Artists", event.getArtist().getId(),
                         eventsLocationsRepository::findAllUpcomingEventsByArtistId);
 
-        Map<Long, Set<LocalDateTime>> allUpcomingEventsByArtistIdMap =
-                allUpcomingEventsByArtistId.stream().collect(Collectors.groupingBy(EventsLocationsDto::getLocationId, Collectors.mapping(EventsLocationsDto::getEventStartTime, Collectors.toSet())));
-        Map<Long, Set<LocalDateTime>> eventLocationDataMap =
-                eventLocationData.stream().collect(Collectors.groupingBy(EventsLocationsData::getLocationId, Collectors.mapping(EventsLocationsData::getEventStartTime, Collectors.toSet())));
+        // 2. Create a Set of "Occupied Dates" (LocalDate)
+        // This ignores time and just looks at the calendar day
+        Set<LocalDate> occupiedDates = allUpcomingEventsByArtist.stream()
+                .map(dto -> dto.getEventStartTime().toLocalDate())
+                .collect(Collectors.toSet());
 
         List<String> collisions = new ArrayList<>();
 
-        for (Map.Entry<Long, Set<LocalDateTime>> entry :
-                eventLocationDataMap.entrySet()) {
-            Long locationId = entry.getKey();
-            Set<LocalDateTime> eventDates = entry.getValue();
+        // 3. Track dates within the CURRENT request to prevent double-booking in one form
+        Set<LocalDate> datesInRequest = new HashSet<>();
 
-            if (allUpcomingEventsByArtistIdMap.containsKey(locationId)) {
-                Set<LocalDateTime> existingEventDates =
-                        allUpcomingEventsByArtistIdMap.get(locationId);
-                for (LocalDateTime eventDate : eventDates) {
-                    if (existingEventDates.contains(eventDate)) {
-                        collisions.add("Artist already has an event scheduled" +
-                                " at location ID: " + locationId + " on date:" +
-                                " " + eventDate);
-                    }
-                }
+        for (EventsLocationsData newLoc : eventLocationData) {
+            LocalDate requestedDate = newLoc.getEventStartTime().toLocalDate();
+
+            // Check A: Is the artist already booked in the database for this day?
+            if (occupiedDates.contains(requestedDate)) {
+                collisions.add("Artist already has a performance scheduled on: " + requestedDate);
+            }
+
+            // Check B: Are there two entries for the same day in the incoming request?
+            if (!datesInRequest.add(requestedDate)) {
+                collisions.add("Request contains multiple performances for the same day: " + requestedDate);
             }
         }
 

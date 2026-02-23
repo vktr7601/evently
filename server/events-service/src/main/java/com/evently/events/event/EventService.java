@@ -15,7 +15,6 @@ import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.eventsLocations.entities.EventsLocationsStatus;
 import com.evently.events.eventsLocations.entities.FetchMode;
 import com.evently.events.locations.LocationService;
-import dtos.EventCancelled;
 import dtos.EventFinished;
 import events.eventCreated.EventCreated;
 import events.eventCreated.TicketsCreationEvent;
@@ -151,128 +150,216 @@ public class EventService {
     }
 
 
-    @Transactional
-    @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
-    public EventDetailDto updateEvent(Long id,
-                                      EventUpdate updateEventRequest) {
-        Event event =
-                eventRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
-        List<EventsLocationsDto> existingLocations =
-                eventsLocationsService.findUpcomingEventLocationsByEventId(id
-                        , FetchMode.BASIC);
-
-        Set<Long> idsInUserForm =
-                updateEventRequest.getEventLocations().stream().map(EventsLocationsData::getId).collect(Collectors.toSet());
-
-        List<EventsLocationsDto> deletedLocations =
-                existingLocations.stream().filter(loc -> !idsInUserForm.contains(loc.getId())).toList();
-
-        Set<Long> idsInDatabase =
-                existingLocations.stream().map(EventsLocationsDto::getId).collect(Collectors.toSet());
-
-        List<EventsLocationsData> newLocations =
-                updateEventRequest.getEventLocations().stream().filter(loc -> Objects.isNull(loc.getId())).toList();
-
-        if (!newLocations.isEmpty()) {
-            List<EventsLocationsDto> newlyCreatedLocations =
-                    eventsLocationsService.addLocationDetails(event,
-                            newLocations);
-
-            List<TicketsCreationEvent> tickets = newlyCreatedLocations.stream()
-                    .map(this::toTicketsCreationEvent)
-                    .toList();
-            List<CategoryDto> categories =
-                    eventsCategoriesService.getEventCategories(event.getId());
-            EventCreated eventCreated = new EventCreated(
-                    event.getId(),
-                    categories.stream().map(CategoryDto::getId).toList(),
-                    event.getArtist().getId(),
-                    event.getName(),
-                    tickets
-            );
-
-            eventPublisher.publishEvent(eventCreated);
-        }
-        if (!deletedLocations.isEmpty()) {
-            List<Long> list =
-                    deletedLocations.stream().map(x -> x.getId()).toList();
-            List<EventsLocationsDto> allByIdsInRange =
-                    eventsLocationsService.findAllByIdsInRange(list,
-                            FetchMode.BASIC);
-
-            allByIdsInRange.forEach(location -> {
-                location.setEventsLocationsStatus(EventsLocationsStatus.CANCELLED);
-            });
-            EventCancelled eventCancelled = new EventCancelled(list);
-            eventPublisher.publishEvent(eventCancelled);
-        }
-
-        if (!deletedLocations.isEmpty()) {
-            System.out.println();
-        }
-
-        //add new location for speciifc event
-        // remove specific location
-        // alter speciifc locaiton by adding more tickets, change the state,
-        // change the price,
-
-        //   if (!newLocations.isEmpty()) {
-//            List<Long> newLocationIds =
-//                    newLocations.stream().map
-//                    (EventsLocationsData::getLocationId).toList();
-//            Map<Long, Location> locationEntitiesMap =
-//                    locationService.findAllByIdIn(newLocationIds);
+//    @Transactional
+//    @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
+//    public EventDetailDto updateEvent(Long id,
+//                                      EventUpdate updateEventRequest) {
+//        Event event =
+//                eventRepository.findById(id).orElseThrow(() -> new
+//                ResourceNotFoundException("Event not found with id: " + id));
+//        List<EventsLocationsDto> existingLocations =
+//                eventsLocationsService.findUpcomingEventLocationsByEventId(id
+//                        , FetchMode.BASIC);
+//
+//        Set<Long> idsInUserForm =
+//                updateEventRequest.getEventLocations().stream().map
+//                (EventsLocationsData::getId).collect(Collectors.toSet());
+//
+//        List<EventsLocationsDto> deletedLocations =
+//                existingLocations.stream().filter(loc -> !idsInUserForm
+//                .contains(loc.getId())).toList();
+//
+//        Set<Long> idsInDatabase =
+//                existingLocations.stream().map(EventsLocationsDto::getId)
+//                .collect(Collectors.toSet());
+//
+//        List<EventsLocationsData> newLocations =
+//                updateEventRequest.getEventLocations().stream().filter(loc
+//                -> Objects.isNull(loc.getId())).toList();
+//
+//        if (!newLocations.isEmpty()) {
+//            List<EventsLocationsDto> newlyCreatedLocations =
+//                    eventsLocationsService.addLocationDetails(event,
+//                            newLocations);
+//
+//            List<TicketsCreationEvent> tickets = newlyCreatedLocations
+//            .stream()
+//                    .map(this::toTicketsCreationEvent)
+//                    .toList();
 //            List<CategoryDto> categories =
 //                    eventsCategoriesService.getEventCategories(event.getId());
+//            EventCreated eventCreated = new EventCreated(
+//                    event.getId(),
+//                    categories.stream().map(CategoryDto::getId).toList(),
+//                    event.getArtist().getId(),
+//                    event.getName(),
+//                    tickets
+//            );
 //
-//            // 2. Add them and get back the DTOs (which likely contain the
-//            // new DB primary keys)
-////            List<EventsLocationsDto> addedDtos =
-////                    eventsLocationsService.addLocationDetails(event,
-////                            newLocations, locationEntitiesMap);
-//            eventsLocationsService.addLocationDetails(event,
-//                    updateEventRequest.getEventLocations());
-//            // 3. Prepare Kafka Message (Ticket Allocations)
-//            List<TicketsCreationEvent> ticketsCreationEvents =
-//                    addedDtos.stream().map(x -> new TicketsCreationEvent(x
-//                    .getId(), x.getTicketsCount(), x.getEventStartTime(), x
-//                    .getPricePerTicket())).toList();
-////            var eventCreated = new EventCreated();
-//            eventCreated.setEventName(event.getName());
-//            eventCreated.setEventId(event.getId());
-//            eventCreated.setCategories(categories.stream().map
-//            (CategoryDto::id).toList());
-//            eventCreated.setArtistId(event.getArtist().getId());
-//            eventCreated.setTicketsCreationEvents(ticketsCreationEvents);
-        // eventPublisher.publishEvent(eventCreated);
+//            eventPublisher.publishEvent(eventCreated);
 //        }
-//        if (!idsInDatabase.isEmpty()) {
-//            // this is handling the logic when event location is updated,
-//            // meaning that user changed the date or price for existing
-//            location
-//        }
-//
 //        if (!deletedLocations.isEmpty()) {
-//            List<Long> deletedLocationIds =
-//                    deletedLocations.stream().map
-//                    (EventsLocationsDto::getId).toList();
+//            List<Long> list =
+//                    deletedLocations.stream().map(x -> x.getId()).toList();
+//            List<EventsLocationsDto> allByIdsInRange =
+//                    eventsLocationsService.findAllByIdsInRange(list,
+//                            FetchMode.BASIC);
 //
-//            //handle the logic for deleting
+//            allByIdsInRange.forEach(location -> {
+//                location.setEventsLocationsStatus(EventsLocationsStatus
+//                .CANCELLED);
+//            });
+//            EventCancelled eventCancelled = new EventCancelled(list);
+//            eventPublisher.publishEvent(eventCancelled);
 //        }
-//        //if there is removed locations, i need to
 //
-//        eventRepository.save(event);
+//        if()
 //
+//        //add new location for speciifc event
+//        // remove specific location
+//        // alter speciifc locaiton by adding more tickets, change the state,
+//        // change the price,
 //
-//        return findEventDetailsById(id);
+//        //   if (!newLocations.isEmpty()) {
+////            List<Long> newLocationIds =
+////                    newLocations.stream().map
+////                    (EventsLocationsData::getLocationId).toList();
+////            Map<Long, Location> locationEntitiesMap =
+////                    locationService.findAllByIdIn(newLocationIds);
+////            List<CategoryDto> categories =
+////                    eventsCategoriesService.getEventCategories(event
+//    .getId());
+////
+////            // 2. Add them and get back the DTOs (which likely contain the
+////            // new DB primary keys)
+//////            List<EventsLocationsDto> addedDtos =
+//////                    eventsLocationsService.addLocationDetails(event,
+//////                            newLocations, locationEntitiesMap);
+////            eventsLocationsService.addLocationDetails(event,
+////                    updateEventRequest.getEventLocations());
+////            // 3. Prepare Kafka Message (Ticket Allocations)
+////            List<TicketsCreationEvent> ticketsCreationEvents =
+////                    addedDtos.stream().map(x -> new TicketsCreationEvent(x
+////                    .getId(), x.getTicketsCount(), x.getEventStartTime(), x
+////                    .getPricePerTicket())).toList();
+//////            var eventCreated = new EventCreated();
+////            eventCreated.setEventName(event.getName());
+////            eventCreated.setEventId(event.getId());
+////            eventCreated.setCategories(categories.stream().map
+////            (CategoryDto::id).toList());
+////            eventCreated.setArtistId(event.getArtist().getId());
+////            eventCreated.setTicketsCreationEvents(ticketsCreationEvents);
+//        // eventPublisher.publishEvent(eventCreated);
+
+    /// /        }
+    /// /        if (!idsInDatabase.isEmpty()) {
+    /// /            // this is handling the logic when event location is
+    /// updated,
+    /// /            // meaning that user changed the date or price for existing
+    /// /            location
+    /// /        }
+    /// /
+    /// /        if (!deletedLocations.isEmpty()) {
+    /// /            List<Long> deletedLocationIds =
+    /// /                    deletedLocations.stream().map
+    /// /                    (EventsLocationsDto::getId).toList();
+    /// /
+    /// /            //handle the logic for deleting
+    /// /        }
+    /// /        //if there is removed locations, i need to
+    /// /
+    /// /        eventRepository.save(event);
+    /// /
+    /// /
+    /// /        return findEventDetailsById(id);
+//        return findEventDetailsById(event.getId());
+//    }
+    @Transactional
+    @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
+    public EventDetailDto updateEvent(Long id, EventUpdate updateRequest) {
+        // 1. Fetch current state
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not " +
+                        "found"));
+
+        List<EventsLocationsDto> existingLocs = eventsLocationsService
+                .findUpcomingEventLocationsByEventId(id, FetchMode.BASIC);
+
+        // 2. Identify the Deltas
+        Set<Long> incomingIds = updateRequest.getEventLocations().stream()
+                .map(EventsLocationsData::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // --- BUCKET 1: DELETED (In DB, but not in Request) ---
+        List<Long> deletedIds = existingLocs.stream()
+                .map(EventsLocationsDto::getId)
+                .filter(dbId -> !incomingIds.contains(dbId))
+                .toList();
+
+        if (!deletedIds.isEmpty()) {
+            processDeletions(deletedIds);
+        }
+
+        // --- BUCKET 2: NEW (In Request, but no ID) ---
+        List<EventsLocationsData> newLocData =
+                updateRequest.getEventLocations().stream()
+                .filter(loc -> loc.getId() == null)
+                .toList();
+
+        if (!newLocData.isEmpty()) {
+            processAdditions(event, newLocData);
+        }
+
+        // --- BUCKET 3: UPDATED (In Request AND in DB) ---
+        List<EventsLocationsData> updates =
+                updateRequest.getEventLocations().stream()
+                .filter(loc -> loc.getId() != null && incomingIds.contains(loc.getId()))
+                .toList();
+
+        if (!updates.isEmpty()) {
+            processUpdates(updates);
+        }
+
+        eventRepository.save(event);
+
         return findEventDetailsById(event.getId());
     }
+
+    private void processDeletions(List<Long> deletedIds) {}
 
     //this is invoked by the frontend
     public EventsLocationsDto getEventLocationData(Long eventId) {
 
         return eventsLocationsService.findByEventLocationId(eventId,
                 FetchMode.WITH_AVAILABILITY);
+    }
+
+    private void processUpdates(List<EventsLocationsData> updates) {
+
+        // Logic for updating existing rows (e.g., changing price or capacity)
+        // eventsLocationsService.updateExistingLocations(updates);
+    }
+
+    private void processAdditions(Event event,
+                                  List<EventsLocationsData> data) throws DuplicateResourceException {
+        List<EventsLocationsDto> created =
+                eventsLocationsService.addLocationDetails(event, data);
+
+        // Map to the event-driven DTO
+        List<TicketsCreationEvent> tickets = created.stream()
+                .map(this::toTicketsCreationEvent).toList();
+
+        List<CategoryDto> categories =
+                eventsCategoriesService.getEventCategories(event.getId());
+
+        eventPublisher.publishEvent(new EventCreated(
+                event.getId(),
+                categories.stream().map(CategoryDto::getId).toList(),
+                event.getArtist().getId(),
+                event.getName(),
+                tickets
+        ));
     }
 
     @Transactional

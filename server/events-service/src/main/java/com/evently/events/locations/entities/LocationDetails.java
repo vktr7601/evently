@@ -29,12 +29,4 @@ public class LocationDetails implements Serializable {
     @Setter(AccessLevel.PUBLIC)
     @JsonProperty("eventLocations")
     private List<EventsLocationsDto> eventsLocations;
-
-//    public LocationDetails(long id, String name, String description, String
-//    imageUrl) {
-//        setId(id);
-//        setName(name);
-//        setDescription(description);
-//        setImageUrl(imageUrl);
-//    }
 }

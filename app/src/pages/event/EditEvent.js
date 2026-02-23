@@ -99,17 +99,44 @@ const EditEvent = () => {
     };
 
     const handleUpdate = () => {
-        // Send as PUT request for editing
-        console.log(eventData);
-        console.log(JSON.stringify(eventData)); 
+        // 1. (Optional) Simple Frontend Pre-check
+        // You can check basic things here before even hitting the server
+
         axios.put(`http://localhost:8082/events/${id}`, eventData)
             .then(() => {
                 alert("Event updated successfully!");
                 navigate(`/events/${id}`);
             })
             .catch(err => {
-                console.error("Update failed:", err);
-                alert("Failed to update event.");
+                if (err.response) {
+                    const { status, data } = err.response;
+
+                    if (status === 400) {
+                        // Logic for "VALIDATION_FAILED" or standard Bad Request
+                        // Since your backend concatenates errors with ", ", we can split them 
+                        // if you want to show them as a list, or just show the string.
+                        const errorMessage = data.message || "Please check the highlighted fields.";
+
+                        // User Friendly: If it's a long string of errors, replace commas with newlines for the alert
+                        const formattedMessage = errorMessage.split(', ').join('\n• ');
+
+                        alert("Validation issues found:\n• " + formattedMessage);
+                        console.warn("Validation Details:", data);
+
+                    } else if (status === 409) {
+                        // This would handle your LocationCollisionException if you map it to CONFLICT
+                        alert("Schedule Conflict: " + data.message);
+                    } else {
+                        // General Server Error (500, etc.)
+                        alert(`Error (${status}): ${data.message || "An unexpected error occurred."}`);
+                    }
+                } else if (err.request) {
+                    // The request was made but no response was received (Server down)
+                    alert("The server is not responding. Please try again later.");
+                } else {
+                    // Something happened in setting up the request
+                    alert("Request error: " + err.message);
+                }
             });
     };
 

@@ -17,6 +17,7 @@ public class EventCancelledKafkaConsumer {
     @KafkaListener(topics = KafkaTopics.EVENT_CANCELLED)
     public void consumeMessage(EventCancelled eventCancelled) {
         log.info("Received EVENT_CREATED for {} ticket creation events");
-        ticketService.cancelTicketsForEvents(eventCancelled.getEventsLocationsIds());
+       // ticketService.cancelTicketsForEvents(eventCancelled
+        // .getEventsLocationsIds());
     }
 }

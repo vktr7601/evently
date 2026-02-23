@@ -68,16 +68,16 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             ":eventLocations", nativeQuery = true)
     List<Ticket> findAllByEventLocationsId(@Param("eventLocations") long eventLocations);
 
-    @Modifying // Required for DML operations
-    @Transactional // Required to allow the update
-    @Query("UPDATE Ticket t SET t.status = :newStatus WHERE t.eventLocation.id IN :ids")
-    int updateTicketStatusByEventLocationIds(
-            @Param("ids") List<Long> ids,
-            @Param("newStatus") TicketStatus newStatus
-    );
+//    @Modifying // Required for DML operations
+//    @Transactional // Required to allow the update
+//    @Query("UPDATE Ticket t SET t.status = :newStatus WHERE t.eventLocation.id IN :ids")
+//    int updateTicketStatusByEventLocationIds(
+//            @Param("ids") List<Long> ids,
+//            @Param("newStatus") TicketStatus newStatus
+//    );
 
-    @Query("SELECT t FROM Ticket t JOIN FETCH t.order WHERE t.eventLocation.id IN :ids AND t.status != 'REFUNDED'")
-    List<Ticket> findAllTicketsWithOrdersByLocationIds(@Param("ids") List<Long> ids);
+//    @Query("SELECT t FROM Ticket t JOIN FETCH t.order WHERE t.eventLocationsId.id IN :ids AND t.status != 'REFUNDED'")
+//    List<Ticket> findAllTicketsWithOrdersByLocationIds(@Param("ids") List<Long> ids);
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Transactional
     @Query("UPDATE Ticket t SET t.status = 'DISCARDED' " +
