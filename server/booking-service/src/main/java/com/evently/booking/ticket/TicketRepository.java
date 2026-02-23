@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -93,9 +94,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     int countByLocationAndStatus(@Param("locId") long locId,
                                  @Param("status") TicketStatus status);
 
+    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.eventLocationsId = :locId")
+    int countByEventLocationId(@Param("locId") long locId);
+
     @Modifying
     @Query("UPDATE Ticket t SET t.eventStartTime = :startTime WHERE t" +
             ".eventLocationsId = :locationId")
     void updateStartTimeByLocationId(@Param("locationId") Long locationId,
                                      @Param("startTime") LocalDateTime startTime);
+
+    Optional<Ticket> findFirstByEventLocationsId(long locationId);
 }

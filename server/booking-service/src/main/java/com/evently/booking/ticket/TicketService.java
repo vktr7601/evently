@@ -18,11 +18,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -229,7 +231,8 @@ public class TicketService {
 
     @Transactional
     public void processBulkUpdate(EventTicketsBulkUpdate bulkEvent) {
-        log.info("Processing bulk update for Event ID: {} with {} location updates",
+        log.info("Processing bulk update for Event ID: {} with {} location " +
+                        "updates",
                 bulkEvent.getEventId(), bulkEvent.getUpdates().size());
 
         for (EventTicketsUpdate update : bulkEvent.getUpdates()) {
@@ -237,84 +240,72 @@ public class TicketService {
 
             // 1. Update Date (Applies to ALL tickets for this location)
             if (update.isDateUpdated()) {
-                log.debug("Updating start time for location {} to {}", locationId, update.getNewStartTime());
-                ticketRepository.updateStartTimeByLocationId(locationId, update.getNewStartTime());
+                log.debug("Updating start time for location {} to {}",
+                        locationId, update.getNewStartTime());
+                ticketRepository.updateStartTimeByLocationId(locationId,
+                        update.getNewStartTime());
             }
 
-//            // 2. Update Price (Applies ONLY to AVAILABLE tickets)
-//            if (update.isPriceUpdated()) {
-//                log.debug("Updating price for available tickets at location {} to {}", locationId, update.getNewPrice());
-//                ticketRepository.updatePriceByLocationIdAndStatus(locationId, update.getNewPrice(), TicketStatus.AVAILABLE);
-//            }
-//
-//            // 3. Adjust Inventory (Add or remove tickets)
-//            if (update.isTicketCountUpdated()) {
-//                log.debug("Adjusting ticket count for location {} to {}", locationId, update.getNewTicketsCount());
-//                adjustTicketInventory(update, locationId);
-//            }
+            if (update.isTicketCountUpdated()) {
+                int currentCount =
+                        ticketRepository.countByEventLocationId(update.getEventLocationId());
+                long targetCount = update.getNewTicketsCount();
+                long delta = targetCount - currentCount;
+
+                if (delta == 0) return;
+
+                if (delta > 0) {
+                    // --- HAPPY PATH: Adding Tickets ---
+                    log.info("Adding {} new tickets for location {}", delta,
+                            locationId);
+
+                    // Fetch one existing ticket to copy the event details
+                    // (StartTime, Price)
+                    // This ensures the new tickets match the existing ones
+                    // for this location
+                    Ticket template =
+                            ticketRepository.findFirstByEventLocationsId(locationId)
+                                    .orElseThrow(() -> new IllegalStateException(
+                                            "Base ticket not found for " +
+                                                    "location " + locationId));
+
+                    List<Ticket> newTickets = new ArrayList<>();
+                    for (int i = 0; i < delta; i++) {
+                        Ticket ticket = new Ticket();
+                        ticket.setEventLocationsId(locationId);
+                        ticket.setNumber(UUID.randomUUID());
+                        ticket.setEventStartTime(template.getEventStartTime());
+                        ticket.setPrice(template.getPrice());
+                        newTickets.add(ticket);
+                    }
+                    ticketRepository.saveAll(newTickets);
+
+                }
+            }
+
+            if (update.isPriceUpdated()) {
+                List<Ticket> newTickets =
+                        ticketRepository.findAllByEventLocationsId(locationId);
+                List<Ticket> updatedTickets = new ArrayList<>();
+                for (Ticket ticket : newTickets) {
+                    if (ticket.getStatus().equals(TicketStatus.AVAILABLE) ||
+                            ticket.getStatus().equals(TicketStatus.PENDING_PAYMENT)) {
+                        ticket.setPrice(update.getNewPrice());
+
+                        updatedTickets.add(ticket);
+                    }
+                }
+
+                ticketRepository.saveAll(updatedTickets);
+            }
         }
     }
-//    public void cancelTicketsForEvents(List<Long> eventsLocationsIds) {
-//        int totalCancelled =
-//                ticketRepository.updateTicketStatusByEventLocationIds
-//                (eventsLocationsIds, TicketStatus.CANCELED);
-//        List<Ticket> tickets =
-//                ticketRepository.findAllTicketsWithOrdersByLocationIds
-//                (eventsLocationsIds);
-//
-//
-//        // 2. Group these affected tickets by their Order
-//        Map<Order, List<Ticket>> cancelledTicketsByOrder = tickets.stream()
-//                .collect(Collectors.groupingBy(Ticket::getOrder));
-//
-//        cancelledTicketsByOrder.forEach((order, cancelledTickets) -> {
-//            // 3. Get total tickets originally in this order
-//            int totalTicketsInOrder = order.getTickets().size();
-//            int cancelledTicketsCount = cancelledTickets.size();
-//
-//            BigDecimal refundAmount = cancelledTickets.stream()
-//                    .map(Ticket::getPrice)
-//                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-//
-//            // 5. Determine Refund Type
-//            boolean isFullRefund =
-//                    (cancelledTicketsCount == totalTicketsInOrder);
-//
-//            if (isFullRefund) {
-//                log.info("Order {}: FULL REFUND initiated for amount {}",
-//                        order.getId(), refundAmount);
-//                order.setStatus(OrderStatus.REFUNDED);
-//            } else {
-//                log.info("Order {}: PARTIAL REFUND initiated for amount {}",
-//                        order.getId(), refundAmount);
-//                order.setStatus(OrderStatus.PARTIALLY_REFUNDED);
-//            }
-//
-//            cancelledTickets.forEach(t -> t.setStatus(TicketStatus.CANCELED));
-//
-//            // 7. Emit Kafka Event for Payment/Notification service
-////            emitRefundEvent(order, refundAmount, isFullRefund,
-////                    cancelledTickets);
-//        });
-//
-//        orderService.saveAll(cancelledTicketsByOrder.keySet());
-//
-////        // 3. Process each order
-////        ticketsByOrder.forEach((order, orderTickets) -> {
-////            BigDecimal refundAmount = orderTickets.stream()
-////                    .map(Ticket::getPrice)
-////                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-////
-////            // TODO: Call PaymentService.refund(order.getPaymentId(),
-////            //  refundAmount)
-////            log.info("Initiating refund of {} for Order {}", refundAmount,
-////                    order.getId());
-////
-////            // 4. Update ticket statuses
-////            orderTickets.forEach(t -> t.setStatus(TicketStatus
-////            .REFUND_INITIATED));
-////        });
-//
-//        ticketRepository.saveAll(tickets);
-//    }
+
+    public BigDecimal calculateCurrentTotalForOrder(Long orderId) {
+        // Sum the price of each ticket based on the LATEST price in the locations table
+        // Assuming ticket has a reference to the Location/Price source
+        return ticketRepository.findAllByOrderId(orderId).stream()
+                .map(Ticket::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

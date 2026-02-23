@@ -267,6 +267,50 @@ public class EventsLocationsService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public void validateNoArtistSchedulingConflicts(
+            Event event,
+            List<EventsLocationsData> eventLocationData,
+            Set<Long> excludeIds) throws LocationCollisionException {
+
+        // 1. Fetch upcoming events and FILTER OUT the ones we are currently
+        // updating
+        List<EventsLocationsDto> allUpcomingEventsByArtist =
+                fetchUpcomingEvents("Artists", event.getArtist().getId(),
+                        eventsLocationsRepository::findAllUpcomingEventsByArtistId);
+
+        // 2. Create a Set of "Occupied Dates", excluding the records we are
+        // modifying
+        Set<LocalDate> occupiedDates = allUpcomingEventsByArtist.stream()
+                .filter(dto -> !excludeIds.contains(dto.getId())) // This
+                // prevents self-collision
+                .map(dto -> dto.getEventStartTime().toLocalDate())
+                .collect(Collectors.toSet());
+
+        List<String> collisions = new ArrayList<>();
+        Set<LocalDate> datesInRequest = new HashSet<>();
+
+        for (EventsLocationsData newLoc : eventLocationData) {
+            LocalDate requestedDate = newLoc.getEventStartTime().toLocalDate();
+
+            // Check A: Database collision (ignoring current records)
+            if (occupiedDates.contains(requestedDate)) {
+                collisions.add("Artist already has a performance scheduled " +
+                        "on: " + requestedDate);
+            }
+
+            // Check B: Intra-request collision (same day twice in the new form)
+            if (!datesInRequest.add(requestedDate)) {
+                collisions.add("Request contains multiple performances for " +
+                        "the same day: " + requestedDate);
+            }
+        }
+
+        if (!collisions.isEmpty()) {
+            throw new LocationCollisionException(collisions);
+        }
+    }
+
     @Transactional
     public void validateNoLocationSchedulingConflicts(List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) throws LocationCollisionException {
         List<String> collisions = new ArrayList<>();
@@ -312,6 +356,57 @@ public class EventsLocationsService {
                         locationNamesMap.getOrDefault(x.getLocationId(),
                                 "Unknown Location");
                 collisions.add("Event already exists for location: " + locationName + " on date: " + date);
+            }
+        }
+
+        if (!collisions.isEmpty()) {
+            throw new LocationCollisionException(collisions);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void validateNoLocationSchedulingConflicts(
+            List<EventsLocationsData> eventLocationData,
+            Set<Long> excludeIds) throws LocationCollisionException {
+
+        if (eventLocationData.isEmpty()) return;
+        Set<Long> locationIds = eventLocationData.stream()
+                .map(EventsLocationsData::getLocationId)
+                .collect(Collectors.toSet());
+
+        Map<Long, String> locationNamesMap =
+                locationService.findAllByIdIn(new ArrayList<>(locationIds)).stream()
+                        .collect(Collectors.toMap(Location::getId,
+                                Location::getName));
+        // 1. Fetch Location Names for descriptive error messages
+
+        List<String> collisions = new ArrayList<>();
+
+        // 2. Perform the checks
+        for (EventsLocationsData x : eventLocationData) {
+            LocalDate date = x.getEventStartTime().toLocalDate();
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+            // Update the repository call to include the exclusion list
+
+            Optional<EventsLocations> existingEvent = eventsLocationsRepository
+                    .findEventByLocationAndDate(x.getLocationId(), startOfDay
+                            , endOfDay);
+
+            // 2. Logic: If an event exists AND it's not the one we are
+            // currently updating
+            if (existingEvent.isPresent()) {
+                Long existingId = existingEvent.get().getId();
+
+                if (!excludeIds.contains(existingId)) {
+                    // This is a REAL collision with a different record
+                    String locationName =
+                            locationNamesMap.getOrDefault(x.getLocationId(),
+                                    "Unknown Location");
+                    collisions.add("Location '" + locationName + "' is " +
+                            "already booked on: " + date);
+                }
             }
         }
 

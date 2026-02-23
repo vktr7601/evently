@@ -44,6 +44,7 @@ public class OrderService {
 
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
+        System.out.println();
         orderRepository.findPendingOrderByIdAndUserId(userId).map(order -> updateExistingOrder(order, orderRequest, userId)).orElseGet(() -> createNewOrder(orderRequest, userId));
     }
 
@@ -73,7 +74,9 @@ public class OrderService {
 
     @Transactional
     Order createNewOrder(OrderRequest orderRequest, long userId) {
-        if (!eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId())) {
+        boolean isAvailable =
+                eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId()).getBody();
+        if (!isAvailable) {
             throw new BookingUnavailableException();
         }
         List<Ticket> tickets =
@@ -145,7 +148,9 @@ public class OrderService {
 
     Order updateExistingOrder(Order order, OrderRequest orderRequest,
                               long userId) {
-        if (!eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId())) {
+        var booleanRes =
+                eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId()).getBody();
+        if (booleanRes) {
             throw new BookingUnavailableException();
         }
 
@@ -155,7 +160,7 @@ public class OrderService {
                 existingTickets.stream().filter(ticket -> ticket.getEventStartTime().equals(orderRequest.getEventStartTime()) && ticket.getEventLocationsId().equals(orderRequest.getEventLocationId())).collect(Collectors.groupingBy(Ticket::getEventLocationsId));
 
         if (ticketsByEventLocation.isEmpty()) {
-            if (!eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId())) {
+            if (booleanRes) {
                 throw new BookingUnavailableException();
             }
             List<Ticket> tickets =
@@ -254,6 +259,9 @@ public class OrderService {
                                       FinishOrderRequest finishOrderRequest) throws ProcessOrderException, OrderExpiredException {
         Order order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
+
+        BigDecimal bigDecimal =
+                ticketService.calculateCurrentTotalForOrder(order.getId());
         if (order.getStatus() == OrderStatus.EXPIRED) {
             log.info("User {} attempted to pay for expired order {}", userId,
                     order.getId());
@@ -262,7 +270,7 @@ public class OrderService {
         }
         PaymentServiceRequest paymentServiceRequest =
                 new PaymentServiceRequest();
-        paymentServiceRequest.setAmount(order.getTotalPrice());
+        paymentServiceRequest.setAmount(bigDecimal);
         paymentServiceRequest.setCardNumber(finishOrderRequest.getCardNumber().trim());
         paymentServiceRequest.setCardExpiry(finishOrderRequest.getCardExpiry().trim());
         paymentServiceRequest.setCardCvv(finishOrderRequest.getCardCvv().trim());
@@ -274,6 +282,7 @@ public class OrderService {
             ticketService.finalizeOrder(order.getId());
             order.setStatus(OrderStatus.CONFIRMED);
             order.setActive(false);
+            order.setTotalPrice(bigDecimal);
             order.setTransactionId(response.getBody().getTransactionId());
             orderRepository.save(order);
             //raiseEvent which will send emial to the user

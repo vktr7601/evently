@@ -211,10 +211,13 @@ public class EventService {
                         .toList();
 
         if (!actualUpdates.isEmpty()) {
+            Set<Long> excludeIds = actualUpdates.stream()
+                    .map(EventsLocationsData::getId)
+                    .collect(Collectors.toSet());
             eventsLocationsService.validateNoArtistSchedulingConflicts(event,
-                    actualUpdates);
+                    actualUpdates, excludeIds);
 
-            eventsLocationsService.validateNoLocationSchedulingConflicts(actualUpdates);
+            eventsLocationsService.validateNoLocationSchedulingConflicts(actualUpdates, excludeIds);
             processUpdates(actualUpdates);
         }
 
@@ -244,12 +247,25 @@ public class EventService {
         for (EventsLocationsData req : updates) {
             EventsLocations entity = existingMap.get(req.getId());
             EventTicketsUpdate eventTicketsUpdate = new EventTicketsUpdate();
+            eventTicketsUpdate.setEventLocationId(req.getId());
             if (entity == null) continue;
 
             if (!entity.getDate().equals(req.getEventStartTime())) {
                 eventTicketsUpdate.setNewStartTime(req.getEventStartTime());
                 eventTicketsUpdate.setDateUpdated(true);
                 entity.setDate(req.getEventStartTime());
+            }
+
+            if (entity.getTotalTickets() < req.getTickets()) {
+                eventTicketsUpdate.setTicketCountUpdated(true);
+                eventTicketsUpdate.setNewTicketsCount(req.getTickets());
+                entity.setTotalTickets(req.getTickets());
+            }
+
+            if (!Objects.equals(entity.getPrice(), req.getPrice())) {
+                eventTicketsUpdate.setNewPrice(req.getPrice());
+                eventTicketsUpdate.setPriceUpdated(true);
+                entity.setPrice(req.getPrice());
             }
 
             eventTicketsBulkUpdate.getUpdates().add(eventTicketsUpdate);

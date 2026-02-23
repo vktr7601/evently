@@ -118,16 +118,26 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
          WHERE loc.id = :locationId
         """)
     boolean hasEventForLocationInSpecificDate(@Param("locationId") long locationId, @Param("startOfDay") LocalDateTime date, @Param("endOfDay") LocalDateTime endDate);
-
-
     @Query(value = """
-         SELECT el
-         FROM EventsLocations el
-         JOIN el.location loc ON loc.id = el.location.id
-        AND el.date >= :startOfDay AND el.date <= :endOfDay
-         WHERE loc.id = :locationId
-        """)
-    EventsLocations findByEventLocationIdAndEventIdAndStartDate(@Param("locationId") long locationId, @Param("startOfDay") LocalDateTime date, @Param("endOfDay") LocalDateTime endDate);
+     SELECT el FROM EventsLocations el
+     WHERE el.location.id = :locationId
+     AND el.date >= :startOfDay
+     AND el.date <= :endOfDay
+    """)
+    Optional<EventsLocations> findEventByLocationAndDate(
+            @Param("locationId") long locationId,
+            @Param("startOfDay") LocalDateTime start,
+            @Param("endOfDay") LocalDateTime end
+    );
+
+//    @Query(value = """
+//         SELECT el
+//         FROM EventsLocations el
+//         JOIN el.location loc ON loc.id = el.location.id
+//        AND el.date >= :startOfDay AND el.date <= :endOfDay
+//         WHERE loc.id = :locationId
+//        """)
+//    EventsLocations findByEventLocationIdAndEventIdAndStartDate(@Param("locationId") long locationId, @Param("startOfDay") LocalDateTime date, @Param("endOfDay") LocalDateTime endDate);
 
     @Query("SELECT el.id FROM EventsLocations el WHERE el.date < :now AND el.eventsLocationsStatus = :status")
     List<Long> findIdsByStatusAndDate(

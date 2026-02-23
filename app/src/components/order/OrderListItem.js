@@ -27,15 +27,19 @@ const OrderListItem = ({ order }) => {
                 <div className="col-md-2 border-end-md">
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Amount</label>
                     <h4 className="fw-bold mb-0 text-success">
-                        ${order.totalPrice.toFixed(2)}
+                        {order.orderStatus !== 'PENDING_PAYMENT' ? (
+                            `$${order.totalPrice.toFixed(2)}`
+                        ) : (
+                            <span className="text-muted fst-italic small">Calculated at checkout</span>
+                        )}
                     </h4>
                 </div>
 
                 <div className="col-md-2">
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Status</label>
                     <span className={`badge rounded-pill px-3 py-2 ${order.orderStatus === 'COMPLETED' ? 'bg-success-subtle text-success' :
-                            order.orderStatus === 'PENDING_PAYMENT' ? 'bg-warning-subtle text-warning-emphasis' :
-                                'bg-light text-secondary'
+                        order.orderStatus === 'PENDING_PAYMENT' ? 'bg-warning-subtle text-warning-emphasis' :
+                            'bg-light text-secondary'
                         }`}>
                         {order.orderStatus.replace('_', ' ')}
                     </span>

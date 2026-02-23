@@ -27,7 +27,7 @@ spring:
     password: adminPassword
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
       order_inserts: true
       order_updates: true
       jdbc:
