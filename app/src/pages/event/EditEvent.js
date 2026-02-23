@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import ErrorModal from '../../components/system/ErrorModal';
 const EditEvent = () => {
     const { id } = useParams(); // Get the event ID from the URL
     const navigate = useNavigate();
 
+// State for managing the modal
+    const [errorModal, setErrorModal] = useState({ 
+        show: false, 
+        title: '', 
+        messages: [] 
+    });
+
+    // Helper to close the modal
+    const closeErrorModal = () => setErrorModal(prev => ({ ...prev, show: false }));
     const [eventData, setEventData] = useState({
         eventName: '',
         eventDescription: '',
@@ -112,30 +121,34 @@ const EditEvent = () => {
                     const { status, data } = err.response;
 
                     if (status === 400) {
-                        // Logic for "VALIDATION_FAILED" or standard Bad Request
-                        // Since your backend concatenates errors with ", ", we can split them 
-                        // if you want to show them as a list, or just show the string.
-                        const errorMessage = data.message || "Please check the highlighted fields.";
-
-                        // User Friendly: If it's a long string of errors, replace commas with newlines for the alert
-                        const formattedMessage = errorMessage.split(', ').join('\n• ');
-
-                        alert("Validation issues found:\n• " + formattedMessage);
-                        console.warn("Validation Details:", data);
-
+                        // MethodArgumentNotValidException (comma-separated string)
+                        const errorList = data.message ? data.message.split(', ') : ['Invalid input provided.'];
+                        setErrorModal({
+                            show: true,
+                            title: 'Validation Issues',
+                            messages: errorList
+                        });
                     } else if (status === 409) {
-                        // This would handle your LocationCollisionException if you map it to CONFLICT
-                        alert("Schedule Conflict: " + data.message);
+                        // LocationCollisionException
+                        setErrorModal({
+                            show: true,
+                            title: 'Scheduling Conflict',
+                            messages: data.message // If this is already an array, perfect. 
+                            // If it's a string, wrap it: [data.message]
+                        });
                     } else {
-                        // General Server Error (500, etc.)
-                        alert(`Error (${status}): ${data.message || "An unexpected error occurred."}`);
+                        setErrorModal({
+                            show: true,
+                            title: 'Server Error',
+                            messages: data.message || 'An unexpected error occurred.'
+                        });
                     }
-                } else if (err.request) {
-                    // The request was made but no response was received (Server down)
-                    alert("The server is not responding. Please try again later.");
                 } else {
-                    // Something happened in setting up the request
-                    alert("Request error: " + err.message);
+                    setErrorModal({
+                        show: true,
+                        title: 'Network Error',
+                        messages: 'Could not connect to the server. Please check your internet.'
+                    });
                 }
             });
     };
@@ -149,7 +162,12 @@ const EditEvent = () => {
                     <h1 style={styles.title}>Edit Event</h1>
                     <p style={styles.subtitle}>Modify the details for <strong>{eventData.eventName}</strong></p>
                 </header>
-
+                <ErrorModal
+                    show={errorModal.show}
+                    onClose={closeErrorModal}
+                    title={errorModal.title}
+                    messages={errorModal.messages}
+                />
                 <form style={styles.formCard}>
                     {/* SECTION 1: BASIC INFO */}
                     <section style={styles.section}>

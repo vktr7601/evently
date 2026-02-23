@@ -3,6 +3,7 @@ package com.evently.events.event.entities;
 import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import utils.DateTimeUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,7 +20,6 @@ public class EventLocationLogicValidator implements ConstraintValidator<ValidLoc
 
         boolean isValid = true;
 
-        // 1. Validate Event Time
         if (data.getEventStartTime() == null) {
             addViolation(context, "eventStartTime", "Please choose a date and" +
                     " time for your performance.");
@@ -33,31 +33,31 @@ public class EventLocationLogicValidator implements ConstraintValidator<ValidLoc
                         "scheduled in the past.");
                 isValid = false;
             } else if (data.getEventStartTime().isBefore(minAllowedTime)) {
-                String earliest = minAllowedTime.format(HUMAN_FORMAT);
-                addViolation(context, "eventStartTime", "We need at least 48 " +
-                        "hours notice. Please pick a time after " + earliest + ".");
+
+                String earliest =
+                        DateTimeUtils.formatFriendlyFull(minAllowedTime);
+                String message = ("We need at least 48 hours notice. Please " +
+                        "pick a time after %s").formatted(earliest);
+                addViolation(context, "eventStartTime", message);
                 isValid = false;
             }
         }
 
-        // 2. Validate Price
         if (data.getPrice() == null) {
             addViolation(context, "price", "Please enter a ticket price.");
             isValid = false;
-        } else if (data.getPrice().doubleValue() < 0) {
+        } else if (data.getPrice().doubleValue() <= 0) {
             addViolation(context, "price", "Ticket price cannot be negative. " +
                     "Please enter 0 or more.");
             isValid = false;
         }
 
-        // 3. Validate Location
         if (data.getLocationId() <= 0) {
             addViolation(context, "locationId", "Please select a venue for " +
                     "the event.");
             isValid = false;
         }
 
-        // 4. Validate Ticket Count
         if (data.getTickets() <= 0) {
             addViolation(context, "tickets", "Please enter the number of " +
                     "tickets available (minimum 1).");
@@ -69,7 +69,6 @@ public class EventLocationLogicValidator implements ConstraintValidator<ValidLoc
 
     private void addViolation(ConstraintValidatorContext context,
                               String property, String message) {
-        // This stops the default "Invalid" message and uses your custom one
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message)
                 .addPropertyNode(property)
