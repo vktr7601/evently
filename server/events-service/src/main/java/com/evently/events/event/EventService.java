@@ -4,7 +4,6 @@ package com.evently.events.event;
 import com.evently.events.artists.Artist;
 import com.evently.events.artists.ArtistsService;
 import com.evently.events.category.entities.CategoryDto;
-import com.evently.events.config.KafkaProducer;
 import com.evently.events.event.entities.*;
 import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
@@ -16,7 +15,6 @@ import com.evently.events.eventsLocations.entities.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.eventsLocations.entities.EventsLocationsStatus;
 import com.evently.events.eventsLocations.entities.FetchMode;
-import com.evently.events.locations.LocationService;
 import dtos.EventFinished;
 import events.eventCreated.*;
 import exceptions.DuplicateResourceException;
@@ -33,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,10 +42,7 @@ public class EventService {
     private final EventsLocationsService eventsLocationsService;
     private final EventRepository eventRepository;
     private final ArtistsService artistsService;
-    //  private final EventMapper eventMapper;
-    private final EventsMapper eventsMapper;
-    private final LocationService locationService;
-    private final KafkaProducer kafkaProducer;
+    private final EventMapper eventsMapper;
     private final BookingServiceClient bookingServiceClient;
     private final EventsLocationsRepository eventsLocationsRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -154,9 +150,13 @@ public class EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not " +
                         "found"));
 
-        List<EventsLocationsDto> existingLocs = eventsLocationsService
-                .findUpcomingEventLocationsByEventId(id, FetchMode.BASIC);
 
+// Map existing locations by ID for O(1) lookups
+        Map<Long, EventsLocationsDto> existingLocsMap = eventsLocationsService
+                .findUpcomingEventLocationsByEventId(id, FetchMode.BASIC)
+                .stream()
+                .collect(Collectors.toMap(EventsLocationsDto::getId,
+                        Function.identity()));
         // 2. Identify the Deltas
         Set<Long> incomingIds = updateRequest.getEventLocations().stream()
                 .map(EventsLocationsData::getId)
@@ -164,14 +164,14 @@ public class EventService {
                 .collect(Collectors.toSet());
 
         // --- BUCKET 1: DELETED (In DB, but not in Request) ---
-        List<Long> deletedIds = existingLocs.stream()
-                .map(EventsLocationsDto::getId)
-                .filter(dbId -> !incomingIds.contains(dbId))
-                .toList();
+//        List<Long> deletedIds = existingLocs.stream()
+//                .map(EventsLocationsDto::getId)
+//                .filter(dbId -> !incomingIds.contains(dbId))
+//                .toList();
 
-        if (!deletedIds.isEmpty()) {
-            processDeletions(deletedIds);
-        }
+//        if (!deletedIds.isEmpty()) {
+//            processDeletions(deletedIds);
+//        }
 
         // --- BUCKET 2: NEW (In Request, but no ID) ---
         List<EventsLocationsData> newLocData =
@@ -180,17 +180,42 @@ public class EventService {
                         .toList();
 
         if (!newLocData.isEmpty()) {
+            //      eventsLocationsService
+            //      .validateNoArtistSchedulingConflicts(event,
+            //                    updates);
+            //            eventsLocationsService
+            //            .validateNoArtistSchedulingConflicts(event,
+            //                    updates);
             processAdditions(event, newLocData);
         }
 
         // --- BUCKET 3: UPDATED (In Request AND in DB) ---
-        List<EventsLocationsData> updates =
+        List<EventsLocationsData> actualUpdates =
                 updateRequest.getEventLocations().stream()
-                        .filter(loc -> loc.getId() != null && incomingIds.contains(loc.getId()))
+                        .filter(loc -> loc.getId() != null)
+                        .filter(req -> {
+                            EventsLocationsDto existing =
+                                    existingLocsMap.get(req.getId());
+                            if (existing == null) return false;
+
+                            // Check if anything actually changed
+                            boolean dateChanged =
+                                    !existing.getEventStartTime().equals(req.getEventStartTime());
+                            boolean priceChanged =
+                                    existing.getPricePerTicket().compareTo(req.getPrice()) != 0;
+                            boolean countChanged =
+                                    existing.getTicketsCount() != req.getTickets();
+
+                            return dateChanged || priceChanged || countChanged;
+                        })
                         .toList();
 
-        if (!updates.isEmpty()) {
-            processUpdates(updates);
+        if (!actualUpdates.isEmpty()) {
+            eventsLocationsService.validateNoArtistSchedulingConflicts(event,
+                    actualUpdates);
+
+            eventsLocationsService.validateNoLocationSchedulingConflicts(actualUpdates);
+            processUpdates(actualUpdates);
         }
 
         eventRepository.save(event);
@@ -202,9 +227,7 @@ public class EventService {
 
     }
 
-    //this is invoked by the frontend
     public EventsLocationsDto getEventLocationData(Long eventId) {
-
         return eventsLocationsService.findByEventLocationId(eventId,
                 FetchMode.WITH_AVAILABILITY);
     }
@@ -219,7 +242,6 @@ public class EventService {
         EventTicketsBulkUpdate eventTicketsBulkUpdate =
                 new EventTicketsBulkUpdate();
         for (EventsLocationsData req : updates) {
-
             EventsLocations entity = existingMap.get(req.getId());
             EventTicketsUpdate eventTicketsUpdate = new EventTicketsUpdate();
             if (entity == null) continue;

@@ -34,28 +34,6 @@ public class EventsLocationsService {
     private final EventLocationsMapper eventsLocationMapper;
     private final BookingServiceClient bookingServiceClient;
     private final LocationService locationService;
-//    private final KafkaProducer kafkaProducer;
-
-//    @Transactional
-//    public List<EventsLocationsDto> addLocationDetails(Event event,
-//                                                       List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) {
-//        validateNoLocationSchedulingConflicts(eventLocationData, locationMap);
-//        validateNoArtistSchedulingConflicts(event, eventLocationData);
-//
-//        List<EventsLocations> eventsLocationsList =
-//                eventLocationData.stream().map(eventLoc ->
-//                eventsLocationMapper.toEntity(event, eventLoc, locationMap
-//                .get(eventLoc.getLocationId()))).toList();
-//
-//        List<EventsLocations> eventsLocations =
-//                eventsLocationsRepository.saveAll(eventsLocationsList);
-//
-//        List<EventsLocationsDto> mappedEntities =
-//                eventsLocations.stream().map(eventsLocationMapper::toDto)
-//                .toList();
-//
-//        return mappedEntities;
-//    }
 
     @Transactional
     public List<EventsLocationsDto> addLocationDetails(Event event,
@@ -66,7 +44,6 @@ public class EventsLocationsService {
         List<Location> locations =
                 locationService.findAllByEventLocationsData(eventLocationData);
 
-
         validateNoArtistSchedulingConflicts(event, eventLocationData);
 
         Map<Long, Location> locationsMap = locations.stream()
@@ -74,6 +51,7 @@ public class EventsLocationsService {
                         Function.identity()));
 
         validateNoLocationSchedulingConflicts(eventLocationData, locationsMap);
+
         List<EventsLocations> eventsLocations = eventLocationData.stream()
                 .map(data -> eventsLocationMapper.toEntity(event, data,
                         locationsMap.get(data.getLocationId())))
@@ -290,7 +268,7 @@ public class EventsLocationsService {
     }
 
     @Transactional
-    void validateNoLocationSchedulingConflicts(List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) throws LocationCollisionException {
+    public void validateNoLocationSchedulingConflicts(List<EventsLocationsData> eventLocationData, Map<Long, Location> locationMap) throws LocationCollisionException {
         List<String> collisions = new ArrayList<>();
         eventLocationData.forEach(x -> {
             LocalDate date = x.getEventStartTime().toLocalDate();
@@ -300,6 +278,42 @@ public class EventsLocationsService {
                 collisions.add("Event already exists for location: " + locationMap.get(x.getLocationId()).getName() + " on date: " + x.getEventStartTime());
             }
         });
+
+        if (!collisions.isEmpty()) {
+            throw new LocationCollisionException(collisions);
+        }
+    }
+
+    @Transactional
+    public void validateNoLocationSchedulingConflicts(List<EventsLocationsData> eventLocationData) throws LocationCollisionException {
+        if (eventLocationData.isEmpty()) return;
+
+        // 1. Fetch Location Names for error messages (mapping logic moved here)
+        Set<Long> locationIds = eventLocationData.stream()
+                .map(EventsLocationsData::getLocationId)
+                .collect(Collectors.toSet());
+
+        Map<Long, String> locationNamesMap =
+                locationService.findAllByIdIn(locationIds.stream().toList()).stream()
+                        .collect(Collectors.toMap(Location::getId,
+                                Location::getName));
+
+        List<String> collisions = new ArrayList<>();
+
+        // 2. Perform the checks
+        for (EventsLocationsData x : eventLocationData) {
+            LocalDate date = x.getEventStartTime().toLocalDate();
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+            // Check against Database
+            if (eventsLocationsRepository.hasEventForLocationInSpecificDate(x.getLocationId(), startOfDay, endOfDay)) {
+                String locationName =
+                        locationNamesMap.getOrDefault(x.getLocationId(),
+                                "Unknown Location");
+                collisions.add("Event already exists for location: " + locationName + " on date: " + date);
+            }
+        }
 
         if (!collisions.isEmpty()) {
             throw new LocationCollisionException(collisions);
