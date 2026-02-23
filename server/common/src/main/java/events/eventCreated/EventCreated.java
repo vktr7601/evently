@@ -13,10 +13,10 @@ import java.util.List;
 public class EventCreated implements Serializable {
     @JsonProperty("eventId")
     private long eventId;
-    @JsonProperty("categories")
-    private List<Long> categories;
-    @JsonProperty("artistId")
-    private long artistId;
+//    @JsonProperty("categories")
+//    private List<Long> categories;
+//    @JsonProperty("artistId")
+//    private long artistId;
     @JsonProperty("eventName")
     private String eventName;
     @JsonProperty("ticketCreateEvents")

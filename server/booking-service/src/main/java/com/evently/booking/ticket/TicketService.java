@@ -3,8 +3,6 @@ package com.evently.booking.ticket;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
-import com.evently.booking.order.Order;
-import com.evently.booking.order.OrderService;
 import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.data.TicketsMapper;
@@ -18,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -99,6 +96,11 @@ public class TicketService {
                                            LocalDateTime dateTime) {
         return ticketRepository.findAvailableTicketsForEvent(locationEventsId
                 , dateTime, PageRequest.of(0, ticketCounts));
+    }
+
+    public int getAvailableTicketsCount(long locationEventsId) {
+        return ticketRepository.countByLocationAndStatus(locationEventsId,
+                TicketStatus.AVAILABLE);
     }
 
 
@@ -225,9 +227,11 @@ public class TicketService {
 
 //    public void cancelTicketsForEvents(List<Long> eventsLocationsIds) {
 //        int totalCancelled =
-//                ticketRepository.updateTicketStatusByEventLocationIds(eventsLocationsIds, TicketStatus.CANCELED);
+//                ticketRepository.updateTicketStatusByEventLocationIds
+//                (eventsLocationsIds, TicketStatus.CANCELED);
 //        List<Ticket> tickets =
-//                ticketRepository.findAllTicketsWithOrdersByLocationIds(eventsLocationsIds);
+//                ticketRepository.findAllTicketsWithOrdersByLocationIds
+//                (eventsLocationsIds);
 //
 //
 //        // 2. Group these affected tickets by their Order

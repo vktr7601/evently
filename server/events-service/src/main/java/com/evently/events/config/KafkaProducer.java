@@ -1,8 +1,9 @@
 package com.evently.events.config;
 
 import dtos.EventCancelled;
-import events.eventCreated.EventCreated;
 import dtos.EventFinished;
+import events.eventCreated.EventCreated;
+import events.eventCreated.NewLocationsAdded;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -24,5 +25,9 @@ public class KafkaProducer {
 
     public void sendEventFinishedMessage(EventFinished message) {
         kafkaTemplate.send(EVENT_FINISHED, message);
+    }
+
+    public void sendNewLocationsAdded(NewLocationsAdded message) {
+        kafkaTemplate.send(NEW_EVENT_LOCATIONS_ADDED, message);
     }
 }

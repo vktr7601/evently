@@ -247,8 +247,8 @@ public class EventsLocationsService {
     }
 
     @Transactional
-    void validateNoArtistSchedulingConflicts(Event event,
-                                             List<EventsLocationsData> eventLocationData) throws LocationCollisionException {
+    public void validateNoArtistSchedulingConflicts(Event event,
+                                                    List<EventsLocationsData> eventLocationData) throws LocationCollisionException {
         // 1. Fetch all upcoming events for this artist (regardless of location)
         List<EventsLocationsDto> allUpcomingEventsByArtist =
                 fetchUpcomingEvents("Artists", event.getArtist().getId(),
@@ -262,20 +262,25 @@ public class EventsLocationsService {
 
         List<String> collisions = new ArrayList<>();
 
-        // 3. Track dates within the CURRENT request to prevent double-booking in one form
+        // 3. Track dates within the CURRENT request to prevent
+        // double-booking in one form
         Set<LocalDate> datesInRequest = new HashSet<>();
 
         for (EventsLocationsData newLoc : eventLocationData) {
             LocalDate requestedDate = newLoc.getEventStartTime().toLocalDate();
 
-            // Check A: Is the artist already booked in the database for this day?
+            // Check A: Is the artist already booked in the database for this
+            // day?
             if (occupiedDates.contains(requestedDate)) {
-                collisions.add("Artist already has a performance scheduled on: " + requestedDate);
+                collisions.add("Artist already has a performance scheduled " +
+                        "on: " + requestedDate);
             }
 
-            // Check B: Are there two entries for the same day in the incoming request?
+            // Check B: Are there two entries for the same day in the
+            // incoming request?
             if (!datesInRequest.add(requestedDate)) {
-                collisions.add("Request contains multiple performances for the same day: " + requestedDate);
+                collisions.add("Request contains multiple performances for " +
+                        "the same day: " + requestedDate);
             }
         }
 

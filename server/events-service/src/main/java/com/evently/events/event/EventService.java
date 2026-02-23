@@ -8,6 +8,8 @@ import com.evently.events.config.KafkaProducer;
 import com.evently.events.event.entities.*;
 import com.evently.events.eventsCategories.EventsCategoriesService;
 import com.evently.events.eventsCategories.entities.EventCategoriesDto;
+import com.evently.events.eventsLocations.BookingServiceClient;
+import com.evently.events.eventsLocations.EventsLocations;
 import com.evently.events.eventsLocations.EventsLocationsRepository;
 import com.evently.events.eventsLocations.EventsLocationsService;
 import com.evently.events.eventsLocations.entities.EventsLocationsData;
@@ -17,6 +19,7 @@ import com.evently.events.eventsLocations.entities.FetchMode;
 import com.evently.events.locations.LocationService;
 import dtos.EventFinished;
 import events.eventCreated.EventCreated;
+import events.eventCreated.NewLocationsAdded;
 import events.eventCreated.TicketsCreationEvent;
 import exceptions.DuplicateResourceException;
 import exceptions.ResourceNotFoundException;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,6 +49,7 @@ public class EventService {
     private final EventsMapper eventsMapper;
     private final LocationService locationService;
     private final KafkaProducer kafkaProducer;
+    private final BookingServiceClient bookingServiceClient;
     private final EventsLocationsRepository eventsLocationsRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -107,10 +112,6 @@ public class EventService {
         return event;
     }
 
-    //  @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
-    // @CacheEvict(cacheNames = "events.list", key =
-    //   "'allEventsSortedByDateDesc'")
-
     @Transactional
     public EventDetailDto createEvent(EventCreate eventRequestDto) throws DuplicateResourceException {
         if (eventRepository.existsByName(eventRequestDto.getName()))
@@ -138,8 +139,6 @@ public class EventService {
 
         EventCreated eventCreated = new EventCreated(
                 event.getId(),
-                categories.stream().map(CategoryDto::getId).toList(),
-                artist.getId(),
                 event.getName(),
                 tickets
         );
@@ -193,7 +192,7 @@ public class EventService {
                         .toList();
 
         if (!updates.isEmpty()) {
-            processUpdates(updates);
+          //  processUpdates(updates);
         }
 
         eventRepository.save(event);
@@ -210,10 +209,73 @@ public class EventService {
                 FetchMode.WITH_AVAILABILITY);
     }
 
-    private void processUpdates(List<EventsLocationsData> updates) {
+    @Transactional
+    public void processUpdates(List<EventsLocationsData> updates) {
+        Map<Long, EventsLocations> existingMap =
+                eventsLocationsRepository.findAllById(
+                        updates.stream().map(EventsLocationsData::getId).toList()
+                ).stream().collect(Collectors.toMap(EventsLocations::getId,
+                        loc -> loc));
 
-        // Logic for updating existing rows (e.g., changing price or capacity)
-        // eventsLocationsService.updateExistingLocations(updates);
+        for (EventsLocationsData req : updates) {
+            EventsLocations entity = existingMap.get(req.getId());
+            if (entity == null) continue;
+
+            // --- SCENARIO 1: Event Start Time Changed ---
+//            if (!entity.getDate().equals(req.getEventStartTime())) {
+//                // Keep ticket start time relative to the new event time
+//                java.time.Duration offset = java.time.Duration.between(
+//                        entity.getDate(),
+//                        entity.getDate()
+//                );
+//                entity.setDate(req.getEventStartTime());
+//
+////                entity.setTicketStartTime(req.getEventStartTime().plus
+////                        (offset));
+//
+//                log.info("Location {}: Date changed. Shifted ticket start
+//                        .", entity.getId());
+//            }
+//
+//            // --- SCENARIO 2: Price Reduced ---
+//            if (req.getPrice().compareTo(entity.getPricePerTicket()) < 0) {
+//                log.warn("Location {}: Price reduced from {} to {}.
+//                Consider refunding early buyers.",
+//                        entity.getId(), entity.getPricePerTicket(), req
+//                        .getPrice());
+//
+//                entity.setPricePerTicket(req.getPrice());
+//            } else {
+//                entity.setPricePerTicket(req.getPrice());
+//            }
+//
+//            // --- SCENARIO 3: Tickets Added (Capacity Increase) ---
+//            int oldCapacity = entity.getTicketsCount();
+//            int newCapacity = req.getTickets();
+//
+//            if (newCapacity > oldCapacity) {
+//                log.info("Location {}: Capacity increased by {} tickets.",
+//                        entity.getId(), (newCapacity - oldCapacity));
+//                entity.setTicketsCount(newCapacity);
+//            }
+//            // Safety Check: If capacity is REDUCED, ensure we haven't sold
+//            more than the new limit
+//            else if (newCapacity < oldCapacity) {
+            int booked =
+                    bookingServiceClient.getAvailableTickets(entity.getId()).getBody();
+
+            if (req.getTickets() < booked) {
+
+            }
+//                if (newCapacity < booked) {
+//                    throw new IllegalStateException("Cannot reduce capacity
+//                    below current bookings (" + booked + ")");
+//                }
+//                entity.setTicketsCount(newCapacity);
+//            }
+        }
+
+        eventsLocationsRepository.saveAll(existingMap.values());
     }
 
     private void processAdditions(Event event,
@@ -221,20 +283,11 @@ public class EventService {
         List<EventsLocationsDto> created =
                 eventsLocationsService.addLocationDetails(event, data);
 
-        // Map to the event-driven DTO
         List<TicketsCreationEvent> tickets = created.stream()
                 .map(this::toTicketsCreationEvent).toList();
 
-        List<CategoryDto> categories =
-                eventsCategoriesService.getEventCategories(event.getId());
-
-        eventPublisher.publishEvent(new EventCreated(
-                event.getId(),
-                categories.stream().map(CategoryDto::getId).toList(),
-                event.getArtist().getId(),
-                event.getName(),
-                tickets
-        ));
+        eventPublisher.publishEvent(new NewLocationsAdded(event.getId(),
+                tickets));
     }
 
     @Transactional

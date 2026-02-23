@@ -34,6 +34,14 @@ public class TicketController {
         return ticketService.getUserTickets(userId);
     }
 
+    @GetMapping("/available-count")
+    public ResponseEntity<Integer> getAvailableTickets(@RequestParam(
+            "eventLocationId") long eventLocationId) {
+        int availableTickets =
+                ticketService.getAvailableTicketsCount(eventLocationId);
+        return ResponseEntity.ok().body(availableTickets);
+    }
+
     public void refundTicketRequest(@RequestHeader(Headers.USER_ID) Long userId, int ticketId) {
         ticketService.refundTicket(userId, ticketId);
     }

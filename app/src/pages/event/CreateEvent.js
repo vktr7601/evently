@@ -44,8 +44,6 @@ const CreateEvent = () => {
             const status = err.response.status;
             if (status === 400) {
                 title = "Validation Errors";
-                // If response.data is an object {field: msg}, extract values. 
-                // If it's already an array/string, handle accordingly.
                 messages = typeof err.response.data === 'object' 
                     ? Object.values(err.response.data) 
                     : [err.response.data];

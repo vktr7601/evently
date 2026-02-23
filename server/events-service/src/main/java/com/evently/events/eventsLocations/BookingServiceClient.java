@@ -12,5 +12,7 @@ public interface BookingServiceClient {
     ResponseEntity<?> checkAvailability(@RequestParam("eventLocationId") long eventLocationId, @RequestParam("ticketsCount") int ticketsCount);
 
 
-
+    @GetMapping("/available-count")
+    ResponseEntity<Integer> getAvailableTickets(@RequestParam(
+            "eventLocationId") long eventLocationId);
 }

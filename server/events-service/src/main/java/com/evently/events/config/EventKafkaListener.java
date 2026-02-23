@@ -5,6 +5,7 @@ import dtos.EventFinished;
 import dtos.KafkaTopics;
 import dtos.TicketsCreated;
 import events.eventCreated.EventCreated;
+import events.eventCreated.NewLocationsAdded;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -39,6 +40,11 @@ public class EventKafkaListener {
         eventFinished.setEventLocationId(eventFinished.getEventLocationId());
 
         kafkaProducer.sendEventFinishedMessage(message);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleEventArchived(NewLocationsAdded eventFinished) {
+        kafkaProducer.sendNewLocationsAdded(eventFinished);
     }
 
     @KafkaListener(topics = KafkaTopics.TICKETS_CREATED)

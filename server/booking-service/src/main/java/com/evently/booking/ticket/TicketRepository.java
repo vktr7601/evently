@@ -83,4 +83,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("UPDATE Ticket t SET t.status = 'DISCARDED' " +
             "WHERE t.eventLocationsId IN :ids AND t.status = 'AVAILABLE'")
     int discardAllUnboughtTickets(@Param("ids") List<Long> ids);
+
+
+    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.eventLocationsId = :locId AND t.status = :status")
+    int countByLocationAndStatus(@Param("locId") long locId, @Param("status") TicketStatus status);
 }
