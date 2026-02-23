@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     private String lastName;
 
     @Min(1)
-    @Max(120) // 150 is a bit high, but 120 is safer for logic
+    @Max(120)
     @Column(name = "age", nullable = false)
     private int age;
 
@@ -53,6 +53,9 @@ public class User extends BaseEntity {
     List<LocationFollow> locationFollows;
     @OneToMany(mappedBy = "user")
     List<ArtistFollow> artistFollows;
+
+    @Column(name = "notifications_on")
+    private boolean shouldReceiveNotification;
 
 
     @Override

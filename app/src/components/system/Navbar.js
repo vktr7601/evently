@@ -6,7 +6,7 @@ import { useState } from 'react';
 const Navbar = () => {
   const navigate = useNavigate();
   // const isAuthenticated = !!localStorage.getItem("userToken");
-  const isAuth = false;
+  const isAuth = true;
   const handleSignOut = () => {
     localStorage.removeItem("userToken");
     navigate("/login");
@@ -54,10 +54,14 @@ const Navbar = () => {
                 <NavLink to="/profile" className="nav-link px-3">My Profile</NavLink>
               </li>
             ) : (
-              <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
+             <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
                 Sign In
               </Link>
             )}
+
+             <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
+                Sign In
+              </Link>
           </ul>
         </div>
       </div>

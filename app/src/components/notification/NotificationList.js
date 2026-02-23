@@ -4,101 +4,98 @@ import { Link } from 'react-router-dom';
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
+    const [selectedNote, setSelectedNote] = useState(null); // Track which notification is open
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Заявка към твоя нов Notification Service (порт 8083)
         axios.get("http://localhost:8083/notifications", {
-            headers: { 'X-User-Id': '1' } // Тук подаваш реалното ID
+            headers: { 'X-User-Id': '6' }
         })
         .then(res => {
             setNotifications(res.data);
+            if (res.data.length > 0) setSelectedNote(res.data[0]); // Auto-select first
             setLoading(false);
         })
         .catch(err => {
-            console.error("Error fetching notifications:", err);
+            console.error("Error:", err);
             setLoading(false);
         });
     }, []);
 
-    const markAsRead = (id) => {
-        // Опционално: Логика за изтриване или отбелязване като прочетено
-        setNotifications(notifications.filter(n => n.id !== id));
-    };
-
     return (
-        <div className="bg-light min-vh-100 py-5">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-lg-8">
-                        
-                        {/* Header на секцията */}
-                        <div className="d-flex align-items-center justify-content-between mb-4">
-                            <h2 className="fw-black text-dark mb-0">
-                                <i className="bi bi-bell-fill text-primary me-2"></i>
-                                Notifications
-                            </h2>
-                            <span className="badge bg-primary rounded-pill">
-                                {notifications.length} New
-                            </span>
-                        </div>
-
-                        {loading ? (
-                            <div className="text-center py-5">
-                                <div className="spinner-border text-primary"></div>
-                            </div>
-                        ) : notifications.length > 0 ? (
-                            <div className="d-flex flex-column gap-3">
-                                {notifications.map((note) => (
-                                    <div key={note.id} className="card border-0 shadow-sm rounded-4 transition-hover overflow-hidden">
-                                        <div className="card-body p-4 d-flex align-items-start">
-                                            
-                                            {/* Икона според типа на събитието */}
-                                            <div className="bg-primary-subtle p-3 rounded-circle me-3">
-                                                <i className="bi bi-calendar-event text-primary fs-4"></i>
-                                            </div>
-
-                                            <div className="flex-grow-1">
-                                                <div className="d-flex justify-content-between align-items-start">
-                                                    <h6 className="fw-bold mb-1 text-dark">
-                                                        New Event: {note.eventName}
-                                                    </h6>
-                                                    <small className="text-muted">
-                                                        {new Date(note.createdAt).toLocaleDateString()}
-                                                    </small>
-                                                </div>
-                                                <p className="text-secondary small mb-3">
-                                                    {note.message || `An artist you follow just announced a new performance at ${note.locationName}!`}
-                                                </p>
-                                                
-                                                <div className="d-flex gap-2">
-                                                    <Link to={`/events/${note.eventId}`} className="btn btn-sm btn-primary rounded-pill px-4">
-                                                        Check It Out
-                                                    </Link>
-                                                    <button 
-                                                        onClick={() => markAsRead(note.id)}
-                                                        className="btn btn-sm btn-outline-secondary rounded-pill border-0"
-                                                    >
-                                                        Dismiss
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            /* Празно състояние */
-                            <div className="text-center py-5 bg-white rounded-4 shadow-sm">
-                                <i className="bi bi-mailbox2 display-1 text-light mb-3"></i>
-                                <h4 className="text-muted">All caught up!</h4>
-                                <p className="text-secondary">No new notifications at the moment.</p>
-                                <Link to="/events" className="btn btn-primary rounded-pill mt-3">Explore Events</Link>
-                            </div>
-                        )}
-
+        <div className="container-fluid p-0 vh-100 bg-white">
+            <div className="row g-0 h-100">
+                
+                {/* LEFT SIDE: The List (Inbox) */}
+                <div className="col-md-4 border-end h-100 overflow-auto" style={{ backgroundColor: '#f8f9fa' }}>
+                    <div className="p-3 border-bottom bg-white sticky-top">
+                        <h5 className="fw-bold mb-0">Notifications ({notifications.length})</h5>
                     </div>
+
+                    {loading ? (
+                        <div className="text-center p-5"><div className="spinner-border spinner-border-sm text-primary"></div></div>
+                    ) : (
+                        <div className="list-group list-group-flush">
+                            {notifications.map((note) => (
+                                <button
+                                    key={note.id}
+                                    onClick={() => setSelectedNote(note)}
+                                    className={`list-group-item list-group-item-action border-bottom p-3 ${selectedNote?.id === note.id ? 'bg-white shadow-sm' : 'bg-transparent'}`}
+                                >
+                                    <div className="d-flex justify-content-between">
+                                        <small className={`fw-bold ${selectedNote?.id === note.id ? 'text-primary' : 'text-dark'}`}>
+                                            {note.eventName}
+                                        </small>
+                                        <small className="text-muted text-nowrap ms-2">
+                                            {new Date(note.createdAt).toLocaleDateString()}
+                                        </small>
+                                    </div>
+                                    <p className="mb-0 small text-truncate text-secondary">
+                                        {note.message || `New event at ${note.locationName}`}
+                                    </p>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
+                {/* RIGHT SIDE: The Content (Reading Pane) */}
+                <div className="col-md-8 h-100 bg-white overflow-auto">
+                    {selectedNote ? (
+                        <div className="p-5">
+                            <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                                <div>
+                                    <h2 className="fw-bold">{selectedNote.eventName}</h2>
+                                    <p className="text-muted mb-0">From: Event Notification Service</p>
+                                </div>
+                                <span className="text-muted small">
+                                    {new Date(selectedNote.createdAt).toLocaleString()}
+                                </span>
+                            </div>
+
+                            <div className="fs-5 text-dark mb-5" style={{ lineHeight: '1.6' }}>
+                                <p>{selectedNote.message || `An artist you follow just announced a new performance at ${selectedNote.locationName}!`}</p>
+                            </div>
+
+                            <div className="d-flex gap-3">
+                                <Link to={`/events/${selectedNote.eventId}`} className="btn btn-primary px-4">
+                                    View Full Event Details
+                                </Link>
+                                <button className="btn btn-outline-danger">
+                                    Delete Notification
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="h-100 d-flex align-items-center justify-content-center text-muted">
+                            <div className="text-center">
+                                <i className="bi bi-envelope-open display-1 text-light"></i>
+                                <p>Select a notification to read it</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
             </div>
         </div>
     );

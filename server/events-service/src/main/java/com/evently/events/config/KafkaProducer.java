@@ -2,6 +2,7 @@ package com.evently.events.config;
 
 import dtos.EventCancelled;
 import dtos.EventFinished;
+import dtos.EventLive;
 import events.eventCreated.EventCreated;
 import events.eventCreated.EventTicketsBulkUpdate;
 import events.eventCreated.NewLocationsAdded;
@@ -34,5 +35,9 @@ public class KafkaProducer {
 
     public void sendEventsTicketBulkUpdate(EventTicketsBulkUpdate message) {
         kafkaTemplate.send(EVENT_TICKETS_BULK_UPDATE, message);
+    }
+
+    public void sendEventLive(EventLive message) {
+        kafkaTemplate.send(EVENT_LIVE, message);
     }
 }

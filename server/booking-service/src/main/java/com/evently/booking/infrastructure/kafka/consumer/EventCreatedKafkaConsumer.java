@@ -19,6 +19,6 @@ public class EventCreatedKafkaConsumer {
         log.info("Received EVENT_CREATED for {} ticket creation events",
                 eventCreated.getTicketsCreationEvents().size());
 
-        ticketService.createTickets(eventCreated.getTicketsCreationEvents());
+        ticketService.createTickets(eventCreated);
     }
 }

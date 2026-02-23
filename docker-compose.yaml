@@ -11,6 +11,16 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 #    networks:
 #      - ticket-network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-microservices
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: adminPassword
+    ports:
+      - "8080:80"
+
 
   eureka:
     image: eureka

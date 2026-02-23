@@ -3,12 +3,12 @@ package com.evently.booking.ticket;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
-import com.evently.booking.order.Order;
 import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.data.TicketsMapper;
 import com.evently.booking.ticket.entities.TicketListItem;
 import dtos.TicketsCreated;
+import events.eventCreated.EventCreated;
 import events.eventCreated.EventTicketsBulkUpdate;
 import events.eventCreated.EventTicketsUpdate;
 import events.eventCreated.TicketsCreationEvent;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,7 +36,25 @@ public class TicketService {
     private final TicketsMapper ticketsMapper;
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
-//    private final OrderService orderService;
+
+    @Transactional
+    public void createTickets(EventCreated eventCreated) {
+        List<Ticket> tickets = new ArrayList<>();
+        for (TicketsCreationEvent ticketsCreationEvent :
+                eventCreated.getTicketsCreationEvents()) {
+            for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
+                Ticket ticket = ticketsMapper.convert(ticketsCreationEvent);
+                tickets.add(ticket);
+            }
+        }
+
+        ticketRepository.saveAll(tickets);
+        List<Long> eventLocationIds =
+                eventCreated.getTicketsCreationEvents().stream().map(TicketsCreationEvent::getEventLocationId).toList();
+        TicketsCreated ticketsCreated = new TicketsCreated();
+        ticketsCreated.setEventLocationIds(eventLocationIds);
+        eventPublisher.publishEvent(ticketsCreated);
+    }
 
     @Transactional
     public void createTickets(List<TicketsCreationEvent> data) {
@@ -299,28 +316,9 @@ public class TicketService {
 
                 ticketRepository.saveAll(updatedTickets);
             }
+
+            //send notification event chanded to all the which which has
+            // boooked tickets.
         }
-    }
-
-    public BigDecimal calculateCurrentTotalForOrder(Long orderId) {
-        // Sum the price of each ticket based on the LATEST price in the locations table
-        // Assuming ticket has a reference to the Location/Price source
-        return ticketRepository.findAllByOrderId(orderId).stream()
-                .map(Ticket::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public boolean hasEventDateChangedForOrder(Order order) {
-        // Get the current start time from the first ticket in the order
-        // (Assuming all tickets in one order belong to the same event/location)
-        return ticketRepository.findAllByOrderId(order.getId()).stream()
-                .findFirst()
-                .map(ticket -> {
-                    LocalDateTime currentEventTime = ticket.getEventStartTime();
-                    // Compare with the time the order was originally associated with
-                    // If you don't store this on 'Order', you might need to add it!
-                    return !currentEventTime.equals(order.getCreatedAt());
-                })
-                .orElse(false);
     }
 }

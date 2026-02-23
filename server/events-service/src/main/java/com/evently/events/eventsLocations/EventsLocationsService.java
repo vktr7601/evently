@@ -11,9 +11,12 @@ import com.evently.events.infra.exceptions.LocationCollisionException;
 import com.evently.events.locations.Location;
 import com.evently.events.locations.LocationService;
 import com.evently.events.locations.entities.LocationDetails;
+import dtos.EventLive;
+import dtos.TicketsCreated;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class EventsLocationsService {
     private final EventLocationsMapper eventsLocationMapper;
     private final BookingServiceClient bookingServiceClient;
     private final LocationService locationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public List<EventsLocationsDto> addLocationDetails(Event event,
@@ -162,9 +166,13 @@ public class EventsLocationsService {
 //        }
 //    }
 
-    public void markAsActive(List<Long> ids) {
-        eventsLocationsRepository.updateStatusByIds(ids,
+    @Transactional
+    public void markAsActive(TicketsCreated ticketsCreated) {
+        eventsLocationsRepository.updateStatusByIds(ticketsCreated.getEventLocationIds(),
                 EventsLocationsStatus.AVAILABLE);
+        EventLive eventLive = new EventLive(ticketsCreated.getEventName(),
+                ticketsCreated.getCategoryIds());
+        eventPublisher.publishEvent(eventLive);
     }
 
     public EventsLocationsDto findByEventLocationId(long eventId,

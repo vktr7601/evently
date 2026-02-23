@@ -2,6 +2,7 @@ package com.evently.events.config;
 
 import com.evently.events.eventsLocations.EventsLocationsService;
 import dtos.EventFinished;
+import dtos.EventLive;
 import dtos.KafkaTopics;
 import dtos.TicketsCreated;
 import events.eventCreated.EventCreated;
@@ -54,9 +55,14 @@ public class EventKafkaListener {
         kafkaProducer.sendEventsTicketBulkUpdate(eventFinished);
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleEventLive(EventLive event) {
+        kafkaProducer.sendEventLive(event);
+    }
+
     @KafkaListener(topics = KafkaTopics.TICKETS_CREATED)
     public void handleTicketsCreated(TicketsCreated ticketsCreated) {
         log.info("Received tickets created event: {}", ticketsCreated);
-        eventsLocationsService.markAsActive(ticketsCreated.getEventLocationIds());
+        eventsLocationsService.markAsActive(ticketsCreated);
     }
 }
