@@ -44,8 +44,9 @@ public class OrderService {
 
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
-        System.out.println();
-        orderRepository.findPendingOrderByIdAndUserId(userId).map(order -> updateExistingOrder(order, orderRequest, userId)).orElseGet(() -> createNewOrder(orderRequest, userId));
+        orderRepository.findPendingOrderByIdAndUserId(userId)
+                .map(order -> updateExistingOrder(order, orderRequest, userId))
+                .orElseGet(() -> createNewOrder(orderRequest, userId));
     }
 
     public OrderDetails getActiveUserOrder(Long userId) throws OrderExpiredException {
@@ -101,10 +102,8 @@ public class OrderService {
     }
 
     public void updateOrderDetails(Order order, OrderStatus status) {
-        if (status == OrderStatus.CANCELLED) {
+        if (status == OrderStatus.CANCELLED || status == OrderStatus.EXPIRED) {
 
-            order.setStatus(OrderStatus.CANCELLED);
-            order.setActive(false);
             List<TicketListItem> activeListItem =
                     ticketService.getTicketsByOrderId(order.getId());
 
@@ -112,34 +111,23 @@ public class OrderService {
                 String json = objectMapper.writeValueAsString(activeListItem);
                 order.setAudit(json);
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            List<Ticket> tickets = order.getTickets();
-            for (Ticket ticket : tickets) {
-                ticket.setStatus(TicketStatus.AVAILABLE);
-                ticket.setUserId(null);
-                ticket.setOrder(null);
+                // Log this! Don't let a JSON error stop the cancellation logic
+                log.error("Failed to create audit log for order {}",
+                        order.getId(), e);
             }
 
-            orderRepository.save(order);
-        }
-        if (status == OrderStatus.EXPIRED) {
-            order.setStatus(OrderStatus.EXPIRED);
+            // 2. Update Order Stat
+            order.setStatus(status);
             order.setActive(false);
-            List<TicketListItem> activeListItem =
-                    ticketService.getTicketsByOrderId(order.getId());
 
-            try {
-                String json = objectMapper.writeValueAsString(activeListItem);
-                order.setAudit(json);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            // 3. Release the Tickets (The "Destructive" part)
             List<Ticket> tickets = order.getTickets();
-            for (Ticket ticket : tickets) {
-                ticket.setStatus(TicketStatus.AVAILABLE);
-                ticket.setUserId(null);
-                ticket.setOrder(null);
+            if (tickets != null) {
+                for (Ticket ticket : tickets) {
+                    ticket.setStatus(TicketStatus.AVAILABLE);
+                    ticket.setUserId(null);
+                    ticket.setOrder(null);
+                }
             }
 
             orderRepository.save(order);
