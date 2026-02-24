@@ -1,6 +1,6 @@
 package com.evently.booking.order.entities;
 
-import com.evently.booking.order.data.OrderStatus;
+import com.evently.booking.order.model.OrderStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,5 +1,6 @@
-package com.evently.payment.payments;
+package com.evently.payment.payments.payment.model;
 
+import com.evently.payment.payments.providers.stripe.model.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

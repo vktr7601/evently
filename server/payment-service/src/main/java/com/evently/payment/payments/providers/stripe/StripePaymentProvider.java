@@ -1,12 +1,12 @@
-package com.evently.payment.payments;
+package com.evently.payment.payments.providers.stripe;
 
-import com.evently.payment.payments.contracts.PaymentProvider;
 import com.evently.payment.payments.entities.PaymentProcessingResult;
+import com.evently.payment.payments.providers.contracts.PaymentProvider;
+import com.evently.payment.payments.providers.stripe.model.StripePaymentRequest;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.PaymentIntentCreateParams;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,17 +15,14 @@ import java.math.BigDecimal;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class StripePaymentProvider implements PaymentProvider {
 
-  //  @Value("${STRIPE_SECRET_KEY}")
-    private String stripeApiKey =
-            "sk_test_51T2p6MAsx12C9RhoRw6cxa25nr2h3imTkkWJQ5321TDSQ5gnPPv6XbqdwP8DFPsKMhlywHrK7ln0gV4XeQHQ5KMn002Lcn0HrR";
-
+    @Value("${stripe.secret-key}")
+    private String stripeSecretKey;
 
     @Override
     public PaymentProcessingResult process(Long userId,
-                                           PaymentRequest request) {
+                                           StripePaymentRequest request) {
         try {
             long amountInCents =
                     request.getAmount().multiply(new BigDecimal(100)).longValue();
@@ -46,8 +43,8 @@ public class StripePaymentProvider implements PaymentProvider {
                             .build();
 
             RequestOptions options =
-                    RequestOptions.builder().setApiKey(stripeApiKey)
-                           // .setIdempotencyKey("payment-order-" + request
+                    RequestOptions.builder().setApiKey(stripeSecretKey)
+                            // .setIdempotencyKey("payment-order-" + request
                             // .getOrderId())
                             .build();
             PaymentIntent intent = PaymentIntent.create(params, options);

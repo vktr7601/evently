@@ -1,6 +1,6 @@
 package com.evently.booking.ticket;
 
-import com.evently.booking.order.Order;
+import com.evently.booking.order.model.Order;
 import com.evently.booking.ticket.data.TicketStatus;
 import jakarta.persistence.*;
 import lombok.Getter;

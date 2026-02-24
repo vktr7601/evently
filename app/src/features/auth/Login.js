@@ -20,13 +20,12 @@ const Login = () => {
         setLoading(true);
         setError("");
         try {
-            const response = await axios.post("http://localhost:8085/user/login", formData);
-            console.log("Login response:", response.data);
+            const response = await axios.post("http://localhost:8085/auth/login", formData);
             const { jwtToken, userRole } = response.data;
             if (jwtToken) {
                 localStorage.setItem("jwtToken", jwtToken);
                 localStorage.setItem("userRole", userRole);
-                navigate("/");
+                window.location.href = "/";
             }
         } catch (err) {
             setError(err.response?.data?.message || "Invalid credentials.");

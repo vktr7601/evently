@@ -1,6 +1,6 @@
 package com.evently.booking.order.data;
 
-import com.evently.booking.order.Order;
+import com.evently.booking.order.model.Order;
 import com.evently.booking.order.entities.OrderDetails;
 import com.evently.booking.ticket.entities.TicketListItem;
 import org.springframework.stereotype.Component;

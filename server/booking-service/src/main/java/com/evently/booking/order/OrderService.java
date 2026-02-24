@@ -5,8 +5,9 @@ import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceC
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
 import com.evently.booking.infrastructure.exceptions.*;
 import com.evently.booking.order.data.OrderMapper;
-import com.evently.booking.order.data.OrderStatus;
 import com.evently.booking.order.entities.*;
+import com.evently.booking.order.model.Order;
+import com.evently.booking.order.model.OrderStatus;
 import com.evently.booking.ticket.Ticket;
 import com.evently.booking.ticket.TicketService;
 import com.evently.booking.ticket.data.TicketNumberGenerator;
@@ -291,52 +292,6 @@ public class OrderService {
             System.out.println();
         }
 
-
-    }
-
-    @Transactional
-    public void refundOrder(long number, long userId) throws OrderNotRefundableException {
-        if (!isWithinRefundPeriod(userId, number)) {
-            throw new OrderNotRefundableException(number);
-        }
-
-
-        Order order = orderRepository.findByOrderNumberAndUserId(number,
-                userId).orElseThrow(() -> new NoActiveOrderException(userId));
-
-        List<Ticket> tickets = order.getTickets();
-
-        List<TicketListItem> ticketListItems = resolveOrderItems(order);
-        for (TicketListItem item : ticketListItems) {
-            item.setStatus(TicketStatus.REFUNDED);
-        }
-
-
-        try {
-            String json = objectMapper.writeValueAsString(ticketListItems);
-            order.setAudit(json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        RefundRequest refundRequest = new RefundRequest();
-        refundRequest.setAmount(order.getTotalPrice());
-        refundRequest.setTransactionId(order.getTransactionId());
-        ResponseEntity<PaymentServiceResponse> response =
-                paymentServiceClient.processRefund(refundRequest);
-        if (response.getBody().isSuccess()) {
-            for (Ticket ticket : tickets) {
-                ticket.setStatus(TicketStatus.AVAILABLE);
-                ticket.setUserId(null);
-                ticket.setOrder(null);
-            }
-            order.setStatus(OrderStatus.REFUNDED);
-            order.setTransactionId(response.getBody().toString());
-            orderRepository.save(order);
-        } else {
-            throw new ProcessOrderException(response.getBody());
-        }
-        System.out.println();
 
     }
 

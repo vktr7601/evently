@@ -1,12 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 
 const AuthNavbar = () => {
-    const navigate = useNavigate();
     const handleSignOut = () => {
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("userRole");
-        navigate("/login");
+        window.location.href = "/login";
     };
     return (
         <ul className="navbar-nav">

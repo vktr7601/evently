@@ -13,7 +13,6 @@ const AdminNavbar = () => {
                     Orders
                 </NavLink>
             </li>
-
             <li className='nav-item'>
                 <NavLink to="/events/create" className="nav-link px-3">Create Event</NavLink>
             </li>

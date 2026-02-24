@@ -1,4 +1,4 @@
-package com.evently.payment.payments;
+package com.evently.payment.payments.providers.stripe.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -8,12 +8,11 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class PaymentRequest {
+public class StripePaymentRequest {
     @JsonProperty("orderId")
     private long orderId;
     @JsonProperty("amount")
     private BigDecimal amount;
     @JsonProperty("stripePaymentMethodId")
     private String stripePaymentMethodId;
-
 }

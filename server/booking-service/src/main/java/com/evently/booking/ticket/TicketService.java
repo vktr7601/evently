@@ -3,7 +3,7 @@ package com.evently.booking.ticket;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
-import com.evently.booking.order.data.OrderStatus;
+import com.evently.booking.order.model.OrderStatus;
 import com.evently.booking.ticket.data.TicketStatus;
 import com.evently.booking.ticket.data.TicketsMapper;
 import com.evently.booking.ticket.entities.TicketListItem;
