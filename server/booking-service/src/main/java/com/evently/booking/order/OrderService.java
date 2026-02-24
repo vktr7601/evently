@@ -2,7 +2,6 @@ package com.evently.booking.order;
 
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
-import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceRequest;
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
 import com.evently.booking.infrastructure.exceptions.*;
 import com.evently.booking.order.data.OrderMapper;
@@ -265,8 +264,6 @@ public class OrderService {
                     : "The " + "price has been updated.");
         }
 
-        PaymentServiceRequest paymentServiceRequest =
-                new PaymentServiceRequest();
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setAmount(order.getTotalPrice());
         paymentRequest.setStripePaymentMethodId(finishOrderRequest.getStripePaymentMethodId());

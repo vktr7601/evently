@@ -1,8 +1,8 @@
 package com.evently.events.event;
 
 
-import com.evently.events.artists.Artist;
-import com.evently.events.artists.ArtistsService;
+import com.evently.events.artists.model.Artist;
+import com.evently.events.artists.service.ArtistsService;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.entities.*;
 import com.evently.events.eventsCategories.EventsCategoriesService;
@@ -169,12 +169,6 @@ public class EventService {
                         .toList();
 
         if (!newLocData.isEmpty()) {
-            //      eventsLocationsService
-            //      .validateNoArtistSchedulingConflicts(event,
-            //                    updates);
-            //            eventsLocationsService
-            //            .validateNoArtistSchedulingConflicts(event,
-            //                    updates);
             processAdditions(event, newLocData);
         }
 

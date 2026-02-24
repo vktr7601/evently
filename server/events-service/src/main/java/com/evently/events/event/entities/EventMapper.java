@@ -1,6 +1,6 @@
 package com.evently.events.event.entities;
 
-import com.evently.events.artists.Artist;
+import com.evently.events.artists.model.Artist;
 import com.evently.events.category.entities.CategoryDto;
 import com.evently.events.event.Event;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;

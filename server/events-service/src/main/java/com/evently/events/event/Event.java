@@ -1,6 +1,6 @@
 package com.evently.events.event;
 
-import com.evently.events.artists.Artist;
+import com.evently.events.artists.model.Artist;
 import com.evently.events.eventsLocations.EventsLocations;
 import jakarta.persistence.*;
 import lombok.Getter;

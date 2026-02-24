@@ -1,5 +1,4 @@
-import React from 'react';
-import Hero from './Hero';
+import Hero from '../layout/Hero';
 
 const PrivacyPolicy = () => {
     return (
@@ -13,7 +12,6 @@ const PrivacyPolicy = () => {
                 secondaryAction={{ text: "Help Center", link: "/help" }}
             />
 
-            {/* 2. Overlapping Policy Content */}
             <div className="container" style={{ marginTop: "-60px", position: "relative", zIndex: "10" }}>
                 <div className="row justify-content-center">
                     <div className="col-lg-10 col-xl-8">
