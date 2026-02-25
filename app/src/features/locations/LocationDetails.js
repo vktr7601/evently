@@ -7,7 +7,7 @@ const LocationDetails = () => {
     const [venue, setVenue] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/locations/${id}`)
+        axios.get(`http://localhost:9000/locations/${id}`)
             .then(res => {
                 setVenue(res.data);
             })

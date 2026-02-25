@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 const ArtistListItem = ({ artist }) => {
     return (
         <div className="card h-100 shadow-sm border-0 artist-card-hover">
-            {/* Wrap the clickable area */}
             <Link 
                 to={`/artists/${artist.id}`} 
                 className="text-decoration-none text-dark h-100 d-flex flex-column"

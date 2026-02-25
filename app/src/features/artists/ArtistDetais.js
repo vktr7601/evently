@@ -8,7 +8,7 @@ const ArtistDetails = () => {
     const [artist, setArtist] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/artists/${id}`)
+        axios.get(`http://localhost:9000/artists/${id}`)
             .then(res => {
                 setArtist(res.data);
             })

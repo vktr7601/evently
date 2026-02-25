@@ -9,11 +9,10 @@ const ArtistList = () => {
     const [isloading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/artists`)
+        axios.get(`http://localhost:9000/artists`)
             .then(res => {
                 setArtists(res.data);
                 setIsLoading(false);
-
             })
             .catch(err => {
                 console.error("Error fetching artists:", err);

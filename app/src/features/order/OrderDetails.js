@@ -10,8 +10,10 @@ const OrderDetails = () => {
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
-                const res = await axios.get(`http://localhost:8081/orders/details/${number}`, {
-                    headers: { "X-User-Id": 1 }
+                const res = await axios.get(`http://localhost:9000/orders/details/${number}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+                    }
                 });
                 console.log("Fetched order details:", res.data);
                 setOrder(res.data);
@@ -59,8 +61,10 @@ const OrderDetails = () => {
 
     const handleRefundRequest = async () => {
         try {
-            await axios.post(`http://localhost:8081/orders/refund/${number}`, {}, {
-                headers: { "X-User-Id": 1 }
+            await axios.post(`http://localhost:9000/orders/refund/${number}`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+                }
             });
             alert("Refund requested successfully.");
         } catch (err) {
