@@ -34,4 +34,11 @@ public class FollowArtistService {
 
         artistFollowRepository.delete(followArtist);
     }
+
+    public boolean isFollowed(Long userId, Long artistId) {
+        if (artistFollowRepository.findByArtistIdAndUserId(userId, artistId).isPresent()) {
+            return true;
+        }
+        return false;
+    }
 }

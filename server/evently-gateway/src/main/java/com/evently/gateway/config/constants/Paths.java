@@ -13,6 +13,7 @@ public class Paths {
     public static final String[] AUTHENTICATED_PATHS = {
             "/orders/**",
             "/user/**",
+            "/follows/**",
             "/bookings/**",
             "/payments/**",
             "/notifications/**"
