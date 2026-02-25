@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public abstract class BaseKafkaEvent implements Serializable {
     @JsonProperty("messageId")
-    private UUID messageId;
+    private String messageId;
 
     @JsonProperty("occurredAt")
     private Instant occurredAt;

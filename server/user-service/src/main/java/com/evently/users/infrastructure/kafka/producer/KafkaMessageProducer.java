@@ -21,7 +21,7 @@ public class KafkaMessageProducer {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendMessages(UserRegisteredEvent userRegisteredEvent) {
-        userRegisteredEvent.setMessageId(UUID.randomUUID());
+        userRegisteredEvent.setMessageId(UUID.randomUUID().toString());
         userRegisteredEvent.setOccurredAt(Instant.now());
         kafkaTemplate.send(KafkaTopics.USER_REGISTERED, userRegisteredEvent);
     }

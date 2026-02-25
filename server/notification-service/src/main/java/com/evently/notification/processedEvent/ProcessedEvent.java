@@ -13,6 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ProcessedEvent {
     @Id
-    private UUID eventId;
+    private String eventId;
     private Instant processedAt;
 }

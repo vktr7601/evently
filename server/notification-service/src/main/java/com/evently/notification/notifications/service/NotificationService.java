@@ -85,6 +85,7 @@ public class NotificationService {
         notificationContent.setHtmlBody("Welcome on board");
 
         notificationContentRepository.save(notificationContent);
+
         List<Notification> notifications = new ArrayList<>();
         Notification notification = new Notification();
         notification.setContent(notificationContent);
