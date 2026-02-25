@@ -1,8 +1,11 @@
-package com.evently.notification.notifications;
+package com.evently.notification.notifications.service;
 
+import com.evently.notification.infrastructure.clients.UserServiceClient;
 import com.evently.notification.notificationContent.NotificationContent;
 import com.evently.notification.notificationContent.NotificationContentRepository;
-import com.evently.notification.notifications.entities.NotificationListItemDto;
+import com.evently.notification.notifications.dto.NotificationListItemDto;
+import com.evently.notification.notifications.model.Notification;
+import com.evently.notification.notifications.repository.NotificationRepository;
 import events.event.EventLive;
 import events.user.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;

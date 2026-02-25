@@ -1,4 +1,4 @@
-package com.evently.notification.notifications;
+package com.evently.notification.notifications.model;
 
 import com.evently.notification.notificationContent.NotificationContent;
 import jakarta.persistence.*;

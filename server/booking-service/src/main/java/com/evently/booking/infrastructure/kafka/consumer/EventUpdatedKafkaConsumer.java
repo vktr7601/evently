@@ -11,13 +11,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NewLocationsAddedKafkaConsumer {
+public class EventUpdatedKafkaConsumer {
     private final TicketService ticketService;
 
     @KafkaListener(topics = KafkaTopics.NEW_EVENT_LOCATIONS_ADDED)
-    public void consumeEventLocationCancellationMessage(EventUpdated eventsLocationsDto) {
+    public void onEventUpdated(EventUpdated eventsLocationsDto) {
         ticketService.createTickets(eventsLocationsDto.getNewTicketsToCreate());
-
-//        log.info("Event cancelled with result {}", result);
     }
 }

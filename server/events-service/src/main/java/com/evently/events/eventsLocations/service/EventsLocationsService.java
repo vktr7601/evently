@@ -173,6 +173,7 @@ public class EventsLocationsService {
     public void markAsActive(TicketsCreated ticketsCreated) {
         eventsLocationsRepository.updateStatusByIds(ticketsCreated.getEventLocationIds(),
                 EventsLocationsStatus.AVAILABLE);
+        
         EventLive eventLive = new EventLive(ticketsCreated.getEventName(),
                 ticketsCreated.getCategoryIds());
         eventPublisher.publishEvent(eventLive);

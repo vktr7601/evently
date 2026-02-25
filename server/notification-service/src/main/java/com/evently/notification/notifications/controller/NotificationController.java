@@ -1,6 +1,7 @@
-package com.evently.notification.notifications;
+package com.evently.notification.notifications.controller;
 
-import com.evently.notification.notifications.entities.NotificationListItemDto;
+import com.evently.notification.notifications.service.NotificationService;
+import com.evently.notification.notifications.dto.NotificationListItemDto;
 import jwt.JWTUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

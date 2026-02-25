@@ -13,7 +13,6 @@ public class ProcessedEvent {
 
     private Instant processedAt;
 
-//    private String eventType; // Useful for debugging or cleanup later
 
     public ProcessedEvent() {}
 
