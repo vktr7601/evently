@@ -11,19 +11,28 @@ const CreateEvent = () => {
         eventCategories: [],
         eventLocations: [{ locationId: '', eventStartTime: '', ticketsCount: 1, pricePerTicket: 0 }]
     });
+    useEffect(() => {
+            if(localStorage.getItem("userRole") !== "ADMIN"){
+                alert("Access denied. Admins only.");
+                window.location.href = "/"; // Redirect to home or login
+            }
+    });
+    const[role, userRole] = useState(localStorage.getItem("userRole"));
 
     const [locations, setLocations] = useState([]);
     const [artists, setArtists] = useState([]);
     const [categories, setCategories] = useState([]);
 
+
+  
     // --- Fetch Data ---
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [locRes, artRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:8082/locations'),
-                    axios.get('http://localhost:8082/artists'),
-                    axios.get('http://localhost:8082/categories')
+                    axios.get('http://localhost:9000/locations'),
+                    axios.get('http://localhost:9000/artists'),
+                    axios.get('http://localhost:9000/categories')
                 ]);
                 setLocations(locRes.data);
                 setArtists(artRes.data);
@@ -111,7 +120,11 @@ const CreateEvent = () => {
             eventLocations: eventData.eventLocations
         };
 
-        axios.post(`http://localhost:8082/events`, payload)
+        axios.post(`http://localhost:9000/admin/events`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+                }
+            })
             .then(res => {
                 alert("Event created successfully!");
                 console.log("Success:", res.data);

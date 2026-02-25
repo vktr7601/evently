@@ -3,29 +3,32 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const NotificationsPage = () => {
+
     const [notifications, setNotifications] = useState([]);
     const [selectedNote, setSelectedNote] = useState(null); // Track which notification is open
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get("http://localhost:8083/notifications", {
-            headers: { 'X-User-Id': '6' }
+        axios.get("http://localhost:9000/notifications", {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+            }
         })
-        .then(res => {
-            setNotifications(res.data);
-            if (res.data.length > 0) setSelectedNote(res.data[0]); // Auto-select first
-            setLoading(false);
-        })
-        .catch(err => {
-            console.error("Error:", err);
-            setLoading(false);
-        });
+            .then(res => {
+                setNotifications(res.data);
+                if (res.data.length > 0) setSelectedNote(res.data[0]); // Auto-select first
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                setLoading(false);
+            });
     }, []);
 
     return (
         <div className="container-fluid p-0 vh-100 bg-white">
             <div className="row g-0 h-100">
-                
+
                 {/* LEFT SIDE: The List (Inbox) */}
                 <div className="col-md-4 border-end h-100 overflow-auto" style={{ backgroundColor: '#f8f9fa' }}>
                     <div className="p-3 border-bottom bg-white sticky-top">

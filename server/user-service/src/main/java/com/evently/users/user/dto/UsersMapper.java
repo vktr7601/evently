@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +20,14 @@ public class UsersMapper {
         userRegisteredEvent.setFirstName(user.getFirstName());
         userRegisteredEvent.setLastName(user.getLastName());
         userRegisteredEvent.setUserId(user.getId());
-        userRegisteredEvent.setUuid(UUID.randomUUID());
+        if (Objects.isNull(user.getFollowCategoryList()) || user.getFollowCategoryList().isEmpty()) {
+            userRegisteredEvent.setFollowCategories(new ArrayList<>());
+        }
+        if (Objects.isNull(user.getFollowCategoryList()) || user.getFollowCategoryList().isEmpty()) {
+            userRegisteredEvent.setFollowCategories(new ArrayList<>());
+        }
+
+        userRegisteredEvent.setShouldReceiveNotification(user.isShouldReceiveNotification());
         return userRegisteredEvent;
     }
 

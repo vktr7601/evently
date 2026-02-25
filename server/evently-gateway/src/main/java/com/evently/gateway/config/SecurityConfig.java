@@ -32,10 +32,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_PATHS).permitAll()
-                        .requestMatchers(ADMIN_PATHS).hasRole("ADMIN")
-                        .requestMatchers(AUTHENTICATED_PATHS).authenticated()
-                       // .anyRequest().authenticated()
+                                .requestMatchers(PUBLIC_PATHS).permitAll()
+                                .requestMatchers(AUTHENTICATED_PATHS).authenticated()
+                                .requestMatchers(ADMIN_PATHS).hasRole("ADMIN")
+                        // .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtUtility),
                         UsernamePasswordAuthenticationFilter.class);

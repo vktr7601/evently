@@ -18,6 +18,6 @@ public class EventLiveKafkaConsumer {
 
     @KafkaListener(topics = KafkaTopics.EVENT_LIVE)
     public void onEventLive(EventLive eventLive) {
-        notificationService.createNotification(eventLive);
+        notificationService.createHelloNotification(eventLive);
     }
 }

@@ -25,8 +25,8 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserDetailsDto> userDetails(@RequestHeader("X-User" +
-            "-Id") Long userId) {
+    public ResponseEntity<UserDetailsDto> userDetails(@RequestHeader("X-User-Id") Long userId) {
+
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }

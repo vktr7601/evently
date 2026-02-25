@@ -1,8 +1,7 @@
 package com.evently.notification.notifications.controller;
 
-import com.evently.notification.notifications.service.NotificationService;
 import com.evently.notification.notifications.dto.NotificationListItemDto;
-import jwt.JWTUtility;
+import com.evently.notification.notifications.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,18 +13,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationController {
     private final NotificationService notificationService;
-    private final JWTUtility jwtUtility;
 
     @GetMapping
     public ResponseEntity<List<NotificationListItemDto>> getUserNotification(@RequestHeader("X-User-Id") long userId) {
         return ResponseEntity.ok(notificationService.findAllByUserId(userId));
     }
-
-//    @GetMapping("/{id}")
-//    public ResponseEntity<List<NotificationListItemDto>>
-//    getUserNotification(@PathVariable long id) {
-//        return ResponseEntity.ok(notificationService.findAllByUserId(id));
-//    }
 
     @PutMapping("/{notificationId}")
     public void markNotificationAsRead(@PathVariable long notificationId) {

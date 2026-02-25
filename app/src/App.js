@@ -13,6 +13,9 @@ import Artists from './features/artists/Artists';
 import ArtistDetails from './features/artists/ArtistDetais';
 import EventDetails from './features/events/EventDetails';
 import EditEvent from './features/events/EditEvent';
+import Notifications from './features/notifications/Notifications';
+import Profile from './features/auth/Profile';
+import CreateEvent from './features/events/CreateEvent';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -34,6 +37,9 @@ function App() {
             <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id/edit" element={<EditEvent />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/profile" element={< Profile />} />
+             <Route path="/admin/events" element={<CreateEvent />} />
             {/* <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />

@@ -15,7 +15,8 @@ import java.util.List;
 @Component
 public class JWTUtility {
 
-    private final String secret = "nkf1j5UV6YOjZo/gl4bUB8YnH3a1TDC9ynLpEA9TppU=";
+    private final String secret = "nkf1j5UV6YOjZo" +
+            "/gl4bUB8YnH3a1TDC9ynLpEA9TppU=";
     private final Long expiration = 3600000L;
 
     private Key signingKey;
@@ -25,15 +26,19 @@ public class JWTUtility {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String username, long userId, List<String> roles) {
+    public String generateToken(String username, long userId,
+                                List<String> roles) {
+        List<String> userRole = roles.stream()
+                .map(role -> "ROLE_" + role)
+                .toList();
         return Jwts.builder()
-            .setSubject(username)
-            .claim("userId", userId)
-            .claim("roles", roles)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(signingKey, SignatureAlgorithm.HS256)
-            .compact();
+                .setSubject(username)
+                .claim("userId", userId)
+                .claim("roles", userRole)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public boolean isTokenValid(String token) {
@@ -47,11 +52,21 @@ public class JWTUtility {
 
     public long extractUserId(String token) {
         Claims claims = Jwts.parserBuilder()
-            .setSigningKey(signingKey)
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
         return claims.get("userId", Long.class);
+    }
+
+    public List<String> extractRoles(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("roles", List.class);
     }
 }

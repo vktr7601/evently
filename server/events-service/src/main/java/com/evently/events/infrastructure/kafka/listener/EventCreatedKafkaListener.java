@@ -22,13 +22,13 @@ public class EventCreatedKafkaListener {
         log.info("Transaction committed — sending EventCreated to Kafka for " +
                         "eventId: {}",
                 event.getEventId());
-        try {
-            event.setMessageId(UUID.randomUUID().toString());
-            event.setOccurredAt(Instant.now());
-            kafkaProducer.sendEventCreated(event);
-        } catch (Exception e) {
-            log.error("Failed to publish EventCreated for eventId: {}",
-                    event.getEventId(), e);
-        }
+//        try {
+//            event.setMessageId(UUID.randomUUID().toString());
+//            event.setOccurredAt(Instant.now());
+//            kafkaProducer.sendEventCreated(event);
+//        } catch (Exception e) {
+//            log.error("Failed to publish EventCreated for eventId: {}",
+//                    event.getEventId(), e);
+//        }
     }
 }

@@ -14,7 +14,7 @@ const AdminNavbar = () => {
                 </NavLink>
             </li>
             <li className='nav-item'>
-                <NavLink to="/events/create" className="nav-link px-3">Create Event</NavLink>
+                <NavLink to="/admin/events" className="nav-link px-3">Create Event</NavLink>
             </li>
             <li className="nav-item">
                 <NavLink to="/admin/location/create" className="nav-link px-3">Create Location</NavLink>

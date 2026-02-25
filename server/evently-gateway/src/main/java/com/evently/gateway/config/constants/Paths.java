@@ -6,11 +6,13 @@ public class Paths {
             "/user/register",
             "/events/**",
             "/locations/**",
-            "/artists/**"
+            "/artists/**",
+            "/categories/**",
     };
 
     public static final String[] AUTHENTICATED_PATHS = {
             "/orders/**",
+            "/user/**",
             "/bookings/**",
             "/payments/**",
             "/notifications/**"

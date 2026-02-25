@@ -12,6 +12,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -22,21 +24,22 @@ public class UserRegisteredKafkaConsumer {
     @Transactional
     @KafkaListener(topics = KafkaTopics.USER_REGISTERED)
     public void onUserRegistered(UserRegisteredEvent event) {
-        if (processedEventRepository.existsById(event.getUuid())) {
-            log.info("Event {} already processed. Skipping.", event.getUuid());
+        if (processedEventRepository.existsById(event.getMessageId())) {
+            log.info("Event {} already processed. Skipping.",
+                    event.getMessageId());
             return;
         }
         try {
-            notificationService.createNotification(event);
+            if (event.isShouldReceiveNotification()) {
+                notificationService.createHelloNotification(event);
+            }
 
             ProcessedEvent processedEvent =
-                    processedEventRepository.save(new ProcessedEvent(event.getUuid()));
+                    processedEventRepository.save(new ProcessedEvent(event.getMessageId(), Instant.now()));
 
         } catch (DataIntegrityViolationException e) {
-            // 4. Handle race conditions (If two threads process the same ID
-            // at once)
             log.warn("Duplicate event detected during save: {}",
-                    event.getUuid());
+                    event.getMessageId());
         }
     }
 }

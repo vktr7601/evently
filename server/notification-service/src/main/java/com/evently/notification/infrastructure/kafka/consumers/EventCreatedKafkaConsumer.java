@@ -1,8 +1,8 @@
 package com.evently.notification.infrastructure.kafka.consumers;
 
 import com.evently.notification.infrastructure.clients.UserServiceClient;
-import com.evently.notification.notificationContent.NotificationContent;
-import com.evently.notification.notificationContent.NotificationContentRepository;
+import com.evently.notification.notificationContent.model.NotificationContent;
+import com.evently.notification.notificationContent.repository.NotificationContentRepository;
 import com.evently.notification.notifications.model.Notification;
 import com.evently.notification.notifications.service.NotificationService;
 import constants.KafkaTopics;

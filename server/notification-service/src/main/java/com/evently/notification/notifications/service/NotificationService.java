@@ -1,8 +1,8 @@
 package com.evently.notification.notifications.service;
 
 import com.evently.notification.infrastructure.clients.UserServiceClient;
-import com.evently.notification.notificationContent.NotificationContent;
-import com.evently.notification.notificationContent.NotificationContentRepository;
+import com.evently.notification.notificationContent.model.NotificationContent;
+import com.evently.notification.notificationContent.repository.NotificationContentRepository;
 import com.evently.notification.notifications.dto.NotificationListItemDto;
 import com.evently.notification.notifications.model.Notification;
 import com.evently.notification.notifications.repository.NotificationRepository;
@@ -57,7 +57,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createNotification(EventLive eventAlive) {
+    public void createHelloNotification(EventLive eventAlive) {
         NotificationContent notificationContent = new NotificationContent();
         notificationContent.setTitle("Event created: $s".formatted(eventAlive.getEventName()));
         notificationContent.setHtmlBody("Some cool message");
@@ -79,8 +79,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createNotification(UserRegisteredEvent userRegisteredEvent) {
-
+    public void createHelloNotification(UserRegisteredEvent userRegisteredEvent) {
         NotificationContent notificationContent = new NotificationContent();
         notificationContent.setTitle("Welcome on board: %s".formatted(userRegisteredEvent.getFirstName() + " " + userRegisteredEvent.getLastName()));
         notificationContent.setHtmlBody("Welcome on board");
