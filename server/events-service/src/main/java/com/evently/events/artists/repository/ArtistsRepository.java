@@ -15,7 +15,7 @@ public interface ArtistsRepository extends JpaRepository<Artist, Long> {
     Optional<Artist> findByName(String name);
 
     @Query(value = """
-            SELECT  new com.evently.events.artists.entities.ArtistDetails(
+            SELECT  new com.evently.events.artists.dto.ArtistDetails(
                     a.id,
                     a.name,
                     a.bio,
@@ -27,7 +27,7 @@ public interface ArtistsRepository extends JpaRepository<Artist, Long> {
     Optional<ArtistDetails> findArtistDetails(long id);
 
     @Query(value = """
-            SELECT  new com.evently.events.artists.entities.ArtistListItem(
+            SELECT  new com.evently.events.artists.dto.ArtistListItem(
                     a.id,
                     a.name,
                     a.bio,

@@ -1,13 +1,13 @@
 package com.evently.events.artists.model;
 
-import com.evently.events.event.Event;
+import com.evently.events.event.model.Event;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import utils.BaseEntity;
+import persistence.BaseEntity;
 
 import java.util.List;
 

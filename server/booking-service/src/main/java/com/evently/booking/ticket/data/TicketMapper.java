@@ -1,26 +1,43 @@
 package com.evently.booking.ticket.data;
 
-import com.evently.booking.ticket.Ticket;
-import com.evently.booking.ticket.entities.TicketListItem;
-import events.eventCreated.TicketsCreationEvent;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import com.evently.booking.ticket.dto.TicketListItem;
+import com.evently.booking.ticket.model.Ticket;
+import com.evently.booking.ticket.model.TicketStatus;
+import events.ticket.TicketsCreationEvent;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface TicketMapper {
-    @Mapping(target = "eventLocationsId", source = "eventLocationId")
-    @Mapping(target = "price", source = "pricePerTicket")
-    @Mapping(target = "eventStartTime", source = "eventStartTime")
-    @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "number", ignore = true)
-    Ticket convert(TicketsCreationEvent dto);
+@Component
+public class TicketMapper {
+    public Ticket convert(TicketsCreationEvent dto) {
+        if (dto == null) {
+            return null;
+        }
 
-    @Mapping(target = "id", source = "ticket.id")
-    @Mapping(target = "number", source = "ticket.number")
-    @Mapping(target = "price", source = "ticket.price")
-    @Mapping(target = "eventStartTime", source = "ticket.eventStartTime")
-    @Mapping(target = "eventName", source = "eventName")
-    @Mapping(target = "eventLocationName", source = "locationName")
-    TicketListItem toListItem(Ticket ticket, String eventName, String locationName);
+        Ticket ticket = new Ticket();
+        ticket.setEventLocationsId(dto.getEventLocationId());
+        ticket.setPrice(dto.getPricePerTicket());
+        ticket.setEventStartTime(dto.getEventStartTime());
+        ticket.setOriginalEventStartTime(dto.getEventStartTime());
+        ticket.setUserId(null);
+        ticket.setStatus(TicketStatus.AVAILABLE);
+
+        return ticket;
+    }
+
+    public TicketListItem toListItem(Ticket ticket, String eventName,
+                                     String locationName) {
+        if (ticket == null) {
+            return null;
+        }
+
+        return new TicketListItem(
+                ticket.getId(),
+                ticket.getNumber(),
+                eventName,
+                locationName,
+                ticket.getStatus(),
+                ticket.getEventStartTime(),
+                ticket.getPrice()
+        );
+    }
 }

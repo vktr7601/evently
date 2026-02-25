@@ -1,8 +1,8 @@
 package com.evently.booking.infrastructure.kafka.consumer;
 
-import com.evently.booking.ticket.TicketService;
-import dtos.KafkaTopics;
-import events.eventCreated.EventCreated;
+import com.evently.booking.ticket.service.TicketService;
+import constants.KafkaTopics;
+import events.event.EventCreated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

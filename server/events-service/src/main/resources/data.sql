@@ -1,5 +1,5 @@
 -- 1. Clear existing data in correct order
-TRUNCATE TABLE events_categories, events_locations, events, artists, locations, categories CASCADE;
+-- TRUNCATE TABLE events_categories, events_locations, events, artists, locations, categories CASCADE;
 
 -- 2. Artists
 INSERT INTO artists (id, name, bio, image_url, updated_at, created_at)

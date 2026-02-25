@@ -1,8 +1,8 @@
 package com.evently.booking.order.data;
 
 import com.evently.booking.order.model.Order;
-import com.evently.booking.order.entities.OrderDetails;
-import com.evently.booking.ticket.entities.TicketListItem;
+import com.evently.booking.order.dto.OrderDetails;
+import com.evently.booking.ticket.dto.TicketListItem;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

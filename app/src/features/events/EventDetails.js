@@ -9,7 +9,7 @@ const EventDetails = () => {
     const [event, setEvent] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/events/${id}`)
+        axios.get(`http://localhost:9000/events/${id}`)
             .then(res => {
                 console.log("Fetched event details:", res.data);
                 setEvent(res.data);

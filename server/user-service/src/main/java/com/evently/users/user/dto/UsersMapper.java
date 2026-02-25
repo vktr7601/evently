@@ -2,7 +2,7 @@ package com.evently.users.user.dto;
 
 import com.evently.users.user.model.User;
 import com.evently.users.user.model.UserRole;
-import dtos.UserRegisteredEvent;
+import events.user.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

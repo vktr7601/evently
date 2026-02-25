@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -18,16 +19,20 @@ public class FollowLocationService {
     private final FollowLocationRepository locationToFollowRepository;
 
     @Transactional
-    public List<FollowLocation> addLocationsPreferences(User user,
-                                                        List<Long> preferences) {
+    public List<FollowLocation> followLocations(User user,
+                                                List<Long> locations) {
+
+        if (Objects.isNull(locations) || locations.isEmpty()) {
+            return Collections.emptyList();
+        }
         var x =
                 locationToFollowRepository.findAllByUserId(user.getId()).stream().map(FollowLocation::getLocationId).toList();
         locationToFollowRepository.deleteAllById(x);
 
-        if (preferences.isEmpty()) {
+        if (locations.isEmpty()) {
             return Collections.emptyList();
         }
-        List<FollowLocation> list = preferences.stream()
+        List<FollowLocation> list = locations.stream()
                 .map(prefId -> {
                     FollowLocation up = new FollowLocation();
                     up.setUser(user);

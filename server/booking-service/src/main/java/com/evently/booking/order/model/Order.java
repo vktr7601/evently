@@ -1,18 +1,18 @@
 package com.evently.booking.order.model;
 
-import com.evently.booking.ticket.Ticket;
+import com.evently.booking.ticket.model.Ticket;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import utils.BaseEntity;
-import utils.NumberGenerator;
+import persistence.BaseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Getter
@@ -32,7 +32,7 @@ public class Order extends BaseEntity {
     @Column(name = "expirationTime")
     private LocalDateTime expirationTime;
     @Column(name = "number")
-    private Long number;
+    private UUID number;
     @Column(name = "active")
     private boolean active;
     @Column(name = "audit")
@@ -56,6 +56,6 @@ public class Order extends BaseEntity {
     public void onCreate() {
         super.onCreate();
         expirationTime = LocalDateTime.now().plusMinutes(10);
-        number = NumberGenerator.generateUniqueNumber();
+        number = UUID.randomUUID();
     }
 }

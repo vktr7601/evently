@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres-microservices
+    container_name: evently-postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: adminPassword
@@ -10,70 +10,60 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 #    networks:
-#      - ticket-network
+#      - evently-network
+
+  #  eureka:
+  #    image: eureka
+  #    container_name: eureka-service
+  #    ports:
+  #      - "8761:8761"
+  #    networks:
+  #      - evently-network
+
+  # --- KAFKA & CONDUKTOR ---
+  kafka:
+    image: apache/kafka:latest
+    container_name: evently-message-broker
+    ports:
+      - "9092:9092"
+#  conduktor-console:
+#    image: conduktor/conduktor-console:latest
+#    container_name: conduktor-console
+#    ports:
+#      - "8081:8080" # Changed host port to 8081 because pgAdmin is using 8080
+#    environment:
+#      - CDK_DATABASE_URL=postgresql://conduktor:conduktor@postgres-conductor:5432/conduktor
+#      - CDK_DATABASE_PASSWORD=conduktor
+#      - KAFKA_BOOTSTRAP_SERVERS=message-broker:9092
+#      - CDK_ADMIN_EMAIL=admin@evently.com
+#      - CDK_ADMIN_PASSWORD=AdminPassword123!
+#    depends_on:
+#      - postgres-conductor
+#      - kafka
+#    networks:
+#      - evently-network
+
+#  postgres-conductor:
+#    image: postgres:14
+#    container_name: postgres-conductor
+#    environment:
+#      - POSTGRES_DB=conduktor
+#      - POSTGRES_USER=conduktor
+#      - POSTGRES_PASSWORD=conduktor
+#    networks:
+#      - evently-network
+
+  # --- OTHER SERVICES ---
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin-microservices
-    restart: always
+    container_name: postgres-UI
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: adminPassword
     ports:
-      - "8080:80"
-
-
-  eureka:
-    image: eureka
-    container_name: eureka-service
-    ports:
-      - "8761:8761"
-    networks:
-      - evently-network
-
-#  api-gateway:
-#    image: evently-gateway
-#    container_name: evently-api-gateway
-#    restart: on-failure
-#    ports:
-#      - "9000:9000"
-#    depends_on:
-#      - eureka
+      - "7654:80"
 #    networks:
-#      - ticket-network
-
-#  events-service:
-#    image: events-service
-#    container_name: events-service
-#    ports:
-#      - "8082:8082"
-#    environment:
-#      EUREKA_SERVER: http://eureka:8761/eureka/
-#      POSTGRES_USER: ${POSTGRES_USER}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#    depends_on:
-#      - eureka
-#      - postgres
-#      - kafka
-#    networks:
-#      - ticket-network
-
-#  front-end:
-#    image: react-app
-#    container_name: react-app-fronted
-#    ports:
-#      - "3000:3000"
-#    depends_on:
-#      - events-service
-#    networks:
-#      - ticket-network
-
-  kafka:
-    image: apache/kafka:latest
-    container_name: message-broker
-    ports:
-      - "9092:9092"
-#    networks:
-#      - ticket-network
+#      - evently-network
 
   redis:
     image: redis:latest
@@ -95,7 +85,18 @@ services:
       - redis
 #    networks:
 #      - evently-network
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "9876:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: message-broker:9092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+#    networks:
+#      - evently-network
 
-networks:
-  evently-network:
-    driver: bridge
+#networks:
+#  evently-network:
+#    driver: bridge

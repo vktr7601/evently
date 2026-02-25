@@ -8,7 +8,7 @@ import com.evently.users.user.dto.RegisterUser;
 import com.evently.users.user.dto.UsersMapper;
 import com.evently.users.user.model.User;
 import com.evently.users.user.repository.UserRepository;
-import dtos.UserRegisteredEvent;
+import events.user.UserRegisteredEvent;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +33,8 @@ public class UserService {
 
         User user = usersMapper.toUser(userRequest);
         userRepository.save(user);
-        categoryFollowService.addPreferences(user, userRequest.getCategories());
-        locationsToFollowService.addLocationsPreferences(user,
+        categoryFollowService.followCategories(user, userRequest.getCategories());
+        locationsToFollowService.followLocations(user,
                 userRequest.getLocations());
         log.info("User  {} has been registered successfully", user);
 

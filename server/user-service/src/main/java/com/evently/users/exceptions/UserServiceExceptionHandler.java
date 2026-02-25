@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import utils.ErrorResponse;
+import exceptions.EventlyErrorResponse;
 
 import java.time.LocalDateTime;
 
@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class UserServiceExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateEmail(
+    public ResponseEntity<EventlyErrorResponse> handleDuplicateEmail(
             DuplicateEmailException ex, HttpServletRequest request) {
 
-        ErrorResponse error = ErrorResponse.builder()
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
                 .status(HttpStatus.CONFLICT.value())
                 .message(ex.getMessage())
                 .errorCode("DUPLICATE_EMAIL")
@@ -29,10 +29,10 @@ public class UserServiceExceptionHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(
+    public ResponseEntity<EventlyErrorResponse> handleUserNotFound(
             UserNotFoundException ex, HttpServletRequest request) {
 
-        ErrorResponse error = ErrorResponse.builder()
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .message(ex.getMessage())
                 .errorCode("USER_NOT_FOUND")
@@ -44,10 +44,10 @@ public class UserServiceExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentials(
+    public ResponseEntity<EventlyErrorResponse> handleBadCredentials(
             BadCredentialsException ex, HttpServletRequest request) {
 
-        ErrorResponse error = ErrorResponse.builder()
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .message(ex.getMessage())
                 .errorCode("BAD_CREDENTIALS")

@@ -64,8 +64,8 @@ const Register = () => {
         const fetchMasterData = async () => {
             try {
                 const [locRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:8082/locations'),
-                    axios.get('http://localhost:8082/categories')
+                    axios.get('http://localhost:9000/locations'),
+                    axios.get('http://localhost:9000/categories')
                 ]);
                 setLocations(locRes.data);
                 setCategories(catRes.data);
@@ -121,7 +121,7 @@ const Register = () => {
             isSubscribedToNewsletter: formData.subscribeNewsletter
         };
         try {
-            const res = await axios.post('http://localhost:8085/user/register', payload);
+            const res = await axios.post('http://localhost:9000/user/register', payload);
             console.log("Registration successful:", res.data);
             setModal({
                 show: true,

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -18,12 +19,12 @@ public class FollowCategoryService {
     private final FollowCategoryRepository userPreferencesRepository;
 
     @Transactional
-    public List<FollowCategory> addPreferences(User user,
-                                               List<Long> preferences) {
-        if (preferences.isEmpty()) {
+    public List<FollowCategory> followCategories(User user,
+                                                 List<Long> categories) {
+        if (Objects.isNull(categories) || categories.isEmpty()) {
             return Collections.emptyList();
         }
-        List<FollowCategory> list = preferences.stream()
+        List<FollowCategory> list = categories.stream()
                 .map(prefId -> {
                     FollowCategory up = new FollowCategory();
                     up.setUser(user);

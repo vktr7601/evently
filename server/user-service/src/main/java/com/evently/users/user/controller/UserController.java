@@ -14,18 +14,11 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@CrossOrigin(
-        origins = "http://localhost:3000",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
-                RequestMethod.DELETE, RequestMethod.OPTIONS},
-        allowedHeaders = "*",
-        allowCredentials = "true"
-)
 public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> createUser(@Valid @RequestBody RegisterUser userRequest) {
+    public ResponseEntity<Map<String, String>> createUser( @RequestBody RegisterUser userRequest) {
         userService.createUser(userRequest);
 
         //if sucessfull we need to generate jwt token
@@ -33,9 +26,12 @@ public class UserController {
                 , "User registered successfully"));
     }
 
-    @GetMapping("/details")
+    @GetMapping("/profile")
     public ResponseEntity<UserDetailsDto> userDetails(@RequestHeader("X-User" +
             "-Id") Long userId) {
+        if(userId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
         return ResponseEntity.ok(null);
     }
 }

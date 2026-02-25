@@ -2,9 +2,8 @@ package com.evently.notification.notifications;
 
 import com.evently.notification.notificationContent.NotificationContent;
 import com.evently.notification.notificationContent.NotificationContentRepository;
-import events.eventCreated.EventCreated;
-import dtos.KafkaTopics;
-import dtos.UserRegisteredEvent;
+import events.event.EventCreated;
+import constants.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

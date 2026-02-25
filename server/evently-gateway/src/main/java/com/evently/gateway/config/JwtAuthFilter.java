@@ -6,20 +6,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jwt.JWTUtility;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import static com.evently.gateway.config.constants.Paths.PUBLIC_PATHS;
+
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private static final List<String> PUBLIC_PATHS = List.of(
-            "/user/login",
-            "/user/register"
-    );
-
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JWTUtility jwtUtility;
 
     public JwtAuthFilter(JWTUtility jwtUtility) {
@@ -27,7 +27,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
 
@@ -39,14 +40,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing or malformed Authorization header");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing " +
+                    "or malformed Authorization header");
             return;
         }
 
         String token = authHeader.substring(7);
 
         if (!jwtUtility.isTokenValid(token)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid " +
+                    "or expired token");
             return;
         }
 
@@ -55,10 +58,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicPath(String path) {
-        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+        return Arrays.stream(PUBLIC_PATHS)
+                .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
-    private HttpServletRequest withUserId(HttpServletRequest request, long userId) {
+
+//    @Override
+//    protected boolean shouldNotFilter(HttpServletRequest request) {
+//        String path = request.getRequestURI();
+//        return Arrays.stream(PUBLIC_PATHS)
+//                .anyMatch(pattern -> pathMatcher.match(pattern, path));
+//    }
+
+    private HttpServletRequest withUserId(HttpServletRequest request,
+                                          long userId) {
         String userIdValue = String.valueOf(userId);
         return new HttpServletRequestWrapper(request) {
             @Override
@@ -69,7 +82,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             @Override
             public Enumeration<String> getHeaders(String name) {
-                if ("X-User-Id".equalsIgnoreCase(name)) return Collections.enumeration(List.of(userIdValue));
+                if ("X-User-Id".equalsIgnoreCase(name))
+                    return Collections.enumeration(List.of(userIdValue));
                 return super.getHeaders(name);
             }
 
