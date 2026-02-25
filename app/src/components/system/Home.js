@@ -1,5 +1,5 @@
-import EventList from '../event/EventList'
-import Hero from './Hero';
+import EventList from '../../features/events/EventList'
+import Hero from '../layout/Hero';
 
 const Home = () => {
     return (

@@ -4,7 +4,7 @@ import com.evently.notification.notificationContent.NotificationContent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import utils.BaseEntity;
+import persistence.BaseEntity;
 
 @Entity
 @Getter

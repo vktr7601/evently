@@ -1,15 +1,15 @@
 //package com.evently.events.contollers;
 //
-//import com.evently.events.artists.Artist;
-//import com.evently.events.category.entities.CategoryDto;
-//import com.evently.events.event.EventService;
-//import com.evently.events.event.EventsController;
+//import com.evently.events.artists.model.Artist;
+//import com.evently.events.category.dto.CategoryDto;
+//import com.evently.events.event.service.EventService;
+//import com.evently.events.event.controller.EventsController;
 //import com.evently.events.event.entities.CreateEventRequest;
-//import com.evently.events.event.entities.EventDetailDto;
-//import com.evently.events.event.entities.EventListItemDto;
+//import com.evently.events.event.dto.EventDetailDto;
+//import com.evently.events.event.dto.EventListItemDto;
 //import com.evently.events.event.entities.UpdateEventRequest;
 //import com.evently.events.eventsLocations.entities.EventsLocationsDto;
-//import com.evently.events.eventsLocations.entities.EventsLocationsStatus;
+//import com.evently.events.eventsLocations.model.EventsLocationsStatus;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import exceptions.ResourceNotFoundException;
 //import org.junit.jupiter.api.Test;

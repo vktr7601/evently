@@ -1,0 +1,40 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: evently-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: events-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/events/**,/locations/**,/artists/**,/categories/**
+            - id: booking-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/create-tickets,/orders/**
+            - id: user-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/user/**,/auth/**
+            - id: notification-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/notifications/**
+            - id: payment-service
+              uri: http://localhost:8086
+              predicates:
+                - Path=/payments/**
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true

@@ -1,8 +1,8 @@
 package com.evently.booking.infrastructure.kafka.consumer;
 
-import com.evently.booking.ticket.TicketService;
-import dtos.KafkaTopics;
-import events.eventCreated.EventCreated;
+import com.evently.booking.ticket.service.TicketService;
+import events.event.EventCancelled;
+import constants.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,10 +15,9 @@ public class EventCancelledKafkaConsumer {
     private final TicketService ticketService;
 
     @KafkaListener(topics = KafkaTopics.EVENT_CANCELLED)
-    public void consumeMessage(EventCreated eventCreated) {
-        log.info("Received EVENT_CREATED for {} ticket creation events",
-                eventCreated.getTicketsCreationEvents().size());
-
-        ticketService.createTickets(eventCreated.getTicketsCreationEvents());
+    public void consumeMessage(EventCancelled eventCancelled) {
+        log.info("Received EVENT_CANCELLED event");
+       // ticketService.cancelTicketsForEvents(eventCancelled
+        // .getEventsLocationsIds());
     }
 }

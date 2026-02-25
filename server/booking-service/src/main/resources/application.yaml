@@ -1,19 +1,11 @@
 spring:
   application:
     name: booking-service
-  jackson:
-    serialization:
-      write-date-keys-as-timestamps: false
-  sql:
-    init:
-      mode: always
-  datasource:
-    url: jdbc:postgresql://localhost:5432/booking_db
-    username: admin
-    password: adminPassword
+  thymeleaf:
+    suffix: .html
+    mode: HTML
+    prefix: classpath:/templates/
   jpa:
-    hibernate:
-      ddl-auto: create-drop
     defer-datasource-initialization: true
     show-sql: true
     properties:
@@ -21,24 +13,79 @@ spring:
         format_sql: true
         highlight_sql: true
   kafka:
-    bootstrap-servers: localhost:9092
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: notification-group
+      group-id: booking-service-group
       auto-offset-reset: earliest
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"
+        spring.json.trusted.packages: "events.event"
+  eureka:
+    client:
+      register-with-eureka: true
+      fetch-registry: true
+    instance:
+      prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.springframework.orm: DEBUG
+    org.springframework.data: DEBUG
+    org.hibernate: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking_db
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  sql:
+    init:
+      mode: always
+  kafka:
+    bootstrap-servers: localhost:9092
 
 server:
   port: 8081
 
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      defaultZone: http://localhost:8761/eureka/
-#  instance:
-#    prefer-ip-address: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/booking_db
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  kafka:
+    bootstrap-servers: kafka:9092
+
+logging:
+  level:
+    org.springframework.web: WARN
+    org.springframework.jdbc: WARN
+    org.springframework.orm: WARN
+    org.springframework.data: WARN
+    org.hibernate: WARN
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/

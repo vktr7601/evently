@@ -20,16 +20,9 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.findAllByUserId(userId));
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<NotificationDto>> getUserNotification(@RequestHeader("Authorization") String authHeader) {
-//        System.out.println();
-//        String token = authHeader.replace("Bearer ", "");
-//        long l = jwtUtility.extractUserId(token);
-//        return ResponseEntity.ok(notificationService.findAllByUserId(l));
-//    }
-//
 //    @GetMapping("/{id}")
-//    public ResponseEntity<List<NotificationListItemDto>> getUserNotification(@PathVariable long id) {
+//    public ResponseEntity<List<NotificationListItemDto>>
+//    getUserNotification(@PathVariable long id) {
 //        return ResponseEntity.ok(notificationService.findAllByUserId(id));
 //    }
 

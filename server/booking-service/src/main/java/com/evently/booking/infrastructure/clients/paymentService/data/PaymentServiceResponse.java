@@ -19,4 +19,6 @@ public class PaymentServiceResponse implements Serializable {
     private boolean success;
     @JsonProperty("message")
     private String message;
+    @JsonProperty("receiptUrl")
+    private String receiptUrl;
 }

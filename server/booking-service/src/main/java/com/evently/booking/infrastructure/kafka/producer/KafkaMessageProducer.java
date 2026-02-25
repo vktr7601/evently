@@ -1,7 +1,7 @@
 package com.evently.booking.infrastructure.kafka.producer;
 
-import dtos.KafkaTopics;
-import dtos.TicketsCreated;
+import constants.KafkaTopics;
+import events.ticket.TicketsCreated;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
