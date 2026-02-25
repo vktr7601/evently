@@ -1,5 +1,6 @@
-package com.evently.users.user.dto;
+package com.evently.users.user.dto.mapper;
 
+import com.evently.users.user.dto.request.RegisterUser;
 import com.evently.users.user.model.User;
 import com.evently.users.user.model.UserRole;
 import events.user.UserRegisteredEvent;

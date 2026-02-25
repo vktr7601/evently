@@ -1,6 +1,6 @@
 package com.evently.users.user.controller;
 
-import com.evently.users.user.dto.RegisterUser;
+import com.evently.users.user.dto.request.RegisterUser;
 import com.evently.users.user.dto.UserDetailsDto;
 import com.evently.users.user.service.UserService;
 import lombok.RequiredArgsConstructor;

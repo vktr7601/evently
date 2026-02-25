@@ -25,7 +25,7 @@ public class AuthService {
         );
     }
 
-    private void validatePassword(String rawPassword, String encodedPassword) {
+    private void validatePassword(String rawPassword, String encodedPassword) throws BadCredentialsException {
         if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
             throw new BadCredentialsException();
         }

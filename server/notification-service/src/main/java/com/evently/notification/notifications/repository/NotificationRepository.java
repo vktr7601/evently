@@ -46,5 +46,5 @@ public interface NotificationRepository extends JpaRepository<Notification,
             SET n.isDeleted = true
             WHERE n.id = :notificationId
             """)
-    void deleteNotificationById(Long id);
+    void deleteNotificationById(@Param("notificationId") Long id);
 }
