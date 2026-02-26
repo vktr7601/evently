@@ -4,23 +4,23 @@ package com.evently.events.event.service;
 import com.evently.events.artists.model.Artist;
 import com.evently.events.artists.service.ArtistsService;
 import com.evently.events.category.dto.CategoryDto;
-import com.evently.events.event.dto.mapper.EventMapper;
-import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.EventDetailDto;
 import com.evently.events.event.dto.EventListItemDto;
+import com.evently.events.event.dto.mapper.EventMapper;
+import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.request.EventUpdateRequest;
 import com.evently.events.event.model.Event;
 import com.evently.events.event.repository.EventRepository;
-import com.evently.events.eventsCategories.service.EventsCategoriesService;
 import com.evently.events.eventsCategories.dto.EventCategoriesDto;
-import com.evently.events.infrastructure.clients.BookingServiceClient;
-import com.evently.events.eventsLocations.model.EventsLocations;
-import com.evently.events.eventsLocations.repository.EventsLocationsRepository;
-import com.evently.events.eventsLocations.service.EventsLocationsService;
+import com.evently.events.eventsCategories.service.EventsCategoriesService;
 import com.evently.events.eventsLocations.dto.request.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import com.evently.events.eventsLocations.model.EventsLocations;
 import com.evently.events.eventsLocations.model.EventsLocationsStatus;
+import com.evently.events.eventsLocations.repository.EventsLocationsRepository;
+import com.evently.events.eventsLocations.service.EventsLocationsService;
 import com.evently.events.eventsLocations.service.data.FetchMode;
+import com.evently.events.infrastructure.clients.BookingServiceClient;
 import events.event.*;
 import events.ticket.TicketsCreationEvent;
 import exceptions.DuplicateResourceException;
@@ -122,7 +122,6 @@ public class EventService {
         Artist artist = artistsService.findById(eventRequestDto.getArtistId());
 
         Event event = eventsMapper.toEntity(eventRequestDto, artist);
-
         eventRepository.save(event);
 
         List<CategoryDto> categories =
@@ -152,7 +151,8 @@ public class EventService {
 
     @Transactional
     @CachePut(cacheNames = "events.eventDetails", key = "#result.id")
-    public EventDetailDto updateEvent(Long id, EventUpdateRequest updateRequest) {
+    public EventDetailDto updateEvent(Long id,
+                                      EventUpdateRequest updateRequest) {
         // 1. Fetch current state
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not " +

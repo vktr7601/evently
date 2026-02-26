@@ -14,6 +14,7 @@ public class Paths {
             "/orders/**",
             "/user/**",
             "/follows/**",
+            "/tickets/**",
             "/bookings/**",
             "/payments/**",
             "/notifications/**"

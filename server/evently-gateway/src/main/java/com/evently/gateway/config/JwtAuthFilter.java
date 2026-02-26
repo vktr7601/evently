@@ -38,17 +38,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing or malformed Authorization header");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing " +
+                    "or malformed Authorization header");
             return;
         }
 
         String token = authHeader.substring(7);
+        if (!jwtUtility.isExpired(token)) {
+            //todo : throw an exception
+        }
         System.out.println("Request path: " + request.getRequestURI());
         System.out.println("Roles: " + jwtUtility.extractRoles(token));
         System.out.println("Matches ADMIN_PATHS: " + Arrays.stream(ADMIN_PATHS)
-                .anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI())));
+                .anyMatch(pattern -> pathMatcher.match(pattern,
+                        request.getRequestURI())));
         if (!jwtUtility.isTokenValid(token)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid " +
+                    "or expired token");
             return;
         }
 
@@ -68,9 +74,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void setSecurityContext(long userId, String role) {
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+        List<SimpleGrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority(role));
 
-        System.out.println("Setting authorities: " + authorities); // ← now prints correctly
+        System.out.println("Setting authorities: " + authorities); // ← now
+        // prints correctly
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(

@@ -26,5 +26,5 @@ public class Event extends BaseEntity {
     @JoinColumn(name = "artist_id", nullable = false)
     private Artist artist;
     @Column(name = "active")
-    private boolean isActive = false;
+    private boolean isActive = true;
 }

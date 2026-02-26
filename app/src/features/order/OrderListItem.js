@@ -28,7 +28,7 @@ const OrderListItem = ({ order }) => {
                     <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Amount</label>
                     <h4 className="fw-bold mb-0 text-success">
                         {order.orderStatus !== 'PENDING_PAYMENT' ? (
-                            `$${order.totalPrice.toFixed(2)}`
+                            `$${order.price.toFixed(2)}`
                         ) : (
                             <span className="text-muted fst-italic small">Calculated at checkout</span>
                         )}

@@ -3,17 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ErrorModal from '../../components/modals/ErrorModal';
 const EditEvent = () => {
-    const { id } = useParams(); // Get the event ID from the URL
+    const { id } = useParams();
     const navigate = useNavigate();
 
-// State for managing the modal
-    const [errorModal, setErrorModal] = useState({ 
-        show: false, 
-        title: '', 
-        messages: [] 
+    const [errorModal, setErrorModal] = useState({
+        show: false,
+        title: '',
+        messages: []
     });
 
-    // Helper to close the modal
     const closeErrorModal = () => setErrorModal(prev => ({ ...prev, show: false }));
     const [eventData, setEventData] = useState({
         eventName: '',
@@ -41,8 +39,8 @@ const EditEvent = () => {
         const fetchMasterData = async () => {
             try {
                 const [locRes, catRes] = await Promise.all([
-                    axios.get(`http://localhost:8082/locations`),
-                    axios.get(`http://localhost:8082/categories`)
+                    axios.get(`http://localhost:9000/locations`),
+                    axios.get(`http://localhost:9000/categories`)
                 ]);
                 setLocations(locRes.data);
                 setCategories(catRes.data);
@@ -56,7 +54,7 @@ const EditEvent = () => {
     // 2. Preload Existing Event Data
     useEffect(() => {
         if (id) {
-            axios.get(`http://localhost:8082/events/${id}`)
+            axios.get(`http://localhost:9000/events/${id}`)
                 .then(res => {
                     const data = res.data;
                     console.log(res.data);
