@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import MessageModal from '../../components/modals/MessageModal';
 import RegisterDataGenerator from '../../utils/RegisterDataGenerator';
+import axiosClient from '../../api/axiosClient';
 import Hero from '../../components/layout/Hero';
+import { ROUTES } from '../../constants/routes';
 
 const FormField = ({ label, children }) => (
     <div className="mb-3">
@@ -64,8 +65,8 @@ const Register = () => {
         const fetchMasterData = async () => {
             try {
                 const [locRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:9000/locations'),
-                    axios.get('http://localhost:9000/categories')
+                    axiosClient.get(`${ROUTES.LOCATIONS.BASE}`),
+                    axiosClient.get(`${ROUTES.CATEGORIES.BASE}`)
                 ]);
                 setLocations(locRes.data);
                 setCategories(catRes.data);
@@ -121,8 +122,7 @@ const Register = () => {
             isSubscribedToNewsletter: formData.subscribeNewsletter
         };
         try {
-            const res = await axios.post('http://localhost:9000/user/register', payload);
-            console.log("Registration successful:", res.data);
+            const res = await axiosClient.post(`${ROUTES.AUTH.USER_REGISTER}`, payload);
             setModal({
                 show: true,
                 title: 'Registration Successful',
@@ -168,7 +168,7 @@ const Register = () => {
                 messages={modal.messages}
                 type={modal.type}
                 onClose={() => {
-                    if (modal.type === 'success') navigate('/login');
+                    if (modal.type === 'success') navigate(ROUTES.AUTH.LOGIN);
                     setModal(prev => ({ ...prev, show: false }));
                 }}
             />

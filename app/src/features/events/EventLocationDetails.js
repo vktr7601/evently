@@ -56,7 +56,7 @@ const LocationDetails = () => {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity,
                     eventStartTime: occurrence.eventStartTime
-                },  {
+                }, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
                     }
@@ -158,21 +158,18 @@ const LocationDetails = () => {
                                 </div>
                             </div>
 
-                            {/* CTA Button */}
                             <div className="col-md-3 text-md-end">
-
                                 {showMaintenanceMode ? (
                                     <button
                                         disabled
                                         className="btn btn-danger rounded-pill px-5 py-2 shadow-sm"
                                         style={{
-                                            opacity: 1,           // Prevents the "faded" look
-                                            backgroundColor: '#dc3545', // Standard Bootstrap Red
+                                            opacity: 1,
+                                            backgroundColor: '#dc3545',
                                             borderColor: '#dc3545',
-                                            cursor: 'not-allowed' // Shows a "prohibited" icon on hover
+                                            cursor: 'not-allowed'
                                         }}
                                     >
-
                                         Temporarily Unavailable
                                     </button>
 

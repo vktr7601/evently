@@ -43,7 +43,7 @@ const Login = () => {
                 title="Your Gateway to"
                 highlight="Live Music."
                 subtitle={<>Welcome back to <span className="text-dark fw-medium">Evently</span>. Log in to manage your bookings and explore personalized recommendations.</>}
-                primaryAction={{ text: "Create Account", link: ROUTES.REGISTER.BASE }}
+                primaryAction={{ text: "Create Account", link: ROUTES.AUTH.REGISTER }}
                 secondaryAction={{ text: "Help Center", link: "/contact" }}
             />
 

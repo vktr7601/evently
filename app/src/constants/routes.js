@@ -9,6 +9,8 @@ export const ROUTES = {
   },
   ORDERS: {
     BASE: '/orders',
+    ORDERS_CONFIRM: '/orders/confirm',
+    ACTIVE: '/orders/active',
     ADMIN: '/admin/orders',
     CANCEL: '/orders/cancel',
   },
@@ -17,14 +19,20 @@ export const ROUTES = {
   }, 
   AUTH: {
     REGISTER: '/register',
+    USER_REGISTER: '/user/register',
     LOGIN: '/login',
     LOGOUT: '/logout',
-    PROFILE: '/profile',
+    PROFILE: '/user/profile',
   },
   LOCATIONS: {
     BASE: '/locations',
     ADMIN_CREATE: '/admin/location/create',
     DETAILS: (id) => `/locations/${id}`,
+  },
+  CATEGORIES: {
+    BASE: '/categories',
+    // ADMIN_CREATE: '/admin/category/create',
+    // DETAILS: (id) => `/categories/${id}`,
   },
   ARTISTS: {
     BASE: '/artists',
