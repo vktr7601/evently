@@ -5,7 +5,7 @@ import axiosClient from '../../api/axiosClient';
 import { ROUTES } from '../../constants/routes';
 
 const Profile = () => {
-    const [followedVenues, setFollowedVenues] = useState([]);
+    const [followedVenues, setFollowedLocations] = useState([]);
     const [recommendedEvents, setRecommendedEvents] = useState([]); 
     const [user, setUser] = useState({}); 
     useEffect(() => {
