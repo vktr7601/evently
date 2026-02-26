@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import static com.evently.gateway.config.constants.Paths.ADMIN_PATHS;
 import static com.evently.gateway.config.constants.Paths.PUBLIC_PATHS;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -44,14 +43,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        if (!jwtUtility.isExpired(token)) {
+        if (jwtUtility.isExpired(token)) {
             //todo : throw an exception
         }
-        System.out.println("Request path: " + request.getRequestURI());
-        System.out.println("Roles: " + jwtUtility.extractRoles(token));
-        System.out.println("Matches ADMIN_PATHS: " + Arrays.stream(ADMIN_PATHS)
-                .anyMatch(pattern -> pathMatcher.match(pattern,
-                        request.getRequestURI())));
+
         if (!jwtUtility.isTokenValid(token)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid " +
                     "or expired token");
@@ -76,9 +71,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private void setSecurityContext(long userId, String role) {
         List<SimpleGrantedAuthority> authorities =
                 List.of(new SimpleGrantedAuthority(role));
-
-        System.out.println("Setting authorities: " + authorities); // ← now
-        // prints correctly
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
