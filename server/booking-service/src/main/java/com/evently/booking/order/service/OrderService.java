@@ -273,14 +273,7 @@ public class OrderService {
         paymentRequest.setAmount(order.getTotalPrice());
         paymentRequest.setUserEmail(userEmail);
         paymentRequest.setUserId(userId);
-
-        try {
-            ResponseEntity<PaymentServiceResponse> response =
-                    paymentServiceClient.processPayment(paymentRequest);
-        } catch (Exception e) {
-            //todo: raise an exception when service is down
-            throw new RuntimeException(e);
-        }
+        
         ResponseEntity<PaymentServiceResponse> response =
                 paymentServiceClient.processPayment(paymentRequest);
         if (response.getBody().isSuccess()) {

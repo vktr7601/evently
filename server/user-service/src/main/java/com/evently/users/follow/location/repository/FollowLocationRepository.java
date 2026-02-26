@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface FollowLocationRepository extends JpaRepository<FollowLocation, Long> {
     @Query("SELECT fl.locationId FROM FollowLocation fl WHERE fl.user.id = " +
             ":userId")
-    List<Long> findAllByUserId(@Param(("userId")) Long userId);
+    List<Long> findAllByUserId(@Param("userId") Long userId);
 
     Optional<FollowLocation> findByUserIdAndLocationId(Long userId,
                                                        Long locationId);

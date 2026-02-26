@@ -4,6 +4,7 @@ import com.evently.users.user.dto.UserDetails;
 import com.evently.users.user.dto.UserPreferences;
 import com.evently.users.user.dto.request.RegisterUser;
 import com.evently.users.user.service.UserService;
+import constants.ApplicationHeaders;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserDetails> userDetails(@RequestHeader("X-User" +
-            "-Id") Long userId) {
+    public ResponseEntity<UserDetails> userDetails(@RequestHeader(ApplicationHeaders.USER_ID) Long userId) {
 
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -38,8 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/preferences")
-    public ResponseEntity<UserPreferences> getUserPreferences(@RequestHeader(
-            "X-User-Id") Long userId) {
+    public ResponseEntity<UserPreferences> getUserPreferences(@RequestHeader(ApplicationHeaders.USER_ID) Long userId) {
         UserPreferences userPreferences =
                 userService.getUserPreferences(userId);
 

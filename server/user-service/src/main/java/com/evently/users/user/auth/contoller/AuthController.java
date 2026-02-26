@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -27,7 +25,8 @@ public class AuthController {
         User user = userService.findByEmail(request.getEmail());
         String token = authService.generateToken(user,
                 request.getPassword());
-        user.setLastLoggedIn(LocalDateTime.now());
+        userService.updateLastLoginDate(user);
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwtToken(token);
         authResponse.setUserRole(user.getUserRole().toString());

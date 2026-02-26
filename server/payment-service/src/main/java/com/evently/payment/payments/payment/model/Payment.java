@@ -15,8 +15,8 @@ import java.math.BigDecimal;
 public class Payment extends BaseEntity {
     @Column(name = "user_id")
     private long userId;
-    @Column(name = "order_id")
-    private long orderId;
+    @Column(name = "order_number")
+    private String orderNumber;
     @Column(name = "amount")
     private BigDecimal amount;
     @Enumerated(EnumType.STRING)

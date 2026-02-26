@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,7 +32,6 @@ public class UserService {
     private final FollowArtistService followArtistService;
     private final UsersMapper usersMapper;
     private final ApplicationEventPublisher eventPublisher;
-    private final FollowLocationService locationsToFollowService;
 
     @Transactional
     public User createUser(RegisterUser userRequest) throws DuplicateEmailException {
@@ -42,7 +42,7 @@ public class UserService {
         userRepository.save(user);
         followCategoryService.followCategories(user,
                 userRequest.getCategories());
-        locationsToFollowService.followLocations(user,
+        followLocationService.followLocations(user,
                 userRequest.getLocations());
         log.info("User  {} has been registered successfully", user);
 
@@ -90,5 +90,11 @@ public class UserService {
         userDetails.setUserPreferences(userPreferences);
 
         return userDetails;
+    }
+
+    @Transactional
+    public void updateLastLoginDate(User user) {
+        user.setLastLoggedIn(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

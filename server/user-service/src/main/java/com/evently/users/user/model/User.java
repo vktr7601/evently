@@ -52,6 +52,6 @@ public class User extends BaseEntity {
     private List<FollowArtist> followArtistsList;
     @Column(name = "notifications_on")
     private boolean shouldReceiveNotification;
-    @Column(name = "lastLoggedIn")
+    @Column(name = "last_logged_in")
     private LocalDateTime lastLoggedIn;
 }

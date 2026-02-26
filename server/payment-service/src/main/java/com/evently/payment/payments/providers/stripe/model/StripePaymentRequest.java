@@ -18,5 +18,5 @@ public class StripePaymentRequest {
     @JsonProperty("userEmail")
     private String userEmail;
     @JsonProperty("userId")
-    private int userId;
+    private long userId;
 }

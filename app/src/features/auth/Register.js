@@ -122,9 +122,8 @@ const Register = () => {
             isSubscribedToNewsletter: formData.subscribeNewsletter
         };
 
-        console.log('[Registration Payload]', payload);
         try {
-            const res = await axiosClient.post(`${ROUTES.AUTH.USER_REGISTER}`, payload, {noAuth: true});
+            const res = await axiosClient.post(`${ROUTES.AUTH.USER_REGISTER}`, payload, { noAuth: true });
             setModal({
                 show: true,
                 title: 'Registration Successful',

@@ -274,10 +274,6 @@ public class EventService {
 
     }
 
-    public void generateUserFeed(){
-
-    }
-
     private void processAdditions(Event event,
                                   List<EventsLocationsData> data) throws DuplicateResourceException {
         List<EventsLocationsDto> created =

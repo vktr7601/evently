@@ -43,6 +43,7 @@ public class FollowLocationService {
         followLocationRepository.save(locationFollow);
     }
 
+    @Transactional
     public void unfollowLocation(long userId, long locationId) {
         FollowLocation followLocation =
                 followLocationRepository.findByUserIdAndLocationId(userId,
@@ -52,9 +53,9 @@ public class FollowLocationService {
         followLocationRepository.delete(followLocation);
     }
 
-    public boolean isFollowed(long userId, long artistId) {
-        return followLocationRepository.findByUserIdAndLocationId(artistId,
-                userId).isPresent();
+    public boolean isFollowed(long userId, long locationId) {
+        return followLocationRepository.findByUserIdAndLocationId(userId,
+                locationId).isPresent();
     }
 
     public List<Long> findAllByUserId(long userId) {
