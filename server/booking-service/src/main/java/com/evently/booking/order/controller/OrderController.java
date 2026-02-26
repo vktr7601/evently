@@ -53,8 +53,10 @@ public class OrderController {
 
 
     @PostMapping("/confirm")
-    public ResponseEntity<?> confirmPayment(@RequestHeader(ApplicationHeaders.USER_ID) Long userId, @RequestBody FinishOrderRequest finishOrderRequest) {
-        orderService.finishActiveUserOrder(userId, finishOrderRequest);
+    public ResponseEntity<?> confirmPayment(@RequestHeader(ApplicationHeaders.USER_ID) Long userId, @RequestHeader("X-User-Email") String userEmail, @RequestBody FinishOrderRequest finishOrderRequest) {
+        System.out.println(userEmail);
+        orderService.finishActiveUserOrder(userEmail, userId,
+                finishOrderRequest);
         return ResponseEntity.noContent().build();
     }
 

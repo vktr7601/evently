@@ -1,5 +1,6 @@
 package com.evently.users.user.dto.mapper;
 
+import com.evently.users.user.dto.UserDetails;
 import com.evently.users.user.dto.request.RegisterUser;
 import com.evently.users.user.model.User;
 import com.evently.users.user.model.UserRole;
@@ -21,8 +22,8 @@ public class UsersMapper {
         userRegisteredEvent.setFirstName(user.getFirstName());
         userRegisteredEvent.setLastName(user.getLastName());
         userRegisteredEvent.setUserId(user.getId());
-        if (Objects.isNull(user.getFollowCategoryList()) || user.getFollowCategoryList().isEmpty()) {
-            userRegisteredEvent.setFollowCategories(new ArrayList<>());
+        if (Objects.isNull(user.getFollowLocationList()) || user.getFollowLocationList().isEmpty()) {
+            userRegisteredEvent.setFollowLocations(new ArrayList<>());
         }
         if (Objects.isNull(user.getFollowCategoryList()) || user.getFollowCategoryList().isEmpty()) {
             userRegisteredEvent.setFollowCategories(new ArrayList<>());
@@ -30,6 +31,16 @@ public class UsersMapper {
 
         userRegisteredEvent.setShouldReceiveNotification(user.isShouldReceiveNotification());
         return userRegisteredEvent;
+    }
+
+
+    public UserDetails toUserDetails(User user) {
+        UserDetails userDetails = new UserDetails();
+        userDetails.setFirstName(user.getFirstName());
+        userDetails.setLastName(user.getLastName());
+        userDetails.setEmail(user.getEmail());
+        userDetails.setAge(user.getAge());
+        return userDetails;
     }
 
     public User toUser(RegisterUser userRequest) {

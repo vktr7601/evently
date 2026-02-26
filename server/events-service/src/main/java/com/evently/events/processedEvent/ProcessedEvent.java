@@ -1,11 +1,15 @@
-package com.evently.users.processedEvent;
+package com.evently.events.processedEvent;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProcessedEvent {
     @Id
     private String eventId;

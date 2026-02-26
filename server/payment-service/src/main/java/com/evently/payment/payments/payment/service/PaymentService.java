@@ -19,16 +19,16 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final List<PaymentProvider> paymentProviders;
 
-    public PaymentProcessingResult processPayment(Long userId,
+    public PaymentProcessingResult processPayment(
                                                   StripePaymentRequest paymentRequest) {
         PaymentProvider paymentProvider = paymentProviders.get(0);
 
         PaymentProcessingResult paymentProcessingResult =
-                paymentProvider.process(userId,
+                paymentProvider.process(
                         paymentRequest);
 
         Payment payment = new Payment();
-        payment.setUserId(userId);
+        payment.setUserId(paymentRequest.getUserId());
         payment.setOrderId(payment.getOrderId());
         payment.setAmount(payment.getAmount());
         payment.setTransactionId(paymentProcessingResult.getTransactionId());

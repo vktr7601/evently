@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const LocationDetails = () => {
     const { id } = useParams();
@@ -19,7 +21,7 @@ const LocationDetails = () => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:9000/events/${id}/location`);
+                const response = await axiosClient.get(`${ROUTES.EVENTS.EVENT_LOCATION(id)}`);
                 setOccurrence(response.data);
                 console.log("Fetched event location details:", response.data);
             } catch (err) {
@@ -39,27 +41,18 @@ const LocationDetails = () => {
 
         setError(null);
         try {
-            // 1. Check Availability
-            const availRes = await axios.get(`http://localhost:9000/tickets/availability`, {
+            await axiosClient.get(`${ROUTES.TICKETS.AVAILABILITY}`, {
                 params: {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity
-                },
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
                 }
             });
 
-
             try {
-                const orderRes = await axios.post("http://localhost:9000/orders", {
+                const orderRes = await axiosClient.post(`${ROUTES.ORDERS.BASE}`, {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity,
                     eventStartTime: occurrence.eventStartTime
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                    }
                 });
 
                 // 1. Validate the creation was successful (201 Created)

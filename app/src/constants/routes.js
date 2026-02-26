@@ -6,6 +6,10 @@ export const ROUTES = {
     ADMIN_EDIT: (id) => `/admin/events/${id}/edit`,
     DETAILS: (id) => `/events/${id}`,
     EVENT_LOCATIONS_DETAILS: (id) => `/event-details/${id}`,
+    EVENT_LOCATION: (id) => `/events/${id}/location`
+  },
+  TICKETS: {
+    AVAILABILITY: '/tickets/availability',
   },
   ORDERS: {
     BASE: '/orders',
@@ -13,6 +17,7 @@ export const ROUTES = {
     ACTIVE: '/orders/active',
     ADMIN: '/admin/orders',
     CANCEL: '/orders/cancel',
+    DETAILS: (number) => `/orders/details/${number}`,
   },
   NOTIFICATIONS:{
     BASE: '/notifications',
@@ -37,5 +42,7 @@ export const ROUTES = {
   ARTISTS: {
     BASE: '/artists',
     DETAILS: (id) => `/artists/${id}`,
+    FOLLOW: (id) => `/follows/artist/${id}`,
+    STATUS: (id) => `/follows/artist/${id}/status`,
   },
 };

@@ -16,29 +16,26 @@ import java.util.Objects;
 @Log4j2
 @RequiredArgsConstructor
 public class FollowCategoryService {
-    private final FollowCategoryRepository userPreferencesRepository;
+    private final FollowCategoryRepository followCategoryRepository;
 
     @Transactional
-    public List<FollowCategory> followCategories(User user,
-                                                 List<Long> categories) {
-        if (Objects.isNull(categories) || categories.isEmpty()) {
-            return Collections.emptyList();
+    public void followCategories(User user,
+                                 List<Long> categories) {
+        if (!Objects.isNull(categories) && !categories.isEmpty()) {
+            List<FollowCategory> list = categories.stream()
+                    .map(prefId -> {
+                        FollowCategory up = new FollowCategory();
+                        up.setUser(user);
+                        up.setCategoryId(prefId);
+                        return up;
+                    })
+                    .peek(up -> log.info("Mapped UserPreference: {} created",
+                            up))
+                    .toList();
+
+            List<FollowCategory> userPreferences =
+                    followCategoryRepository.saveAll(list);
         }
-        List<FollowCategory> list = categories.stream()
-                .map(prefId -> {
-                    FollowCategory up = new FollowCategory();
-                    up.setUser(user);
-                    up.setCategoryId(prefId);
-                    return up;
-                })
-                .peek(up -> log.info("Mapped UserPreference: {} created", up))
-                .toList();
-
-        List<FollowCategory> userPreferences =
-                userPreferencesRepository.saveAll(list);
-        log.info("Saved UserPreferences: {}", userPreferences);
-
-        return userPreferences;
     }
 
     public List<Long> getAllUsersWithPreferences(List<Long> preferences) {
@@ -46,6 +43,10 @@ public class FollowCategoryService {
             return Collections.emptyList();
         }
 
-        return userPreferencesRepository.findFollowersByCategories(preferences);
+        return followCategoryRepository.findFollowersByCategories(preferences);
+    }
+
+    public List<Long> findAllByUserId(Long userId) {
+        return followCategoryRepository.findAllByUserId(userId);
     }
 }

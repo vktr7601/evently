@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(name = "payment-service")
 public interface PaymentServiceClient {
-
     @PostMapping("/payments/process")
     ResponseEntity<PaymentServiceResponse> processPayment(PaymentRequest paymentServiceRequest);
 }

@@ -1,14 +1,11 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import OrderListItem from './OrderListItem';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
     useEffect(() => {
-        axios.get(`http://localhost:9000/orders`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-            }
-        })
+        axiosClient.get(ROUTES.ORDERS.BASE)
             .then(res => {
                 console.log("Fetched orders:", res.data);
                 setOrders(res.data);

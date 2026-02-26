@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const OrderDetails = () => {
     const { number } = useParams();
@@ -10,11 +12,8 @@ const OrderDetails = () => {
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
-                const res = await axios.get(`http://localhost:9000/orders/details/${number}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                    }
-                });
+
+                const res = await axiosClient.get(ROUTES.ORDERS.DETAILS(number));
                 console.log("Fetched order details:", res.data);
                 setOrder(res.data);
             } catch (err) {
@@ -43,11 +42,6 @@ const OrderDetails = () => {
                         <button onClick={handleRefundRequest} className="btn btn-success rounded-pill px-4 fw-bold">
                             Request Refund
                         </button>
-                        {/* {isEligibleForRefund && (
-                            <button onClick={handleRefundRequest} className="btn btn-warning rounded-pill px-4 fw-bold">
-                                Request Refund
-                            </button> */}
-                        )}
                     </div>
                 );
             case 'CANCELLED':

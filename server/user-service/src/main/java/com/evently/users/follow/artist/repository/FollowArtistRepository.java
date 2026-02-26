@@ -19,6 +19,12 @@ public interface FollowArtistRepository extends JpaRepository<FollowArtist,
             """)
     List<Long> findFollowersByArtist(@Param("ids") Long id);
 
+    @Query("""
+                SELECT fa.artistId
+                FROM FollowArtist fa
+                WHERE fa.user.id = :userId
+            """)
+    List<Long> findAllByUserId(@Param("userId") long userId);
 
     @Query("""
                 SELECT af

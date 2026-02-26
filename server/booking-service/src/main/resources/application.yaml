@@ -48,9 +48,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-  sql:
-    init:
-      mode: always
   kafka:
     bootstrap-servers: localhost:9092
 

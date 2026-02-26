@@ -4,5 +4,5 @@ import com.evently.payment.payments.providers.stripe.model.StripePaymentRequest;
 import com.evently.payment.payments.entities.PaymentProcessingResult;
 
 public interface PaymentProvider {
-    PaymentProcessingResult process(Long userId, StripePaymentRequest request);
+    PaymentProcessingResult process(StripePaymentRequest request);
 }

@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,36 +15,49 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class FollowLocationService {
-    private final FollowLocationRepository locationToFollowRepository;
+    private final FollowLocationRepository followLocationRepository;
 
     @Transactional
-    public List<FollowLocation> followLocations(User user,
-                                                List<Long> locations) {
+    public void followLocations(User user, List<Long> locations) {
+        if (!Objects.isNull(locations) && !locations.isEmpty()) {
+            List<Long> existingLocations =
+                    followLocationRepository.findAllByUserId(user.getId());
+            followLocationRepository.deleteAllById(existingLocations);
+            List<FollowLocation> list = locations.stream().map(prefId -> {
+                FollowLocation up = new FollowLocation();
+                up.setUser(user);
+                up.setLocationId(prefId);
+                return up;
+            }).peek(up -> log.info("Mapped UserPreference: {} created", up)).toList();
 
-        if (Objects.isNull(locations) || locations.isEmpty()) {
-            return Collections.emptyList();
+            followLocationRepository.saveAll(list);
         }
-        var x =
-                locationToFollowRepository.findAllByUserId(user.getId()).stream().map(FollowLocation::getLocationId).toList();
-        locationToFollowRepository.deleteAllById(x);
+    }
 
-        if (locations.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<FollowLocation> list = locations.stream()
-                .map(prefId -> {
-                    FollowLocation up = new FollowLocation();
-                    up.setUser(user);
-                    up.setLocationId(prefId);
-                    return up;
-                })
-                .peek(up -> log.info("Mapped UserPreference: {} created", up))
-                .toList();
+    @Transactional
+    public void followLocation(User user, long locationId) {
+        FollowLocation locationFollow = new FollowLocation();
+        locationFollow.setUser(user);
+        locationFollow.setLocationId(locationId);
 
-        List<FollowLocation> userPreferences =
-                locationToFollowRepository.saveAll(list);
-        log.info("Saved UserPreferences: {}", userPreferences);
+        followLocationRepository.save(locationFollow);
+    }
 
-        return userPreferences;
+    public void unfollowLocation(long userId, long locationId) {
+        FollowLocation followLocation =
+                followLocationRepository.findByUserIdAndLocationId(userId,
+                        locationId).orElseThrow(() -> new RuntimeException(
+                        "Follow location not found"));
+
+        followLocationRepository.delete(followLocation);
+    }
+
+    public boolean isFollowed(long userId, long artistId) {
+        return followLocationRepository.findByUserIdAndLocationId(artistId,
+                userId).isPresent();
+    }
+
+    public List<Long> findAllByUserId(long userId) {
+        return followLocationRepository.findAllByUserId(userId);
     }
 }

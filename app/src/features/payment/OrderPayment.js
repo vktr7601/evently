@@ -32,11 +32,7 @@ const OrderPayment = () => {
 
 
     useEffect(() => {
-        axiosClient.get(`${ROUTES.ORDERS.ACTIVE}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-            }
-        })
+        axiosClient.get(`${ROUTES.ORDERS.ACTIVE}`)
             .then(res => setOrder(res.data))
             .catch(err => {
                 if (err.response?.status === 404 || err.response?.status === 410) {
