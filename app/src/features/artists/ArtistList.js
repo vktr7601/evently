@@ -2,14 +2,15 @@
 import { useEffect, useState } from "react";
 import ArtistListItem from "./ArtistListItem";
 import Spinner from "../../components/layout/Spinner";
-import axios from "axios";
+import { ROUTES } from "../../constants/routes";
+import axiosClient from "../../api/axiosClient";
 
 const ArtistList = () => {
     const [artists, setArtists] = useState([]);
     const [isloading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://localhost:9000/artists`)
+        axiosClient.get(`${ROUTES.ARTISTS.BASE}`)
             .then(res => {
                 setArtists(res.data);
                 setIsLoading(false);
@@ -23,6 +24,7 @@ const ArtistList = () => {
     if (isloading) {
         return <Spinner message="Loading artists..." />;
     }
+
     return (
         <div className="container mt-4">
             <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">

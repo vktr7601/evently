@@ -19,7 +19,6 @@ const LocationDetails = () => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                // Fetching from your event location endpoint
                 const response = await axios.get(`http://localhost:9000/events/${id}/location`);
                 setOccurrence(response.data);
                 console.log("Fetched event location details:", response.data);
@@ -57,7 +56,7 @@ const LocationDetails = () => {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity,
                     eventStartTime: occurrence.eventStartTime
-                },  {
+                }, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
                     }
@@ -159,21 +158,18 @@ const LocationDetails = () => {
                                 </div>
                             </div>
 
-                            {/* CTA Button */}
                             <div className="col-md-3 text-md-end">
-
                                 {showMaintenanceMode ? (
                                     <button
                                         disabled
                                         className="btn btn-danger rounded-pill px-5 py-2 shadow-sm"
                                         style={{
-                                            opacity: 1,           // Prevents the "faded" look
-                                            backgroundColor: '#dc3545', // Standard Bootstrap Red
+                                            opacity: 1,
+                                            backgroundColor: '#dc3545',
                                             borderColor: '#dc3545',
-                                            cursor: 'not-allowed' // Shows a "prohibited" icon on hover
+                                            cursor: 'not-allowed'
                                         }}
                                     >
-
                                         Temporarily Unavailable
                                     </button>
 
@@ -191,7 +187,6 @@ const LocationDetails = () => {
                         </div>
                     </div>
 
-                    {/* Promo Code & Extra Info */}
                     <div className="row mt-5 g-4">
                         <div className="col-lg-8">
                             <h4 className="fw-bold mb-3">Venue Information</h4>

@@ -3,18 +3,16 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import AuthNavbar from './AuthNavbar';
 import AdminNavbar from './AdminNavbar';
+import { ROUTES } from '../../../constants/routes';
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const [isAuth] = useState(localStorage.getItem("jwtToken") ? true : false);
   const [userRole] = useState(localStorage.getItem("userRole") || "");
-
   const handleSignOut = () => {
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("userRole");
-    navigate("/login");
+    window.location.href = ROUTES.AUTH.LOGIN;
   };
-
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
       <div className="container">
@@ -30,27 +28,33 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-center">
             <li className="nav-item">
-              <NavLink to="/events" className="nav-link px-3">Events</NavLink>
+              <NavLink to={ROUTES.EVENTS.BASE} className="nav-link px-3">Events</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/artists" className="nav-link px-3">Artists</NavLink>
+              <NavLink to={ROUTES.ARTISTS.BASE} className="nav-link px-3">Artists</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/locations" className="nav-link px-3">Locations</NavLink>
+              <NavLink to={ROUTES.LOCATIONS.BASE} className="nav-link px-3">Locations</NavLink>
             </li>
-            {!isAuth && (
-              <li className="nav-item">
-                <Link to="/login" className="btn btn-primary rounded-pill px-4 text-white">
-                  Sign In
-                </Link>
-              </li>
-            )}
-
-            {isAuth && (
+            {isAuth && userRole === "USER" && (
               <AuthNavbar />
             )}
             {isAuth && userRole === "ADMIN" && (
               <AdminNavbar />
+            )}
+
+            {!isAuth ? (
+              <li className="nav-item">
+                <Link to={ROUTES.AUTH.LOGIN} className="btn btn-primary rounded-pill px-4 text-white">
+                  Sign In
+                </Link>
+              </li>
+            ) : (
+              <li className="nav-item">
+                <button onClick={handleSignOut} className="btn btn-outline-secondary rounded-pill px-4 ms-3">
+                  Sign Out
+                </button>
+              </li>
             )}
           </ul>
         </div>

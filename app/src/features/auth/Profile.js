@@ -1,22 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const Profile = () => {
-    // Данни за потребителя
-
-    const [followedVenues, setFollowedVenues] = useState([]); // Нова секция
-    const [recommendedEvents, setRecommendedEvents] = useState([]); // Базирани на интереси
-    const[user, setUser] = useState({}); // За данни от бекенда
+    const [followedVenues, setFollowedLocations] = useState([]);
+    const [recommendedEvents, setRecommendedEvents] = useState([]); 
+    const [user, setUser] = useState({}); 
     useEffect(() => {
-      
-       axios.get("http://localhost:9000/user/profile", {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`
-            }
-        })
+        axiosClient.get(`${ROUTES.AUTH.PROFILE}`)
             .then(res => {
-                // Update user state with fetched data
                 setUser(res.data);
             })
             .catch(err => console.error(err));
@@ -46,7 +40,7 @@ const Profile = () => {
 
                     {/* Дясна колона - Динамично съдържание */}
                     <div className="col-lg-8">
-                        
+
                         {/* СЕКЦИЯ: ЛЮБИМИ ЛОКАЦИИ */}
                         <div className="card border-0 shadow-sm p-4 mb-4">
                             <h5 className="fw-bold mb-3"><i className="bi bi-geo-alt-fill text-primary me-2"></i>Favorite Venues</h5>
@@ -69,7 +63,7 @@ const Profile = () => {
                                 <span><i className="bi bi-stars text-warning me-2"></i>Events For You</span>
                                 <Link to="/events" className="btn btn-sm btn-link text-decoration-none">View All</Link>
                             </h5>
-                            
+
                             <div className="list-group list-group-flush">
                                 {recommendedEvents.map(event => (
                                     <div key={event.id} className="list-group-item border-0 px-0 mb-3 transition-hover">

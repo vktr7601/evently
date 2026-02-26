@@ -1,7 +1,8 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import EventLocationListItem from '../events/EventLocationListItem';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const ArtistDetails = () => {
     const { id } = useParams();
@@ -10,54 +11,53 @@ const ArtistDetails = () => {
     const [isFollowed, setIsFollowed] = useState(false);
 
     useEffect(() => {
-    let isMounted = true; // Prevents updating state on unmounted component
-    const token = localStorage.getItem("jwtToken");
+        let isMounted = true; // Prevents updating state on unmounted component
+        const token = localStorage.getItem("jwtToken");
 
-    const fetchArtistData = async () => {
-        try {
-            // 1. Fetch Basic Artist Info
-            const artistRes = await axios.get(`http://localhost:9000/artists/${id}`);
-            if (isMounted) setArtist(artistRes.data);
+        const fetchArtistData = async () => {
+            try {
+                const artistRes = await axiosClient.get(`${ROUTES.ARTISTS.DETAILS(id)}`);
+                if (isMounted) setArtist(artistRes.data);
 
-            // 2. Fetch Status only if authenticated
-            if (isAuth && token) {
-                const statusRes = await axios.get(`http://localhost:9000/follows/artist/${id}/status`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (isMounted) setIsFollowed(statusRes.data.isFollowed);
+                // 2. Fetch Status only if authenticated
+                if (isAuth && token) {
+                    const statusRes = await axiosClient.get(`/follows/artist/${id}/status`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (isMounted) setIsFollowed(statusRes.data.isFollowed);
+                }
+            } catch (err) {
+                console.error("Error fetching artist details:", err);
             }
-        } catch (err) {
-            console.error("Error fetching artist details:", err);
-        }
-    };
+        };
 
-    fetchArtistData();
+        fetchArtistData();
 
-    return () => { isMounted = false; }; // Cleanup function
-}, [id, isAuth]);
+        return () => { isMounted = false; }; // Cleanup function
+    }, [id, isAuth]);
 
     const handleFollow = () => {
-        if(!isFollowed){
-            axios.post(`http://localhost:9000/follows/artist/${id}`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                }
-            })
-            .then(res => {
-                setIsFollowed(true);
-            })
-            .catch(err => console.error(err));
-        }else{
-            axios.delete(`http://localhost:9000/follows/artist/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                }
-            })
-            .then(res => {
-                setIsFollowed(false);
-            })
-            .catch(err => console.error(err));
-        }
+        // if (!isFollowed) {
+        //     axios.post(`http://localhost:9000/follows/artist/${id}`, {}, {
+        //         headers: {
+        //             'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+        //         }
+        //     })
+        //         .then(res => {
+        //             setIsFollowed(true);
+        //         })
+        //         .catch(err => console.error(err));
+        // } else {
+        //     axios.delete(`http://localhost:9000/follows/artist/${id}`, {
+        //         headers: {
+        //             'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+        //         }
+        //     })
+        //         .then(res => {
+        //             setIsFollowed(false);
+        //         })
+        //         .catch(err => console.error(err));
+        // }
 
         alert(`You are now following ${artist.name}!`);
     };
@@ -113,38 +113,38 @@ const ArtistDetails = () => {
                                     {isFollowed ? 'Following' : 'Follow'}
                                 </button>
                             )}
+                        </div>
                     </div>
                 </div>
-        </div>
             </section >
 
-    <section id="tour-dates" className="py-5">
-        <div className="container">
-            <div className="mb-4">
-                <h2 className="fw-bold h1">Upcoming Performances</h2>
-                <div className="bg-primary rounded mb-4" style={{ height: '4px', width: '60px' }}></div>
-            </div>
-
-            <div className="row mb-5">
-                {availableEvents.length > 0 ? (
-                    availableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)
-                ) : (
-                    <div className="col-12 text-center py-4 border rounded bg-light">
-                        <p className="text-muted mb-0">No tickets currently available.</p>
+            <section id="tour-dates" className="py-5">
+                <div className="container">
+                    <div className="mb-4">
+                        <h2 className="fw-bold h1">Upcoming Performances</h2>
+                        <div className="bg-primary rounded mb-4" style={{ height: '4px', width: '60px' }}></div>
                     </div>
-                )}
-            </div>
 
-            {unavailableEvents.length > 0 && (
-                <div className="mt-5">
-                    <h3 className="fw-bold text-muted mb-3">Past & Sold Out</h3>
-                    <div className="row">
-                        {unavailableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)}
+                    <div className="row mb-5">
+                        {availableEvents.length > 0 ? (
+                            availableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)
+                        ) : (
+                            <div className="col-12 text-center py-4 border rounded bg-light">
+                                <p className="text-muted mb-0">No tickets currently available.</p>
+                            </div>
+                        )}
                     </div>
+
+                    {unavailableEvents.length > 0 && (
+                        <div className="mt-5">
+                            <h3 className="fw-bold text-muted mb-3">Past & Sold Out</h3>
+                            <div className="row">
+                                {unavailableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)}
+                            </div>
+                        </div>
+                    )}
                 </div>
-            )}
-        </div>
-    </section>
+            </section>
         </div >
     );
 };

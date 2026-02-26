@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { ROUTES } from '../../constants/routes';
 
 const LocationDetails = () => {
     const { id } = useParams();
     const [venue, setVenue] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://localhost:9000/locations/${id}`)
+        axios.get(`${ROUTES.BASE_URL}/locations/${id}`)
             .then(res => {
                 setVenue(res.data);
             })

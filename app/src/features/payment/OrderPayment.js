@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ErrorModal from '../../components/modals/ErrorModal';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'; // Added these
-
+import { ROUTES } from '../../constants/routes';
+import axiosClient from '../../api/axiosClient';
 const CARD_ELEMENT_OPTIONS = {
     hidePostalCode: true,
     style: {
@@ -22,21 +23,16 @@ const OrderPayment = () => {
     const stripe = useStripe();
     const elements = useElements();
 
-    // State
     const [order, setOrder] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [promoCode, setPromoCode] = useState("");
     const [timeLeft, setTimeLeft] = useState("");
 
-    // UI Feedback State
     const [modal, setModal] = useState({ open: false, title: "", message: "" });
 
-    const userId = 1; // In production, get this from Auth context
-    const headers = useMemo(() => ({ "X-User-Id": userId }), [userId]);
 
-    // 1. Fetch Active Order
     useEffect(() => {
-        axios.get(`http://localhost:9000/orders/active`, {
+        axiosClient.get(`${ROUTES.ORDERS.ACTIVE}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
             }
@@ -47,9 +43,8 @@ const OrderPayment = () => {
                     navigate('/events');
                 }
             });
-    }, [navigate, headers]);
+    }, []);
 
-    // 2. Timer Logic
     const expiryDate = useMemo(() =>
         order?.expirationTime ? new Date(order.expirationTime) : null,
         [order]);
@@ -90,19 +85,11 @@ const OrderPayment = () => {
         }
 
         try {
-            const payload = {
+            await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
                 stripePaymentMethodId: paymentMethod.id,
                 promoCode: promoCode
-            };
-
-            console.log("Payment payload:", payload);
-            await axios.post(`http://localhost:9000/orders/confirm`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-                }
             });
-
-            navigate('/orders/success');
+            navigate(`${ROUTES.ORDERS.BASE}`);
         } catch (err) {
             console.log("Payment error:", err);
             const errorMsg = err.response?.data?.message || "Payment failed. Please try again.";
@@ -115,11 +102,7 @@ const OrderPayment = () => {
         if (!window.confirm("Are you sure? Your tickets will be released.")) return;
 
         try {
-            await axios.delete(`http://localhost:9000/orders/active`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-                }
-            });
+            await axiosClient.delete(`${ROUTES.ORDERS.ACTIVE}`);
             navigate("/events");
         } catch (err) {
             navigate("/events");
