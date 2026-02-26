@@ -21,6 +21,7 @@ import OrderPayment from './features/payment/OrderPayment';
 import Orders from './features/order/Orders';
 import OrderDetails from './features/order/OrderDetails';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { ROUTES } from './constants/routes';
 
 function App() {
   return (
@@ -30,7 +31,8 @@ function App() {
         <div className="row justify-content-center">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/events" element={<Events />} />
+            <Route path={ROUTES.EVENTS.BASE} element={<Events />} />
+            <Route path={ROUTES.EVENTS.ADMIN_CREATE} element={<CreateEvent />} />
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
@@ -43,7 +45,7 @@ function App() {
             <Route path="/events/:id/edit" element={<EditEvent />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={< Profile />} />
-            <Route path="/admin/events" element={<CreateEvent />} />
+            {/* <Route path="/admin/events" element={<CreateEvent />} /> */}
             <Route path="/events/details/:id" element={<EventDetails />} />
             <Route path='/event-details/:id' element={<EventLocationDetails />} />
             <Route path="/order/active" element={<OrderPayment />} />

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../../constants/routes';
 
 function Footer() {
     const currentYear = new Date().getFullYear();
@@ -7,7 +8,7 @@ function Footer() {
         <footer className="bg-white border-top pt-5 pb-4 mt-auto">
             <div className="container">
                 <div className="row gy-4">
-                    
+
                     <div className="col-12 col-md-4">
                         <div className="d-flex align-items-center mb-3">
                             <img
@@ -19,7 +20,7 @@ function Footer() {
                             <span className="fw-black fs-4 ms-2 text-dark tracking-tight">Evently</span>
                         </div>
                         <p className="text-muted small pe-lg-5" style={{ lineHeight: '1.7' }}>
-                            Discover and book unique local events across Bulgaria. 
+                            Discover and book unique local events across Bulgaria.
                             From jazz nights to art galleries, we bring the community together.
                         </p>
                     </div>
@@ -27,19 +28,18 @@ function Footer() {
                     <div className="col-6 col-md-2">
                         <h6 className="fw-bold text-uppercase mb-4 tracking-wider text-dark" style={{ fontSize: '0.75rem' }}>Platform</h6>
                         <ul className="list-unstyled footer-links">
-                            <li className="mb-2"><Link to="/events" className="text-muted small text-decoration-none hover-primary">Browse Events</Link></li>
-                            <li className="mb-2"><Link to="/artists" className="text-muted small text-decoration-none hover-primary">Browse Artists</Link></li>
-                            <li className="mb-2"><Link to="/locations" className="text-muted small text-decoration-none hover-primary">Browse Locations</Link></li>
+                            <li className="mb-2"><Link to={ROUTES.EVENTS.BASE} className="text-muted small text-decoration-none hover-primary">Browse Events</Link></li>
+                            <li className="mb-2"><Link to={ROUTES.ARTISTS.BASE} className="text-muted small text-decoration-none hover-primary">Browse Artists</Link></li>
+                            <li className="mb-2"><Link to={ROUTES.LOCATIONS.BASE} className="text-muted small text-decoration-none hover-primary">Browse Locations</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 3: Support */}
                     <div className="col-6 col-md-2">
                         <h6 className="fw-bold text-uppercase mb-4 tracking-wider text-dark" style={{ fontSize: '0.75rem' }}>Support</h6>
                         <ul className="list-unstyled footer-links">
                             <li className="mb-2"><Link to="/help" className="text-muted small text-decoration-none hover-primary">Help Center</Link></li>
                             <li className="mb-2"><Link to="/contact" className="text-muted small text-decoration-none hover-primary">Contact Us</Link></li>
-                            <li className="mb-2"><Link to="/login" className="text-muted small text-decoration-none hover-primary">Account</Link></li>
+                            <li className="mb-2"><Link to={ROUTES.AUTH.LOGIN} className="text-muted small text-decoration-none hover-primary">Account</Link></li>
                         </ul>
                     </div>
 

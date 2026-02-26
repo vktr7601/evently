@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from "react";
 import axios from "axios";
 import Hero from '../../components/layout/Hero';
+import { ROUTES } from '../../constants/routes';
+import axiosClient from '../../api/axiosClient';
 
 
 const Login = () => {
@@ -20,7 +22,7 @@ const Login = () => {
         setLoading(true);
         setError("");
         try {
-            const response = await axios.post("http://localhost:9000/auth/login", formData);
+            const response = await axiosClient.post("/auth/login", formData);
             const { jwtToken, userRole } = response.data;
             if (jwtToken) {
                 localStorage.setItem("jwtToken", jwtToken);
@@ -36,13 +38,12 @@ const Login = () => {
 
     return (
         <div className="bg-light min-vh-100">
-            {/* 1. The Real Hero - Exactly like your other pages */}
             <Hero
                 badge="🔐 Secure Access"
                 title="Your Gateway to"
                 highlight="Live Music."
                 subtitle={<>Welcome back to <span className="text-dark fw-medium">Evently</span>. Log in to manage your bookings and explore personalized recommendations.</>}
-                primaryAction={{ text: "Create Account", link: "/register" }}
+                primaryAction={{ text: "Create Account", link: ROUTES.REGISTER.BASE }}
                 secondaryAction={{ text: "Help Center", link: "/contact" }}
             />
 

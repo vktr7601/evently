@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../components/modals/ErrorModal';
 import LocationDataGenerator from '../../utils/LocationDataGenerator';
+import { ROUTES } from '../../constants/routes';
 
 const CreateLocation = () => {
     const [locationData, setLocationData] = useState({
@@ -20,7 +21,7 @@ const CreateLocation = () => {
     const [errorState, setErrorState] = useState({ show: false, title: '', messages: [] });
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/events`)
+        axios.get(`${ROUTES.BASE_URL}/events`)
             .then(res => setAvailableEvents(res.data))
             .catch(err => console.error("Fetch error:", err));
     }, []);
@@ -59,14 +60,14 @@ const CreateLocation = () => {
             form.append('description', locationData.description);
             if (image) form.append('image', image);
 
-            const locRes = await axios.post(`http://localhost:8082/locations`, form, {
+            const locRes = await axios.post(`${ROUTES.BASE_URL}/locations`, form, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             const newLocationId = locRes.data.id;
 
             // STEP 2: Create all event assignments
             const assignmentPromises = eventAssignments.map(assign =>
-                axios.post(`http://localhost:8082/events/${assign.eventId}/locations`, {
+                axios.post(`${ROUTES.BASE_URL}/events/${assign.eventId}/locations`, {
                     ...assign,
                     locationId: newLocationId
                 })

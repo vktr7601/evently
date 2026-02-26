@@ -1,28 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { ROUTES } from '../../constants/routes';
+import axiosClient from '../../api/axiosClient';
+import Spinner from '../../components/layout/Spinner';
 
 
 const EventDetails = () => {
     const [isAdmin] = useState(localStorage.getItem("userRole") === "ADMIN");
     const { id } = useParams();
     const [event, setEvent] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://localhost:9000/events/${id}`)
+        axiosClient.get(`${ROUTES.EVENTS.DETAILS(id)}`)
             .then(res => {
                 console.log("Fetched event details:", res.data);
                 setEvent(res.data);
+                setIsLoading(false);
             })
             .catch(err => {
                 console.error("Error fetching event:", err);
+                setIsLoading(false);
             });
     }, [id]);
+
     const renderBookingButton = (loc) => {
         switch (loc.eventsLocationsStatus) {
             case 'AVAILABLE':
                 return (
-                    <Link to={`/event-details/${loc.id}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
+                    <Link to={ROUTES.EVENTS.EVENT_LOCATIONS_DETAILS(loc.id)} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
                         Book Tickets
                     </Link>
                 );
@@ -47,11 +54,12 @@ const EventDetails = () => {
         }
     };
 
-    if (!event) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
+    if (isLoading) {
+        return <Spinner message="Loading event details..." />;
+    }
 
     return (
         <div className="bg-white min-vh-100">
-            {/* Hero Section: Event Info */}
             <section className="py-5 bg-light border-bottom">
                 <div className="container">
                     <div className="row align-items-center">
@@ -66,6 +74,7 @@ const EventDetails = () => {
                         <div className="col-lg-8 ps-lg-5">
                             <div className="d-flex flex-wrap gap-2 mb-3">
                                 {event.categories?.map(cat => (
+                                    //todo refactor add link to events?category=categirtyname
                                     <span key={cat.id} className="badge rounded-pill bg-primary-subtle text-primary px-3 py-2 text-uppercase fw-bold small">
                                         {cat.name}
                                     </span>
@@ -102,7 +111,6 @@ const EventDetails = () => {
                 </div>
             </section>
 
-            {/* Dates & Locations Section */}
             <section id="dates" className="py-5">
                 <div className="container">
                     <div className="mb-5">
@@ -126,7 +134,6 @@ const EventDetails = () => {
                                                 </small>
                                             </div>
 
-                                            {/* Venue Column */}
                                             <div className="col-md-5">
                                                 <h5 className="fw-bold mb-1">{loc.locationName}</h5>
                                                 <p className="text-primary mb-0 small text-uppercase fw-bold">
@@ -135,12 +142,10 @@ const EventDetails = () => {
                                                 </p>
                                             </div>
 
-                                            {/* Price Column */}
                                             <div className="col-md-2">
                                                 <span className="fs-5 fw-bold text-dark">€{loc.pricePerTicket.toFixed(2)}</span>
                                             </div>
 
-                                            {/* Action Column */}
                                             <div className="col-md-3 text-md-end mt-3 mt-md-0">
                                                 {renderBookingButton(loc)}
                                             </div>

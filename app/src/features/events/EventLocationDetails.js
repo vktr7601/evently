@@ -19,7 +19,6 @@ const LocationDetails = () => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                // Fetching from your event location endpoint
                 const response = await axios.get(`http://localhost:9000/events/${id}/location`);
                 setOccurrence(response.data);
                 console.log("Fetched event location details:", response.data);
@@ -191,7 +190,6 @@ const LocationDetails = () => {
                         </div>
                     </div>
 
-                    {/* Promo Code & Extra Info */}
                     <div className="row mt-5 g-4">
                         <div className="col-lg-8">
                             <h4 className="fw-bold mb-3">Venue Information</h4>
