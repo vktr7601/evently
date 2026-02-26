@@ -1,6 +1,7 @@
-package com.evently.notification.notifications;
+package com.evently.notification.notifications.repository;
 
-import com.evently.notification.notifications.entities.NotificationListItemDto;
+import com.evently.notification.notifications.dto.NotificationListItemDto;
+import com.evently.notification.notifications.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,7 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification,
         Long> {
     @Query("""
-            SELECT new com.evently.notification.notifications.entities.NotificationListItemDto(
+            SELECT new com.evently.notification.notifications.dto.NotificationListItemDto(
                 n.id,
                 nc.title,
                 nc.htmlBody,
@@ -45,5 +46,5 @@ public interface NotificationRepository extends JpaRepository<Notification,
             SET n.isDeleted = true
             WHERE n.id = :notificationId
             """)
-    void deleteNotificationById(Long id);
+    void deleteNotificationById(@Param("notificationId") Long id);
 }

@@ -15,7 +15,7 @@ public class EventCreatedKafkaConsumer {
     private final TicketService ticketService;
 
     @KafkaListener(topics = KafkaTopics.EVENT_CREATED)
-    public void consumeMessage(EventCreated eventCreated) {
+    public void onEventCreated(EventCreated eventCreated) {
         log.info("Received EVENT_CREATED for {} ticket creation events",
                 eventCreated.getTicketsCreationEvents().size());
 

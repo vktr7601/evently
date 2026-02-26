@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.time.Instant;
+import java.util.UUID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -18,6 +21,8 @@ public class KafkaMessageProducer {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendMessages(UserRegisteredEvent userRegisteredEvent) {
+        userRegisteredEvent.setMessageId(UUID.randomUUID().toString());
+        userRegisteredEvent.setOccurredAt(Instant.now());
         kafkaTemplate.send(KafkaTopics.USER_REGISTERED, userRegisteredEvent);
     }
 }

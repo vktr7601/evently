@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jwt.JWTUtility;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -30,12 +33,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String path = request.getRequestURI();
-
-        if (isPublicPath(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -46,6 +43,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        if (jwtUtility.isExpired(token)) {
+            //todo : throw an exception
+        }
 
         if (!jwtUtility.isTokenValid(token)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid " +
@@ -54,29 +54,42 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         long userId = jwtUtility.extractUserId(token);
-        filterChain.doFilter(withUserId(request, userId), response);
+        String role = jwtUtility.extractRoles(token).get(0);
+
+        setSecurityContext(userId, role);
+
+        filterChain.doFilter(withUserDetails(request, userId, role), response);
     }
 
-    private boolean isPublicPath(String path) {
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
         return Arrays.stream(PUBLIC_PATHS)
                 .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
+    private void setSecurityContext(long userId, String role) {
+        List<SimpleGrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority(role));
 
-//    @Override
-//    protected boolean shouldNotFilter(HttpServletRequest request) {
-//        String path = request.getRequestURI();
-//        return Arrays.stream(PUBLIC_PATHS)
-//                .anyMatch(pattern -> pathMatcher.match(pattern, path));
-//    }
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userId,
+                        null,
+                        authorities
+                );
 
-    private HttpServletRequest withUserId(HttpServletRequest request,
-                                          long userId) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private HttpServletRequest withUserDetails(HttpServletRequest request,
+                                               long userId, String role) {
         String userIdValue = String.valueOf(userId);
         return new HttpServletRequestWrapper(request) {
             @Override
             public String getHeader(String name) {
                 if ("X-User-Id".equalsIgnoreCase(name)) return userIdValue;
+                if ("X-User-Role".equalsIgnoreCase(name)) return role;
                 return super.getHeader(name);
             }
 
@@ -84,6 +97,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             public Enumeration<String> getHeaders(String name) {
                 if ("X-User-Id".equalsIgnoreCase(name))
                     return Collections.enumeration(List.of(userIdValue));
+                if ("X-User-Role".equalsIgnoreCase(name))
+                    return Collections.enumeration(List.of(role));
                 return super.getHeaders(name);
             }
 
@@ -91,6 +106,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             public Enumeration<String> getHeaderNames() {
                 List<String> names = Collections.list(super.getHeaderNames());
                 names.add("X-User-Id");
+                names.add("X-User-Role");
                 return Collections.enumeration(names);
             }
         };

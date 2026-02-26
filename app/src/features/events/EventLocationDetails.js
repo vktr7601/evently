@@ -8,6 +8,7 @@ const LocationDetails = () => {
 
     // State management aligned with EventDetails style
     const [occurrence, setOccurrence] = useState(null);
+    const [isAuth] = useState(localStorage.getItem("jwtToken") ? true : false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showMaintenanceMode, setShowMaintenanceMode] = useState(false);
@@ -19,7 +20,7 @@ const LocationDetails = () => {
         const fetchDetails = async () => {
             try {
                 // Fetching from your event location endpoint
-                const response = await axios.get(`http://localhost:8082/events/${id}/location`);
+                const response = await axios.get(`http://localhost:9000/events/${id}/location`);
                 setOccurrence(response.data);
                 console.log("Fetched event location details:", response.data);
             } catch (err) {
@@ -33,24 +34,33 @@ const LocationDetails = () => {
     }, [id]);
 
     const handleBooking = async () => {
+        if (!isAuth) {
+            alert("Please log in to book tickets.");
+        };
+
         setError(null);
         try {
             // 1. Check Availability
-            const availRes = await axios.get(`http://localhost:8081/tickets/availability`, {
+            const availRes = await axios.get(`http://localhost:9000/tickets/availability`, {
                 params: {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity
+                },
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
                 }
             });
 
 
             try {
-                const orderRes = await axios.post("http://localhost:8081/orders", {
+                const orderRes = await axios.post("http://localhost:9000/orders", {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity,
                     eventStartTime: occurrence.eventStartTime
-                }, {
-                    headers: { 'X-User-Id': 1 }
+                },  {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+                    }
                 });
 
                 // 1. Validate the creation was successful (201 Created)

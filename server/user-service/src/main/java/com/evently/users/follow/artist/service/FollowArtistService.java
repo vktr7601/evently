@@ -26,12 +26,17 @@ public class FollowArtistService {
         artistFollowRepository.save(artistFollow);
     }
 
-    public void unfollowArtist(Long userId, long artistId) {
+    public void unfollowArtist(long userId, long artistId) {
         FollowArtist followArtist =
-                artistFollowRepository.findByArtistIdAndUserId(userId, artistId)
-                        .orElseThrow(() -> new RuntimeException("You are not " +
-                                "following this artist"));
+                artistFollowRepository.findByArtistIdAndUserId(artistId,
+                        userId).orElseThrow(() -> new RuntimeException("You " +
+                        "are not " + "following this artist"));
 
         artistFollowRepository.delete(followArtist);
+    }
+
+    public boolean isFollowed(long userId, long artistId) {
+        return artistFollowRepository.findByArtistIdAndUserId(artistId,
+                userId).isPresent();
     }
 }

@@ -10,19 +10,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FollowArtistRepository extends JpaRepository<FollowArtist, Long> {
+public interface FollowArtistRepository extends JpaRepository<FollowArtist,
+        Long> {
     @Query(value = """
-            SELECT DISTINCT af.user.id
-            FROM FollowArtist af
-            WHERE af.artistId = :id
-        """)
+                SELECT DISTINCT af.user.id
+                FROM FollowArtist af
+                WHERE af.artistId = :id
+            """)
     List<Long> findFollowersByArtist(@Param("ids") Long id);
 
 
     @Query("""
-            SELECT af
-            FROM FollowArtist af
-            WHERE af.user.id = :userId AND af.artistId = :artistId
-        """)
-    Optional<FollowArtist> findByArtistIdAndUserId(@Param("userId") Long userId, @Param("artistId") Long artistId);
+                SELECT af
+                FROM FollowArtist af
+                WHERE af.user.id = :userId AND af.artistId = :artistId
+            """)
+    Optional<FollowArtist> findByArtistIdAndUserId(@Param("artistId") Long artistId, @Param("userId") Long userId);
 }

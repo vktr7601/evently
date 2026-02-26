@@ -1,5 +1,4 @@
-import Hero from "../../components/layout/Hero";
-import OrderList from "../../components/order/OrderList";
+import OrderList from "./OrderList";
 const Orders = () => {
     return (
         <div>

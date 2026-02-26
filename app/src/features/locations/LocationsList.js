@@ -7,7 +7,7 @@ const LocationsList = () => {
     const [location, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-        axios.get("http://localhost:8082/locations")
+        axios.get("http://localhost:9000/locations")
             .then(res => {
                 console.log(res.data);
                 setLocations(res.data);

@@ -1,21 +1,66 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import EventLocationListItem from '../events/EventLocationListItem';
 
 const ArtistDetails = () => {
     const { id } = useParams();
+    const [isAuth] = useState(localStorage.getItem("jwtToken") ? true : false);
     const [artist, setArtist] = useState(null);
+    const [isFollowed, setIsFollowed] = useState(false);
 
     useEffect(() => {
-        axios.get(`http://localhost:8082/artists/${id}`)
-            .then(res => {
-                setArtist(res.data);
+    let isMounted = true; // Prevents updating state on unmounted component
+    const token = localStorage.getItem("jwtToken");
+
+    const fetchArtistData = async () => {
+        try {
+            // 1. Fetch Basic Artist Info
+            const artistRes = await axios.get(`http://localhost:9000/artists/${id}`);
+            if (isMounted) setArtist(artistRes.data);
+
+            // 2. Fetch Status only if authenticated
+            if (isAuth && token) {
+                const statusRes = await axios.get(`http://localhost:9000/follows/artist/${id}/status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (isMounted) setIsFollowed(statusRes.data.isFollowed);
+            }
+        } catch (err) {
+            console.error("Error fetching artist details:", err);
+        }
+    };
+
+    fetchArtistData();
+
+    return () => { isMounted = false; }; // Cleanup function
+}, [id, isAuth]);
+
+    const handleFollow = () => {
+        if(!isFollowed){
+            axios.post(`http://localhost:9000/follows/artist/${id}`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+                }
             })
-            .catch(err => {
-                console.error(err);
-            });
-    }, [id]);
+            .then(res => {
+                setIsFollowed(true);
+            })
+            .catch(err => console.error(err));
+        }else{
+            axios.delete(`http://localhost:9000/follows/artist/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+                }
+            })
+            .then(res => {
+                setIsFollowed(false);
+            })
+            .catch(err => console.error(err));
+        }
+
+        alert(`You are now following ${artist.name}!`);
+    };
 
     if (!artist) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
     const availableEvents = artist.eventLocations.filter(loc => loc.eventsLocationsStatus === 'AVAILABLE');
@@ -60,39 +105,47 @@ const ArtistDetails = () => {
                                     Back to Events
                                 </Link>
                             </div>
-                        </div>
+                            {isAuth && (
+                                <button
+                                    className={`btn ${isFollowed ? 'btn-secondary' : 'btn-primary'} btn-lg rounded-pill px-5 mt-4`}
+                                    onClick={handleFollow}
+                                >
+                                    {isFollowed ? 'Following' : 'Follow'}
+                                </button>
+                            )}
                     </div>
                 </div>
-            </section>
+        </div>
+            </section >
 
-            <section id="tour-dates" className="py-5">
-                <div className="container">
-                <div className="mb-4">
-                    <h2 className="fw-bold h1">Upcoming Performances</h2>
-                    <div className="bg-primary rounded mb-4" style={{ height: '4px', width: '60px' }}></div>
-                </div>
+    <section id="tour-dates" className="py-5">
+        <div className="container">
+            <div className="mb-4">
+                <h2 className="fw-bold h1">Upcoming Performances</h2>
+                <div className="bg-primary rounded mb-4" style={{ height: '4px', width: '60px' }}></div>
+            </div>
 
-                <div className="row mb-5">
-                    {availableEvents.length > 0 ? (
-                        availableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)
-                    ) : (
-                        <div className="col-12 text-center py-4 border rounded bg-light">
-                            <p className="text-muted mb-0">No tickets currently available.</p>
-                        </div>
-                    )}
-                </div>
-
-                {unavailableEvents.length > 0 && (
-                    <div className="mt-5">
-                        <h3 className="fw-bold text-muted mb-3">Past & Sold Out</h3>
-                        <div className="row">
-                            {unavailableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)}
-                        </div>
+            <div className="row mb-5">
+                {availableEvents.length > 0 ? (
+                    availableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)
+                ) : (
+                    <div className="col-12 text-center py-4 border rounded bg-light">
+                        <p className="text-muted mb-0">No tickets currently available.</p>
                     </div>
                 )}
+            </div>
+
+            {unavailableEvents.length > 0 && (
+                <div className="mt-5">
+                    <h3 className="fw-bold text-muted mb-3">Past & Sold Out</h3>
+                    <div className="row">
+                        {unavailableEvents.map(loc => <EventLocationListItem key={loc.eventLocationId} loc={loc} />)}
+                    </div>
                 </div>
-            </section>
+            )}
         </div>
+    </section>
+        </div >
     );
 };
 

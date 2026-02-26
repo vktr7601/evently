@@ -1,12 +1,20 @@
 package com.evently.booking.order.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
-public class FinishOrderRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class FinishOrderRequest implements Serializable {
     @JsonProperty("stripePaymentMethodId")
     private String stripePaymentMethodId;
+    @JsonProperty("promoCode")
+    private String promoCode;
 }

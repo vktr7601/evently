@@ -1,6 +1,6 @@
-package com.evently.notification.notifications;
+package com.evently.notification.notifications.model;
 
-import com.evently.notification.notificationContent.NotificationContent;
+import com.evently.notification.notificationContent.model.NotificationContent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

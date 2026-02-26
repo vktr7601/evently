@@ -4,34 +4,21 @@ import axios from 'axios';
 
 const Profile = () => {
     // Данни за потребителя
-    const [user] = useState({
-        username: "JohnDoe",
-        email: "john.doe@example.com",
-        memberSince: "Jan 2024",
-        profileImg: "https://via.placeholder.com/150"
-    });
 
-    const [followedArtists, setFollowedArtists] = useState([]);
     const [followedVenues, setFollowedVenues] = useState([]); // Нова секция
     const [recommendedEvents, setRecommendedEvents] = useState([]); // Базирани на интереси
-
+    const[user, setUser] = useState({}); // За данни от бекенда
     useEffect(() => {
-        const userId = '1';
-        const headers = { 'X-User-Id': userId };
-
-        // 1. Вземи следвани артисти
-        axios.get(`http://localhost:8080/api/v1/artist-follows/my-follows`, { headers })
-            .then(res => setFollowedArtists(res.data))
-            .catch(err => console.error(err));
-
-        // 2. Вземи следвани локации (Venues)
-        axios.get(`http://localhost:8080/api/v1/venue-follows/my-follows`, { headers })
-            .then(res => setFollowedVenues(res.data))
-            .catch(err => console.error(err));
-
-        // 3. Вземи събития според харесани категории (Микросървисна логика)
-        axios.get(`http://localhost:8081/api/v1/events/recommendations`, { headers })
-            .then(res => setRecommendedEvents(res.data))
+      
+       axios.get("http://localhost:9000/user/profile", {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`
+            }
+        })
+            .then(res => {
+                // Update user state with fetched data
+                setUser(res.data);
+            })
             .catch(err => console.error(err));
     }, []);
 

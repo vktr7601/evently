@@ -1,7 +1,7 @@
 package com.evently.events.event.controller;
 
-import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.EventDetailDto;
+import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.request.EventUpdateRequest;
 import com.evently.events.event.service.EventService;
 import jakarta.validation.Valid;

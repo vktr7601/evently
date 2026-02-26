@@ -1,4 +1,4 @@
-package com.evently.notification.notificationContent;
+package com.evently.notification.notificationContent.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +14,6 @@ import persistence.BaseEntity;
 public class NotificationContent extends BaseEntity {
     @Column(name = "title", length = 2048)
     private String title;
-
     @Column(name = "html_body", length = 2048)
     private String htmlBody;
 }

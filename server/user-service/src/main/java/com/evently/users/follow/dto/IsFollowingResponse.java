@@ -1,4 +1,4 @@
-package com.evently.users.user.dto;
+package com.evently.users.follow.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -12,10 +12,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsDto implements Serializable {
-    @JsonProperty("firstName")
-    private String firstName;
-    @JsonProperty("lastName")
-    private String lastName;
-
+public class IsFollowingResponse implements Serializable {
+    @JsonProperty("isFollowed")
+    private boolean followed;
 }

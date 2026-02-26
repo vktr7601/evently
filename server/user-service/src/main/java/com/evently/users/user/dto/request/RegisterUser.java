@@ -1,4 +1,4 @@
-package com.evently.users.user.dto;
+package com.evently.users.user.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;

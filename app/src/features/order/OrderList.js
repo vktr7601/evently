@@ -4,8 +4,11 @@ import OrderListItem from './OrderListItem';
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
     useEffect(() => {
-        const headers = { "X-User-Id": 1 };
-        axios.get(`http://localhost:8081/orders`, { headers })
+        axios.get(`http://localhost:9000/orders`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+            }
+        })
             .then(res => {
                 console.log("Fetched orders:", res.data);
                 setOrders(res.data);

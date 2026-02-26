@@ -127,7 +127,7 @@ public class OrderService {
                     ticket.setOrder(null);
                 }
             }
-
+            //todo: raise an event that order is cancelled or expired
             orderRepository.save(order);
         }
     }

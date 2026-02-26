@@ -13,7 +13,7 @@ eureka:
 spring:
   config:
     activate:
-      on-profile: development
+      on-profile: dev
 server:
   port: 8084
 

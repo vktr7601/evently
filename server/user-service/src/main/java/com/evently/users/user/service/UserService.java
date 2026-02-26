@@ -4,8 +4,8 @@ import com.evently.users.exceptions.DuplicateEmailException;
 import com.evently.users.exceptions.UserNotFoundException;
 import com.evently.users.follow.category.service.FollowCategoryService;
 import com.evently.users.follow.location.service.FollowLocationService;
-import com.evently.users.user.dto.RegisterUser;
-import com.evently.users.user.dto.UsersMapper;
+import com.evently.users.user.dto.mapper.UsersMapper;
+import com.evently.users.user.dto.request.RegisterUser;
 import com.evently.users.user.model.User;
 import com.evently.users.user.repository.UserRepository;
 import events.user.UserRegisteredEvent;
@@ -33,7 +33,8 @@ public class UserService {
 
         User user = usersMapper.toUser(userRequest);
         userRepository.save(user);
-        categoryFollowService.followCategories(user, userRequest.getCategories());
+        categoryFollowService.followCategories(user,
+                userRequest.getCategories());
         locationsToFollowService.followLocations(user,
                 userRequest.getLocations());
         log.info("User  {} has been registered successfully", user);

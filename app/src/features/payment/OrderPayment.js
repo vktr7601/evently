@@ -27,7 +27,7 @@ const OrderPayment = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [promoCode, setPromoCode] = useState("");
     const [timeLeft, setTimeLeft] = useState("");
-    
+
     // UI Feedback State
     const [modal, setModal] = useState({ open: false, title: "", message: "" });
 
@@ -36,7 +36,11 @@ const OrderPayment = () => {
 
     // 1. Fetch Active Order
     useEffect(() => {
-        axios.get(`http://localhost:8081/orders/active`, { headers })
+        axios.get(`http://localhost:9000/orders/active`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
+            }
+        })
             .then(res => setOrder(res.data))
             .catch(err => {
                 if (err.response?.status === 404 || err.response?.status === 410) {
@@ -46,9 +50,9 @@ const OrderPayment = () => {
     }, [navigate, headers]);
 
     // 2. Timer Logic
-    const expiryDate = useMemo(() => 
-        order?.expirationTime ? new Date(order.expirationTime) : null, 
-    [order]);
+    const expiryDate = useMemo(() =>
+        order?.expirationTime ? new Date(order.expirationTime) : null,
+        [order]);
 
     useEffect(() => {
         if (!expiryDate) return;
@@ -86,13 +90,21 @@ const OrderPayment = () => {
         }
 
         try {
-            await axios.post(`http://localhost:8081/orders/confirm`, {
+            const payload = {
                 stripePaymentMethodId: paymentMethod.id,
                 promoCode: promoCode
-            }, { headers });
-            
+            };
+
+            console.log("Payment payload:", payload);
+            await axios.post(`http://localhost:9000/orders/confirm`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
+                }
+            });
+
             navigate('/orders/success');
         } catch (err) {
+            console.log("Payment error:", err);
             const errorMsg = err.response?.data?.message || "Payment failed. Please try again.";
             setModal({ open: true, title: "Transaction Failed", message: errorMsg });
             setIsProcessing(false);
@@ -101,9 +113,13 @@ const OrderPayment = () => {
 
     const handleCancel = async () => {
         if (!window.confirm("Are you sure? Your tickets will be released.")) return;
-        
+
         try {
-            await axios.delete(`http://localhost:8081/orders/active`, { headers });
+            await axios.delete(`http://localhost:9000/orders/active`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
+                }
+            });
             navigate("/events");
         } catch (err) {
             navigate("/events");
@@ -189,13 +205,13 @@ const OrderPayment = () => {
 
                         <div style={styles.buttonGroup}>
                             <button
-                                style={{...styles.payButton, opacity: isProcessing ? 0.7 : 1}}
+                                style={{ ...styles.payButton, opacity: isProcessing ? 0.7 : 1 }}
                                 onClick={handlePayment}
                                 disabled={isProcessing || !stripe}
                             >
                                 {isProcessing ? "Processing..." : "Confirm & Pay"}
                             </button>
-                            
+
                             <button
                                 style={styles.cancelButton}
                                 onClick={handleCancel}
@@ -279,17 +295,17 @@ const styles = {
         fontSize: '12px',
         color: '#94a3b8',
     },
-    cancelButton: { 
-    width: '100%', 
-    backgroundColor: 'transparent', 
-    color: '#64748b', // Subtle gray
-    border: 'none', 
-    padding: '10px', 
-    fontSize: '14px', 
-    fontWeight: '600',
-    textDecoration: 'underline',
-    cursor: 'pointer'
-}
+    cancelButton: {
+        width: '100%',
+        backgroundColor: 'transparent',
+        color: '#64748b', // Subtle gray
+        border: 'none',
+        padding: '10px',
+        fontSize: '14px',
+        fontWeight: '600',
+        textDecoration: 'underline',
+        cursor: 'pointer'
+    }
 };
 
 

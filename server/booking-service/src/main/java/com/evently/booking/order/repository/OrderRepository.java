@@ -33,6 +33,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                o.createdAt
             ) FROM Order o
             WHERE o.userId = :userId
+            ORDER BY o.createdAt
             """)
     List<OrderListItemDto> getUserOrders(Long userId);
 
