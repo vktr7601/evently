@@ -22,6 +22,8 @@ import Orders from './features/order/Orders';
 import OrderDetails from './features/order/OrderDetails';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ROUTES } from './constants/routes';
+import Tickets from './features/ticket/Tickets';
+import CreateLocation from './features/locations/CreateLocation';
 
 function App() {
   return (
@@ -39,17 +41,17 @@ function App() {
             <Route path={ROUTES.LOCATIONS.BASE} element={<Locations />} />
             <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
             <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
-            <Route path={ROUTES.LOCATIONS.DETAILS(':id')} element={<LocationDetails />} />
             <Route path={ROUTES.ARTISTS.BASE} element={<Artists />} />
             <Route path={ROUTES.ARTISTS.DETAILS(':id')} element={<ArtistDetails />} />
-            <Route path="/events/:id/edit" element={<EditEvent />} />
+            <Route path={ROUTES.EVENTS.ADMIN_EDIT(':id')} element={<EditEvent />} />
             <Route path={ROUTES.NOTIFICATIONS.BASE} element={<Notifications />} />
             <Route path={ROUTES.AUTH.PROFILE} element={<Profile />} />
-            <Route path="/events/details/:id" element={<EventDetails />} />
-            <Route path='/event-details/:id' element={<EventLocationDetails />} />
             <Route path={ROUTES.ORDERS.ACTIVE} element={<OrderPayment />} />
             <Route path={ROUTES.ORDERS.BASE} element={<Orders />} />
             <Route path={ROUTES.ORDERS.DETAILS(':number')} element={<OrderDetails />} />
+            <Route path={ROUTES.TICKETS.USER} element={<Tickets />} />
+            <Route path={ROUTES.LOCATIONS.DETAILS(':id')} element={<LocationDetails />} />
+            <Route path={ROUTES.LOCATIONS.ADMIN_CREATE} element={<CreateLocation />} />
             {/* <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />
@@ -59,7 +61,7 @@ function App() {
             <Route path='/event-details/:id' element={<EventLocationDetails />} />
 
             <Route path="/admin/event-management/:id" element={<EditEvent />} />
-            <Route path="/admin/location/create" element={<CreateLocation />} /> */} 
+            <Route path="/admin/location/create" element={<CreateLocation />} /> */}
           </Routes>
         </div>
       </main>

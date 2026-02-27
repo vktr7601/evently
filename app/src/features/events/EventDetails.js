@@ -74,7 +74,6 @@ const EventDetails = () => {
                         <div className="col-lg-8 ps-lg-5">
                             <div className="d-flex flex-wrap gap-2 mb-3">
                                 {event.categories?.map(cat => (
-                                    //todo refactor add link to events?category=categirtyname
                                     <span key={cat.id} className="badge rounded-pill bg-primary-subtle text-primary px-3 py-2 text-uppercase fw-bold small">
                                         {cat.name}
                                     </span>
@@ -101,7 +100,7 @@ const EventDetails = () => {
                                     View Calendar
                                 </a>
                                 {isAdmin && (
-                                    <Link to={`/events/${event.id}/edit`} className="btn btn-outline-primary btn-lg rounded-pill px-5">
+                                    <Link to={ROUTES.EVENTS.ADMIN_EDIT(id)} className="btn btn-outline-primary btn-lg rounded-pill px-5">
                                         Edit Event
                                     </Link>
                                 )}

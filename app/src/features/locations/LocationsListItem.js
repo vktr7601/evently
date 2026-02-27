@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ROUTES } from "../../constants/routes";
 
 const LocationsListItem = ({ location }) => {
     return (
@@ -11,10 +12,8 @@ const LocationsListItem = ({ location }) => {
             />
 
             <div className="card-body d-flex flex-column p-4">
-                {/* Title matches Artist/Event scale */}
                 <h5 className="card-title fw-bold mb-1">{location.name}</h5>
 
-                {/* Standardized Bio/Description clamping */}
                 <p className="text-secondary small mb-3" style={{
                     display: '-webkit-box',
                     WebkitLineClamp: '2',
@@ -25,10 +24,9 @@ const LocationsListItem = ({ location }) => {
                     {location.description}
                 </p>
 
-                {/* Footer Section - Standardized Divider and Spacing */}
                 <div className="mt-auto pt-3 border-top d-flex align-items-center justify-content-between">
                     <Link
-                        to={`/locations/${location.id}`}
+                        to={ROUTES.LOCATIONS.DETAILS(location.id)}
                         className="btn btn-sm btn-primary rounded-pill px-4 shadow-sm"
                     >
                         Explore Events

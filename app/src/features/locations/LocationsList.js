@@ -2,35 +2,33 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import LocationsListItem from './LocationsListItem';
 import Spinner from '../../components/layout/Spinner';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const LocationsList = () => {
-    const [location, setLocations] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [locations, setLocations] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-        axios.get("http://localhost:9000/locations")
+        axiosClient.get(ROUTES.LOCATIONS.BASE)
             .then(res => {
                 console.log(res.data);
                 setLocations(res.data);
-                setLoading(false);
+                setIsLoading(false);
             })
             .catch(err => {
                 console.error(err);
-                setLoading(false);
+                setIsLoading(false);
             });
     }, []);
 
-    if (loading) {
+    if (isLoading) {
         return <Spinner message="Loading locations..." />;
     }
 
     return (
         <div className="container mt-4">
-            <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-                <h2 className="fw-bold text-dark mb-0">Upcoming Events</h2>
-            </div>
-
             <div className="row">
-                {location.map(loc => (
+                {locations.map(loc => (
                     <div key={loc.id} className="col-12 col-md-6 col-lg-4 mb-4">
                         <LocationsListItem location={loc} />
                     </div>

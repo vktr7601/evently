@@ -14,8 +14,8 @@ import java.util.List;
  * locations.
  */
 @Getter
-@Setter(AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class LocationDetails implements Serializable {
     @JsonProperty("id")

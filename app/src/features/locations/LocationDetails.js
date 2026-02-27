@@ -2,33 +2,39 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ROUTES } from '../../constants/routes';
-
+import axiosClient from '../../api/axiosClient';
+import Spinner from '../../components/layout/Spinner';
+import EventLocationListItem from '../events/EventLocationListItem';
 const LocationDetails = () => {
     const { id } = useParams();
-    const [venue, setVenue] = useState(null);
+    const [locations, setLocations] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        axios.get(`${ROUTES.BASE_URL}/locations/${id}`)
+        axiosClient.get(`${ROUTES.LOCATIONS.DETAILS(id)}`, { noAuth: true })
             .then(res => {
-                setVenue(res.data);
+                console.log('Fetched Location Details:', res.data);
+                setLocations(res.data);
+                setIsLoading(false);
             })
             .catch(err => {
-                console.error("Error fetching location:", err);
+                setIsLoading(false);
             });
     }, [id]);
 
-    if (!venue) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;
+    if (isLoading) {
+        return <Spinner message="Loading locations..." />;
+    }
 
     return (
         <div className="bg-white min-vh-100">
-            {/* Venue Hero Section */}
             <section className="py-5 bg-light border-bottom">
                 <div className="container">
                     <div className="row align-items-center">
                         <div className="col-lg-5 mb-4 mb-lg-0">
                             <img
-                                src={venue.imageUrl}
-                                alt={venue.name}
+                                src={locations.imageUrl}
+                                alt={locations.name}
                                 className="img-fluid rounded-4 shadow-lg w-100"
                                 style={{ objectFit: 'cover', height: '400px' }}
                             />
@@ -37,9 +43,9 @@ const LocationDetails = () => {
                             <h6 className="text-primary fw-bold text-uppercase tracking-wider">
                                 <i className="bi bi-geo-alt-fill me-2"></i>Premier Venue
                             </h6>
-                            <h1 className="display-4 fw-black text-dark mb-3">{venue.name}</h1>
+                            <h1 className="display-4 fw-black text-dark mb-3">{locations.name}</h1>
                             <p className="fs-5 text-secondary mb-4" style={{ lineHeight: '1.8' }}>
-                                {venue.description}
+                                {locations.description}
                             </p>
                             <div className="d-flex gap-3">
                                 <a href="#schedule" className="btn btn-primary btn-lg rounded-pill px-5">View Full Schedule</a>
@@ -49,7 +55,6 @@ const LocationDetails = () => {
                 </div>
             </section>
 
-            {/* Events at this Location Section */}
             <section id="schedule" className="py-5">
                 <div className="container">
                     <div className="mb-5 text-center">
@@ -58,57 +63,27 @@ const LocationDetails = () => {
                     </div>
 
                     <div className="row g-4">
-                        {/* Note the key change to venue.eventlocationsdto to match your JSON */}
-                        {venue.eventlocationsdto && venue.eventlocationsdto.length > 0 ? (
-                            venue.eventlocationsdto.map((loc) => (
-                                <div key={loc.eventLocationId} className="col-12">
-                                    <div className={`card border-0 shadow-sm p-3 transition-hover ${loc.status === 'SOLD_OUT' ? 'opacity-75' : ''}`}>
-                                        <div className="row align-items-center text-center text-md-start">
-                                            
-                                            {/* Date Info */}
-                                            <div className="col-md-2 border-end-md text-center">
-                                                <h4 className="fw-bold mb-0 text-dark">
-                                                    {new Date(loc.eventStartTime).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
-                                                </h4>
-                                                <small className="text-muted text-uppercase fw-bold">
-                                                    {new Date(loc.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </small>
-                                            </div>
-
-                                            {/* Event Info */}
-                                            <div className="col-md-5">
-                                                <span className="badge bg-primary-subtle text-primary mb-1">Live Performance</span>
-                                                <h5 className="fw-bold mb-0 text-dark">{loc.eventName}</h5>
-                                                <p className="text-muted small mb-0">Experience world-class music in a historical setting.</p>
-                                            </div>
-
-                                            {/* Pricing */}
-                                            <div className="col-md-2">
-                                                <div className="text-muted small">Starting at</div>
-                                                <span className="fs-4 fw-black text-dark">€{loc.pricePerTicket.toFixed(2)}</span>
-                                            </div>
-
-                                            {/* Action Button */}
-                                            <div className="col-md-3 text-md-end mt-3 mt-md-0">
-                                                {loc.status === 'AVAILABLE' ? (
-                                                    <Link to={`/events/${loc.eventId}`} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm fw-bold">
-                                                        Get Tickets
-                                                    </Link>
-                                                ) : (
-                                                    <button className="btn btn-secondary rounded-pill px-5 py-2 disabled" disabled>
-                                                        Sold Out
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+                        {locations?.eventLocations?.length > 0 ? (
+                            locations.eventLocations.map((loc) => (
+                                <div key={loc.id || loc.eventLocationId} className="col-12 mb-4">
+                                    <EventLocationListItem loc={loc} />
                                 </div>
                             ))
                         ) : (
                             <div className="col-12 text-center py-5">
-                                <i className="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
-                                <p className="text-muted fs-5">There are currently no scheduled events for this venue.</p>
-                                <Link to="/events" className="btn btn-outline-primary rounded-pill mt-2">Browse Other Events</Link>
+                                <div className="bg-light rounded-4 py-5 border">
+                                    <i className="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                                    <h4 className="fw-bold text-secondary">No Events Found</h4>
+                                    <p className="text-muted fs-6 mb-4">
+                                        There are currently no scheduled events for this location.
+                                    </p>
+                                    <Link
+                                        to={ROUTES.EVENTS.LIST}
+                                        className="btn btn-primary btn-lg rounded-pill px-5 shadow-sm"
+                                    >
+                                        Browse All Events
+                                    </Link>
+                                </div>
                             </div>
                         )}
                     </div>

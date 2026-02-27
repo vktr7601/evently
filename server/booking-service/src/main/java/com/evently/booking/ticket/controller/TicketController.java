@@ -29,8 +29,10 @@ public class TicketController {
     }
 
     @GetMapping
-    public List<TicketListItem> getUserTickets(@RequestHeader(ApplicationHeaders.USER_ID) Long userId) {
-        return ticketService.getUserTickets(userId);
+    public ResponseEntity<List<TicketListItem>> getUserTickets(@RequestHeader(ApplicationHeaders.USER_ID) long userId) {
+        List<TicketListItem> userTickets = ticketService.getUserTickets(userId);
+
+        return ResponseEntity.ok(userTickets);
     }
 
     @GetMapping("/available-count")

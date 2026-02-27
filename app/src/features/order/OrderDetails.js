@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { ROUTES } from '../../constants/routes';
+import TicketListItem from '../ticket/TicketListItem';
 
 const OrderDetails = () => {
     const { number } = useParams();
@@ -117,56 +118,14 @@ const OrderDetails = () => {
 
             </div >
 
-            {/* --- BOTTOM SECTION: TICKETS LIST --- */}
             <div className="mb-4">
                 <h4 className="fw-bold mb-4">Tickets</h4>
                 {order.tickets.map((ticket) => (
-                    <div key={ticket.id} className="card border-0 shadow-sm rounded-4 p-4 mb-3">
-                        <div className="row align-items-center g-4">
-                            {/* 1. Event Info */}
-                            <div className="col-md-4 border-end-md">
-                                <h5 className="fw-bold mb-1 text-primary">{ticket.eventName}</h5>
-                                <div className="text-secondary small fw-medium">
-                                    {ticket.eventLocationName}
-                                </div>
-                            </div>
-
-                            {/* 2. Schedule */}
-                            <div className="col-md-3 border-end-md">
-                                <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Date And Time</label>
-                                <h6 className="fw-bold mb-0">
-                                    {new Date(ticket.eventStartTime).toLocaleString(undefined, {
-                                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                                    })}
-                                </h6>
-                            </div>
-
-                            {/* 3. Download Action */}
-                            <div className="col-md-2 text-md-end">
-                                {ticket.status !== 'CANCELED' && (
-                                    <button className="btn btn-light border rounded-pill px-4 py-2 fw-bold w-100">
-                                        <i className="bi bi-download me-2"></i> PDF
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* 4. Conditional Refund Button or Status Badge */}
-                            <div className="col-md-3 text-md-end">
-                                {ticket.status === 'CANCELED' ? (
-                                    <span className="badge bg-danger-subtle text-danger rounded-pill px-4 py-2 fs-6">
-                                        CANCELED
-                                    </span>
-                                ) : (
-                                    <button
-                                        className="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow w-100"
-                                        onClick={() => console.log("Refund specific ticket:", ticket.id)}
-                                    >
-                                        Refund Ticket
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    <TicketListItem
+                        key={ticket.id}
+                        ticket={ticket}
+                        onRefund={(id) => console.log("Refunding ticket:", id)}
+                    />
                 ))}
             </div>
         </div >

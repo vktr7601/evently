@@ -4,15 +4,15 @@ import com.evently.booking.infrastructure.clients.eventsService.EventServiceClie
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
 import com.evently.booking.order.model.OrderStatus;
-import com.evently.booking.ticket.model.TicketStatus;
 import com.evently.booking.ticket.data.TicketMapper;
 import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.model.Ticket;
+import com.evently.booking.ticket.model.TicketStatus;
 import com.evently.booking.ticket.repository.TicketRepository;
-import events.ticket.TicketsCreated;
 import events.event.EventCreated;
 import events.event.EventTicketsBulkUpdate;
 import events.event.EventTicketsUpdate;
+import events.ticket.TicketsCreated;
 import events.ticket.TicketsCreationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -127,34 +127,14 @@ public class TicketService {
                 TicketStatus.AVAILABLE);
     }
 
-
+    @Transactional
     public List<TicketListItem> getUserTickets(long userId) {
         List<Ticket> tickets = ticketRepository.findAllByUserId(userId);
 
-        var res = enrichTicketsWithEventDetails(tickets);
-//        List<Long> extractEventsLocationsIdFromTicker =
-//                extractEventsLocationsIdFromTickets(tickets);
-//        List<Long> eventLocationIds =
-//                tickets.stream().map(Ticket::getEventLocationsId).toList();
-//
-//        List<EventsLocationsDto> locations1 =
-//                eventServiceClient.getLocations(eventLocationIds);
-//        Map<Long, EventsLocationsDto> locationsMap =
-//                locations1.stream().collect(Collectors.toMap
-//                (EventsLocationsDto::getId, eventLocationDto ->
-//                eventLocationDto));
-//
-////        Map<Long, EventsLocationsDto> locations =
-////                eventsLocationsClient.getLocations(eventLocationIds);
-//
-//        List<TicketListItem> ticketListItems = tickets.stream().map(x -> {
-//            var eventLocation = locationsMap.get(x.getId());
-//            return ticketMapper.toListItem(x, eventLocation.getEventName(),
-//                    eventLocation.getLocationName());
-//        }).toList();
+        List<TicketListItem> ticketListItems =
+                enrichTicketsWithEventDetails(tickets);
 
-        log.info("Tickets for user ID {} has been saved", userId);
-        return res;
+        return ticketListItems;
     }
 
     public List<TicketListItem> getTicketsByOrderId(long orderId) {

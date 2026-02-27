@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import ErrorModal from '../../components/modals/ErrorModal';
+
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 const EditEvent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -34,13 +36,12 @@ const EditEvent = () => {
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // 1. Fetch Master Data (Locations, Artists, Categories)
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
                 const [locRes, catRes] = await Promise.all([
-                    axios.get(`http://localhost:9000/locations`),
-                    axios.get(`http://localhost:9000/categories`)
+                    axiosClient.get(`${ROUTES.LOCATIONS.BASE}`),
+                    axiosClient.get(`${ROUTES.CATEGORIES.BASE}`)
                 ]);
                 setLocations(locRes.data);
                 setCategories(catRes.data);
@@ -51,10 +52,9 @@ const EditEvent = () => {
         fetchMasterData();
     }, []);
 
-    // 2. Preload Existing Event Data
     useEffect(() => {
         if (id) {
-            axios.get(`http://localhost:9000/events/${id}`)
+            axiosClient.get(`${ROUTES.EVENTS.DETAILS(id)}`)
                 .then(res => {
                     const data = res.data;
                     console.log(res.data);
@@ -106,10 +106,7 @@ const EditEvent = () => {
     };
 
     const handleUpdate = () => {
-        // 1. (Optional) Simple Frontend Pre-check
-        // You can check basic things here before even hitting the server
-
-        axios.put(`http://localhost:8082/events/${id}`, eventData)
+        axiosClient.put(`${ROUTES.EVENTS.ADMIN_EDIT_EXISTING(id)}`, eventData)
             .then(() => {
                 alert("Event updated successfully!");
                 navigate(`/events/${id}`);
@@ -119,7 +116,6 @@ const EditEvent = () => {
                     const { status, data } = err.response;
 
                     if (status === 400) {
-                        // MethodArgumentNotValidException (comma-separated string)
                         const errorList = data.message ? data.message.split(', ') : ['Invalid input provided.'];
                         setErrorModal({
                             show: true,
@@ -131,8 +127,7 @@ const EditEvent = () => {
                         setErrorModal({
                             show: true,
                             title: 'Scheduling Conflict',
-                            messages: data.message // If this is already an array, perfect. 
-                            // If it's a string, wrap it: [data.message]
+                            messages: Array.isArray(data.message) ? data.message : [data.message]
                         });
                     } else {
                         setErrorModal({
@@ -151,17 +146,6 @@ const EditEvent = () => {
             });
     };
 
-    // if (!isAuth) return (
-    //     <Link to="/login" className="d-flex flex-column align-items-center justify-content-center min-vh-100 text-decoration-none">
-    //         <div className="text-center">
-    //             <h1 className="display-4 fw-bold text-dark mb-3">Access Denied</h1>
-    //             <p className="fs-5 text-secondary mb-4">Please log in to view event details and book tickets.</p>
-    //             <Link to="/login" className="btn btn-primary rounded-pill px-5 py-3">
-    //                 Go to Login
-    //             </Link>
-    //         </div>
-    //     </Link>
-    // );
     if (isLoading) return <div style={{ textAlign: 'center', padding: '50px' }}>Loading event details...</div>;
 
     return (

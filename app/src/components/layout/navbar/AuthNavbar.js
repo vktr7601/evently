@@ -17,6 +17,12 @@ const AuthNavbar = () => {
             </li>
 
             <li className="nav-item">
+                <NavLink to={ROUTES.TICKETS.USER} className="nav-link px-3">
+                    My Tickets
+                </NavLink>
+            </li>
+
+            <li className="nav-item">
                 <NavLink to={ROUTES.AUTH.PROFILE} className="nav-link px-3">
                     My Profile
                 </NavLink>
