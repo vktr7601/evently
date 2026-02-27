@@ -1,8 +1,9 @@
 package com.evently.booking.order.data;
 
-import com.evently.booking.order.model.Order;
 import com.evently.booking.order.dto.OrderDetails;
+import com.evently.booking.order.model.Order;
 import com.evently.booking.ticket.dto.TicketListItem;
+import events.order.OrderPaymentSucceededEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -30,5 +31,14 @@ public class OrderMapper {
                 listItems != null ? listItems : Collections.emptyList(),
                 order.getReceiptUrl()
         );
+    }
+
+    public OrderPaymentSucceededEvent toOrderPaymentSucceededEvent(Order order) {
+        OrderPaymentSucceededEvent orderPaymentSucceededEvent =
+                new OrderPaymentSucceededEvent();
+        orderPaymentSucceededEvent.setOrderNumber(order.getNumber().toString());
+        orderPaymentSucceededEvent.setTotalAmount(order.getTotalPrice());
+        orderPaymentSucceededEvent.setReceiptUrl(order.getReceiptUrl());
+        return orderPaymentSucceededEvent;
     }
 }

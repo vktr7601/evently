@@ -5,16 +5,13 @@ import events.ticket.TicketsCreated;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @AllArgsConstructor
-public class KafkaMessageProducer {
+public class KafkaProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void sendMessages(TicketsCreated ticketsCreated) {
+    public void sendTicketCreated(TicketsCreated ticketsCreated) {
         kafkaTemplate.send(KafkaTopics.TICKETS_CREATED, ticketsCreated);
     }
 }

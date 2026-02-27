@@ -21,6 +21,7 @@ import com.evently.booking.ticket.service.TicketService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import events.order.OrderPaymentSucceededEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -289,6 +290,9 @@ public class OrderService {
             OrderDetails orderDetails = getOrderDetails(userId,
                     order.getNumber());
 
+            OrderPaymentSucceededEvent orderPaymentSucceededEvent =
+                    orderMapper.toOrderPaymentSucceededEvent(order);
+            eventPublisher.publishEvent(orderPaymentSucceededEvent);
             //  eventPublisher.publishEvent(new OrderCompletedEvent(order));
         } else {
             if (response.getBody().getMessage().startsWith("Invalid card")) {

@@ -25,11 +25,11 @@ public class DatabaseSeeder {
             User jane = createUser("Jane", "Smith", 25, "jane.smith@email" +
                     ".com", UserRole.USER, passwordEncoder);
             User carlos = createUser("Carlos", "Rivera", 34, "carlos" +
-                    ".rivera@email.com",  UserRole.USER, passwordEncoder);
+                    ".rivera@email.com", UserRole.USER, passwordEncoder);
             User emily = createUser("Emily", "Chen", 28, "emily.chen@email" +
-                    ".com",  UserRole.USER, passwordEncoder);
+                    ".com", UserRole.USER, passwordEncoder);
             User michael = createUser("Michael", "Brown", 42, "michael" +
-                    ".brown@email.com",  UserRole.USER, passwordEncoder);
+                    ".brown@email.com", UserRole.USER, passwordEncoder);
 
             userRepository.saveAll(List.of(john, jane, carlos, emily, michael));
 
