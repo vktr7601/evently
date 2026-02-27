@@ -39,9 +39,6 @@ const OrderDetails = () => {
                         <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 fw-bold">
                             View Receipt
                         </a>
-                        {/* <button onClick={handleRefundRequest} className="btn btn-success rounded-pill px-4 fw-bold">
-                            Request Refund
-                        </button> */}
                     </div>
                 );
             case 'CANCELLED':
@@ -52,20 +49,6 @@ const OrderDetails = () => {
                 return null;
         };
     };
-
-    // const handleRefundRequest = async () => {
-    //     try {
-    //         await axiosClient.post(`http://localhost:9000/orders/refund/${number}`, {}, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-    //             }
-    //         });
-    //         alert("Refund requested successfully.");
-    //     } catch (err) {
-    //         alert("Could not request refund.");
-    //     }
-    // };
-
     if (loading) return <div className="container mt-5 text-center text-muted">Loading order details...</div>;
     if (!order) return <div className="container mt-5 text-center text-danger">Order not found.</div>;
 
