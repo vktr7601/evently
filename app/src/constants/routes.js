@@ -43,6 +43,7 @@ export const ROUTES = {
   },
   ARTISTS: {
     BASE: '/artists',
+    ADMIN_CREATE: '/admin/artist',
     DETAILS: (id) => `/artists/${id}`,
     FOLLOW: (id) => `/follows/artist/${id}`,
     STATUS: (id) => `/follows/artist/${id}/status`,

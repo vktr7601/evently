@@ -1,4 +1,4 @@
-package com.evently.events.locations.dto.request;
+package com.evently.events.artists.dto.request;
 
 import com.evently.events.config.validator.MaxFileSize;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,11 +14,11 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocationRequest implements Serializable {
+public class ArtistRequest implements Serializable {
     @JsonProperty("name")
     private String name;
-    @JsonProperty("description")
-    private String description;
+    @JsonProperty("bio")
+    private String bio;
     @MaxFileSize(maxSizeInMB = 2, message = "Image must be under 2MB")
     MultipartFile imageUrl;
 }
