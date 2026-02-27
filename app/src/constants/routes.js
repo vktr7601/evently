@@ -13,6 +13,7 @@ export const ROUTES = {
   TICKETS: {
     AVAILABILITY: '/tickets/availability',
     VIEW: (id) => `/tickets/view/${id}`,
+    REFUND: (id) => `/tickets/${id}/refund`,
     USER: '/tickets/',
   },
   ORDERS: {

@@ -26,6 +26,7 @@ const EventDetails = () => {
             });
     }, [id]);
 
+
     if (isLoading) {
         return <Spinner message="Loading event details..." />;
     }

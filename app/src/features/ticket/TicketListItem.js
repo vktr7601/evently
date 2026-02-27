@@ -14,6 +14,18 @@ const TicketListItem = ({ ticket, onRefund }) => {
         });
     };
 
+    const handleRequest = (id) => {
+        axiosClient.post(`${ROUTES.TICKETS.REFUND(id)}`)
+            .then(res => {
+                const htmlString = res.data;
+
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(htmlString);
+                newWindow.document.close();
+            })
+            .catch(err => console.error(err));
+    };
+
     const viewTicket = () => {
         axiosClient.get(`${ROUTES.TICKETS.VIEW(ticket.id)}`)
             .then(res => {
@@ -69,7 +81,7 @@ const TicketListItem = ({ ticket, onRefund }) => {
                     ) : (
                         <button
                             className="btn btn-outline-danger btn-lg rounded-pill px-4 fw-bold w-100"
-                            onClick={() => onRefund(ticket.id)}
+                            onClick={() => handleRequest(ticket.id)}
                         >
                             Refund Ticket
                         </button>

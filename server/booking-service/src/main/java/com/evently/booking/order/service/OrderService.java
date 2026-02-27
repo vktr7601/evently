@@ -242,6 +242,7 @@ public class OrderService {
         });
     }
 
+    @Transactional
     public void finishActiveUserOrder(String userEmail, Long userId,
                                       FinishOrderRequest finishOrderRequest) throws ProcessOrderException, OrderExpiredException {
         Order order =
@@ -307,6 +308,7 @@ public class OrderService {
     public boolean isWithinRefundPeriod(Long userId, UUID number) {
         Order order = orderRepository.findByOrderNumberAndUserId(number,
                 userId).orElseThrow(() -> new NoActiveOrderException(userId));
+
 
         return order.getTickets().stream().allMatch(ticket -> {
             LocalDateTime refundDeadline =

@@ -2,7 +2,10 @@ package com.evently.booking.ticket.service;
 
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
+import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
+import com.evently.booking.infrastructure.clients.paymentService.data.RefundRequest;
 import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
+import com.evently.booking.order.model.Order;
 import com.evently.booking.order.model.OrderStatus;
 import com.evently.booking.ticket.data.TicketMapper;
 import com.evently.booking.ticket.dto.TicketListItem;
@@ -42,6 +45,7 @@ public class TicketService {
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
     private final TemplateEngine templateEngine;
+    private final PaymentServiceClient paymentService;
 
     @Transactional
     public void createTickets(EventCreated eventCreated) {
@@ -157,20 +161,27 @@ public class TicketService {
         ticketRepository.saveAll(tickets);
     }
 
-    public void refundTicket(Long userId, long ticketId) {
+    @Transactional
+    public void refundTicket(Long userId, long ticketId) throws TicketNotRefundableException {
         Ticket ticket = ticketRepository.findByUserIdAndTicketId(userId,
                 ticketId);
-        if (ticket.getEventStartTime().isBefore(LocalDateTime.now().plusHours(2))) {
+
+        if (!LocalDateTime.now().isBefore(ticket.getEventStartTime().minusDays(1))) {
             throw new TicketNotRefundableException();
         }
 
 
-        var order = ticket.getOrder();
+        Order order = ticket.getOrder();
 
         List<Ticket> tickets = order.getTickets();
         if (tickets.size() == 1) {
             order.setStatus(OrderStatus.REFUNDED);
         }
+        RefundRequest refundRequest = new RefundRequest();
+        refundRequest.setOrderNumber(order.getNumber().toString());
+        refundRequest.setReason("user requested");
+        refundRequest.setTransactionId(order.getTransactionId());
+        paymentService.processRefund(refundRequest);
     }
 
     public Ticket findTicketById(long ticketId) {
@@ -235,14 +246,11 @@ public class TicketService {
 
     @Transactional
     public void processBulkUpdate(EventTicketsBulkUpdate bulkEvent) {
-        log.info("Processing bulk update for Event ID: {} with {} location " +
-                        "updates",
-                bulkEvent.getEventId(), bulkEvent.getUpdates().size());
+        log.info("Processing bulk update for Event ID: {} with {} location " + "updates", bulkEvent.getEventId(), bulkEvent.getUpdates().size());
 
         for (EventTicketsUpdate update : bulkEvent.getUpdates()) {
             long locationId = update.getEventLocationId();
 
-            // 1. Update Date (Applies to ALL tickets for this location)
             if (update.isDateUpdated()) {
                 log.debug("Updating start time for location {} to {}",
                         locationId, update.getNewStartTime());
@@ -259,19 +267,11 @@ public class TicketService {
                 if (delta == 0) return;
 
                 if (delta > 0) {
-                    // --- HAPPY PATH: Adding Tickets ---
                     log.info("Adding {} new tickets for location {}", delta,
                             locationId);
 
-                    // Fetch one existing ticket to copy the event details
-                    // (StartTime, Price)
-                    // This ensures the new tickets match the existing ones
-                    // for this location
                     Ticket template =
-                            ticketRepository.findFirstByEventLocationsId(locationId)
-                                    .orElseThrow(() -> new IllegalStateException(
-                                            "Base ticket not found for " +
-                                                    "location " + locationId));
+                            ticketRepository.findFirstByEventLocationsId(locationId).orElseThrow(() -> new IllegalStateException("Base ticket not found for " + "location " + locationId));
 
                     List<Ticket> newTickets = new ArrayList<>();
                     for (int i = 0; i < delta; i++) {
@@ -292,8 +292,7 @@ public class TicketService {
                         ticketRepository.findAllByEventLocationsId(locationId);
                 List<Ticket> updatedTickets = new ArrayList<>();
                 for (Ticket ticket : newTickets) {
-                    if (ticket.getStatus().equals(TicketStatus.AVAILABLE) ||
-                            ticket.getStatus().equals(TicketStatus.PENDING_PAYMENT)) {
+                    if (ticket.getStatus().equals(TicketStatus.AVAILABLE) || ticket.getStatus().equals(TicketStatus.PENDING_PAYMENT)) {
                         ticket.setPrice(update.getNewPrice());
 
                         updatedTickets.add(ticket);
@@ -302,9 +301,6 @@ public class TicketService {
 
                 ticketRepository.saveAll(updatedTickets);
             }
-
-            //send notification event chanded to all the which which has
-            // boooked tickets.
         }
     }
 

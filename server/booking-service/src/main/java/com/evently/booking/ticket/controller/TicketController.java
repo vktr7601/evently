@@ -50,4 +50,11 @@ public class TicketController {
         String htmlContent = ticketService.fillTicketTemplate(ticketListItem);
         return ResponseEntity.ok(htmlContent);
     }
+
+    @PostMapping("/{id}/refund")
+    public ResponseEntity<?> refundRequest(@RequestHeader(ApplicationHeaders.USER_ID) long userId, @PathVariable("id") Long ticketId) {
+        ticketService.refundTicket(userId, ticketId);
+
+        return null;
+    }
 }

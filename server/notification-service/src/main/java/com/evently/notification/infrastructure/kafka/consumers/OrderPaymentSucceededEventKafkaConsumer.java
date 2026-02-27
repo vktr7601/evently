@@ -1,5 +1,7 @@
 package com.evently.notification.infrastructure.kafka.consumers;
 
+import com.evently.notification.notificationContent.contract.OrderPaymentSucceedContentProvider;
+import com.evently.notification.notificationContent.model.NotificationContent;
 import com.evently.notification.notifications.service.NotificationService;
 import com.evently.notification.processedEvent.ProcessedEvent;
 import com.evently.notification.processedEvent.ProcessedEventRepository;
@@ -20,6 +22,7 @@ import java.time.Instant;
 public class OrderPaymentSucceededEventKafkaConsumer {
     private final NotificationService notificationService;
     private final ProcessedEventRepository processedEventRepository;
+    private final OrderPaymentSucceedContentProvider orderPaymentSucceedContentProvider;
 
     @Transactional
     @KafkaListener(topics = KafkaTopics.ORDER_SUCCESS)
@@ -30,6 +33,10 @@ public class OrderPaymentSucceededEventKafkaConsumer {
             return;
         }
         try {
+            NotificationContent notificationContent =
+                    orderPaymentSucceedContentProvider.generateNotificationContent(event);
+            notificationService.createNotification(event.getUserId(),
+                    notificationContent);
 
             ProcessedEvent processedEvent =
                     processedEventRepository.save(new ProcessedEvent(event.getMessageId(), Instant.now()));

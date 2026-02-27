@@ -1,7 +1,7 @@
 package com.evently.notification.infrastructure.kafka.consumers;
 
 import com.evently.notification.notificationContent.model.NotificationContent;
-import com.evently.notification.notifications.contract.UserRegisteredContentProvider;
+import com.evently.notification.notificationContent.contract.UserRegisteredContentProvider;
 import com.evently.notification.notifications.service.NotificationService;
 import com.evently.notification.processedEvent.ProcessedEvent;
 import com.evently.notification.processedEvent.ProcessedEventRepository;

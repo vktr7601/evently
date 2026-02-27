@@ -39,6 +39,7 @@ public class OrderMapper {
         orderPaymentSucceededEvent.setOrderNumber(order.getNumber().toString());
         orderPaymentSucceededEvent.setTotalAmount(order.getTotalPrice());
         orderPaymentSucceededEvent.setReceiptUrl(order.getReceiptUrl());
+        orderPaymentSucceededEvent.setUserId(order.getUserId());
         return orderPaymentSucceededEvent;
     }
 }

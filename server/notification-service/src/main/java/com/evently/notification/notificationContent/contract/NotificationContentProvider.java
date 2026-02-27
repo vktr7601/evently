@@ -1,4 +1,4 @@
-package com.evently.notification.notifications.contract;
+package com.evently.notification.notificationContent.contract;
 
 import com.evently.notification.notificationContent.model.NotificationContent;
 

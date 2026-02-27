@@ -5,6 +5,7 @@ import com.evently.payment.payments.payment.model.Payment;
 import com.evently.payment.payments.payment.repository.PaymentRepository;
 import com.evently.payment.payments.providers.contracts.PaymentProvider;
 import com.evently.payment.payments.providers.stripe.model.PaymentStatus;
+import com.evently.payment.payments.providers.stripe.model.StripePaymentRefund;
 import com.evently.payment.payments.providers.stripe.model.StripePaymentRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,5 +43,16 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         return paymentProcessingResult;
+    }
+
+    @Transactional
+    public StripePaymentRefund processRefund(StripePaymentRefund stripePaymentRefund) {
+        PaymentProvider paymentProvider = paymentProviders.get(0);
+
+        StripePaymentRequest stripePaymentRequest =
+                paymentProvider.processRefund(stripePaymentRefund);
+
+        System.out.println();
+        return stripePaymentRefund;
     }
 }

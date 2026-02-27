@@ -2,17 +2,13 @@ package com.evently.payment.payments.providers.stripe;
 
 import com.evently.payment.payments.entities.PaymentProcessingResult;
 import com.evently.payment.payments.providers.contracts.PaymentProvider;
+import com.evently.payment.payments.providers.stripe.model.StripePaymentRefund;
 import com.evently.payment.payments.providers.stripe.model.StripePaymentRequest;
+import com.evently.payment.payments.providers.stripe.model.StripeRefundServiceResponse;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
-import com.stripe.model.CustomerCollection;
-import com.stripe.model.PaymentIntent;
-import com.stripe.model.PaymentMethod;
+import com.stripe.model.*;
 import com.stripe.net.RequestOptions;
-import com.stripe.param.CustomerCreateParams;
-import com.stripe.param.CustomerListParams;
-import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.PaymentMethodAttachParams;
+import com.stripe.param.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -79,6 +75,32 @@ public class StripePaymentProvider implements PaymentProvider {
                     request.getUserEmail(), e.getMessage());
             return new PaymentProcessingResult(null, false, e.getMessage(), "");
         }
+    }
+
+    @Override
+    public StripePaymentRequest processRefund(StripePaymentRefund refund) {
+        try {
+            RefundCreateParams params = RefundCreateParams.builder()
+                    .setPaymentIntent(refund.getTransactionId())
+                    .build();
+
+            RequestOptions options = RequestOptions.builder()
+                    .setApiKey(stripeSecretKey)
+                    .setIdempotencyKey("refund-" + refund.getTransactionId()) // bonus: idempotency
+                    .build();
+            Refund refund1 = Refund.create(params, options);
+            // Stripe returns a 'succeeded' status for successful refunds
+            if ("succeeded".equals(refund1.getStatus())) {
+                StripeRefundServiceResponse response =
+                        new StripeRefundServiceResponse();
+                response.setRefundId(refund1.getId());
+                response.setReceiptUrl(refund1.getReceiptNumber());
+            }
+        } catch (StripeException e) {
+            log.error("Stripe Refund Failed: {}", e.getMessage());
+        }
+
+        return null;
     }
 
     private String getOrCreateCustomer(long userID, String email,
