@@ -26,35 +26,6 @@ const EventDetails = () => {
             });
     }, [id]);
 
-    const renderBookingButton = (loc) => {
-        switch (loc.eventsLocationsStatus) {
-            case 'AVAILABLE':
-                return (
-                    <Link to={ROUTES.EVENTS.EVENT_LOCATIONS_DETAILS(loc.id)} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
-                        Book Tickets
-                    </Link>
-                );
-            case 'CANCELLED':
-                return (
-                    <button className="btn btn-outline-danger rounded-pill px-5 py-2 disabled" disabled>
-                        Cancelled
-                    </button>
-                );
-            case 'PENDING_TICKETS':
-                return (
-                    <button className="btn btn-warning rounded-pill px-5 py-2 disabled" disabled>
-                        Coming Soon
-                    </button>
-                );
-            default:
-                return (
-                    <button className="btn btn-secondary rounded-pill px-5 py-2 disabled" disabled>
-                        Sold Out
-                    </button>
-                );
-        }
-    };
-
     if (isLoading) {
         return <Spinner message="Loading event details..." />;
     }

@@ -25,6 +25,7 @@ import { ROUTES } from './constants/routes';
 import Tickets from './features/ticket/Tickets';
 import CreateLocation from './features/locations/CreateLocation';
 import CreateArtist from './features/artists/CreateArtist';
+import CreateEventApi from './features/events/CreateEventApi';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
             <Route path={ROUTES.LOCATIONS.ADMIN_CREATE} element={<CreateLocation />} />
             <Route path={ROUTES.ARTISTS.ADMIN_CREATE} element={<CreateArtist />} />
             <Route path={ROUTES.EVENTS.EVENT_LOCATIONS_DETAILS(':id')} element={<EventLocationDetails />} />
+            <Route path={ROUTES.EVENTS.ADMIN_BULK_CREATE} element={<CreateEventApi />} />
             {/* <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />

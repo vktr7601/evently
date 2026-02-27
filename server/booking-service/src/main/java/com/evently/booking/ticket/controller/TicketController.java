@@ -4,6 +4,7 @@ import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.service.TicketService;
 import constants.ApplicationHeaders;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,5 +42,12 @@ public class TicketController {
         int availableTickets =
                 ticketService.getAvailableTicketsCount(eventLocationId);
         return ResponseEntity.ok().body(availableTickets);
+    }
+
+    @GetMapping(value = "/view/{id}", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> viewTicket(@PathVariable("id") Long id) {
+        TicketListItem ticketListItem = ticketService.getTicket(id);
+        String htmlContent = ticketService.fillTicketTemplate(ticketListItem);
+        return ResponseEntity.ok(htmlContent);
     }
 }

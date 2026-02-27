@@ -3,6 +3,7 @@ export const ROUTES = {
   EVENTS: {
     BASE: '/events',
     ADMIN_CREATE: '/admin/events',
+    ADMIN_BULK_CREATE: '/admin/events/bulk',
     ADMIN_EDIT_EXISTING: (id) => `/admin/events/${id}`,
     ADMIN_EDIT: (id) => `/admin/events/${id}/edit`,
     DETAILS: (id) => `/events/${id}`,
@@ -11,6 +12,7 @@ export const ROUTES = {
   },
   TICKETS: {
     AVAILABILITY: '/tickets/availability',
+    VIEW: (id) => `/tickets/view/${id}`,
     USER: '/tickets/',
   },
   ORDERS: {

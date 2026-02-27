@@ -273,7 +273,7 @@ public class OrderService {
         paymentRequest.setAmount(order.getTotalPrice());
         paymentRequest.setUserEmail(userEmail);
         paymentRequest.setUserId(userId);
-        
+
         ResponseEntity<PaymentServiceResponse> response =
                 paymentServiceClient.processPayment(paymentRequest);
         if (response.getBody().isSuccess()) {
@@ -335,5 +335,9 @@ public class OrderService {
 
     public void saveAll(Set<Order> orders) {
         orderRepository.saveAll(orders);
+    }
+
+    public List<OrderListItemDto> getSystemOrders() {
+        return orderRepository.getAllOrders();
     }
 }

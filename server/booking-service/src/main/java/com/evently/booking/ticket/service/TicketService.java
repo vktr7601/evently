@@ -14,12 +14,15 @@ import events.event.EventTicketsBulkUpdate;
 import events.event.EventTicketsUpdate;
 import events.ticket.TicketsCreated;
 import events.ticket.TicketsCreationEvent;
+import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -38,6 +41,7 @@ public class TicketService {
     private final TicketMapper ticketsMapper;
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
+    private final TemplateEngine templateEngine;
 
     @Transactional
     public void createTickets(EventCreated eventCreated) {
@@ -302,5 +306,29 @@ public class TicketService {
             //send notification event chanded to all the which which has
             // boooked tickets.
         }
+    }
+
+    @Transactional
+    public TicketListItem getTicket(Long id) {
+        Ticket ticket =
+                ticketRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Ticket not found for id " + id));
+
+        return enrichTicketsWithEventDetails(List.of(ticket)).get(0);
+    }
+
+
+    public String fillTicketTemplate(TicketListItem ticketListItem) {
+        Context context = new Context();
+        context.setVariable("eventName", ticketListItem.getEventName());
+        context.setVariable("locationName",
+                ticketListItem.getEventLocationName());
+        context.setVariable("eventDate", ticketListItem.getEventStartTime());
+        context.setVariable("eventTime", ticketListItem.getEventStartTime());
+        context.setVariable("ticketNumber", ticketListItem.getNumber());
+
+        String html = templateEngine.process("ticket-template", context);
+
+
+        return html;
     }
 }

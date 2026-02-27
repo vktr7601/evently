@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <style>
         body { font-family: 'Helvetica', sans-serif; color: #1e293b; padding: 20px; }
         .ticket-container {
@@ -16,6 +17,8 @@
             color: white;
             padding: 20px;
             text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
         .content {
             padding: 30px;
@@ -39,7 +42,7 @@
             background-color: #f8fafc;
             text-align: center;
         }
-        .ticket-id { font-family: monospace; font-size: 12px; color: #64748b; }
+        .ticket-id { font-family: monospace; font-size: 14px; color: #1e293b; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -48,17 +51,18 @@
         ADMIT ONE - OFFICIAL TICKET
     </div>
     <div class="content">
-        <div class="event-name">{{eventName}}</div>
-        <div class="location">📍 {{locationName}}</div>
+        <div class="event-name" th:text="${eventName}">Event Name</div>
+        <div class="location"><span th:text="${locationName}">Location Name</span>
+        </div>
 
         <div class="details-grid">
             <div class="detail-item">
                 <div class="label">Date</div>
-                <div class="value">{{eventDate}}</div>
+                <div class="value" th:text="${#temporals.format(eventDate, 'MMM dd, yyyy')}">Date</div>
             </div>
             <div class="detail-item">
                 <div class="label">Time</div>
-                <div class="value">{{eventTime}}</div>
+                <div class="value" th:text="${#temporals.format(eventTime, 'HH:mm')}">Time</div>
             </div>
             <div class="detail-item">
                 <div class="label">Seat / Section</div>
@@ -67,8 +71,8 @@
         </div>
     </div>
     <div class="barcode-section">
-        <div class="ticket-id">#{{ticketNumber}}</div>
-        <p>Scan this at the entrance</p>
+        <div class="ticket-id">#<span th:text="${ticketNumber}">00000000</span></div>
+        <p style="font-size: 12px; color: #64748b;">Scan this at the entrance</p>
     </div>
 </div>
 </body>
