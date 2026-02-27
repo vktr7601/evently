@@ -1,0 +1,212 @@
+{
+  "artists": [
+    {
+      "id": 1,
+      "name": "Vasko Vassilev",
+      "bio": "The world-famous violin virtuoso and concertmaster of the Royal Opera House, known for sold-out arena tours.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/vesko_vasiliev.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Azis",
+      "bio": "A global phenomenon and the most recognizable Bulgarian voice worldwide, blending Balkan sounds with modern pop.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/azis.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Miro",
+      "bio": "A powerhouse vocalist known for his charismatic stage presence and some of the biggest radio hits in Bulgaria.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/miro.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Papi Hans",
+      "bio": "A creative visionary and trendsetter whose music videos and catchy hits dominate the streaming charts.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/papi_hans.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Molec",
+      "bio": "The biggest breakout duo in recent years, merging poetry with modern beats and selling out venues instantly.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/molec.jpg"
+    },
+    {
+      "id": 6,
+      "name": "100 Kila",
+      "bio": "The most iconic figure in Bulgarian hip-hop, famous for his high-energy live shows and multi-award-winning hits.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/100_kila.jpg"
+    },
+    {
+      "id": 7,
+      "name": "Medi",
+      "bio": "The current king of club music, whose hits generate millions of views and dominate the nightlife scene.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/medi.jpg"
+    }
+  ],
+
+  "locations": [
+    {
+      "id": 1,
+      "name": "Arena Sofia",
+      "description": "The largest multi-purpose indoor arena in Bulgaria, hosting world-class concerts and major sporting events.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/arena_sofia.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Ancient Theatre of Philippopolis",
+      "description": "An iconic historical landmark over 2,000 years old, offering a unique atmosphere for performances under the stars.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/antinchen_teatur.jpg"
+    },
+    {
+      "id": 3,
+      "name": "NDK (National Palace of Culture)",
+      "description": "The largest convention center in Southeast Europe, located in the heart of the capital city.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/NDK.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Varna Sea Casino",
+      "description": "An elegant event space overlooking the Black Sea, ideal for corporate gatherings and sophisticated celebrations.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/morsko_kino_varna.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Inter Expo Center",
+      "description": "A modern exhibition hub designed for business forums, technology summits, and industrial trade fairs.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/inter_esspo.jpg"
+    },
+    {
+      "id": 6,
+      "name": "Ancient Theatre of Nessebar",
+      "description": "A breathtaking seaside amphitheater located in the UNESCO World Heritage old town of Nessebar.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ancient_city_of_nesebar.jpg"
+    },
+    {
+      "id": 7,
+      "name": "Ruse State Opera",
+      "description": "A majestic neo-baroque building known as \"Little Vienna\", perfect for high-end classical performances.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ruse_opera.jpg"
+    },
+    {
+      "id": 8,
+      "name": "Plovdiv International Fair",
+      "description": "One of the oldest trade centers in Europe, providing massive exhibition halls for global business summits.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/Plovdiv_internation_fair.jpg"
+    },
+    {
+      "id": 9,
+      "name": "Kapana Creative District Stage",
+      "description": "An open-air urban space in the heart of Plovdiv's art district, ideal for street festivals and crafts.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/kapana.jpg"
+    },
+    {
+      "id": 10,
+      "name": "Bansko Ski Resort Event Center",
+      "description": "A premier winter destination offering modern facilities for international sports events and festivals.",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/bansko_ski_resort.jpg"
+    }
+  ],
+
+  "categories": [
+    { "id": 1,  "name": "Concerts",        "description": "Live musical performances ranging from intimate club shows to massive arena tours." },
+    { "id": 2,  "name": "Nightlife",        "description": "DJ sets, electronic music events, and exclusive club parties." },
+    { "id": 3,  "name": "Theatre & Arts",   "description": "Stage plays, opera, ballet, and contemporary dance performances." },
+    { "id": 4,  "name": "Sports",           "description": "Football matches, basketball tournaments, and other high-energy athletic competitions." },
+    { "id": 5,  "name": "Festivals",        "description": "Multi-day outdoor events featuring music, food, and cultural experiences." },
+    { "id": 6,  "name": "Family & Kids",    "description": "Shows, circuses, and interactive workshops designed for all ages." },
+    { "id": 7,  "name": "Business & Tech",  "description": "Professional conferences, networking summits, and technology workshops." },
+    { "id": 8,  "name": "Comedy",           "description": "Stand-up comedy specials and improvisational theatre shows." },
+    { "id": 9,  "name": "Culture & Tourism","description": "Traditional folklore shows, museum exhibitions, and sightseeing events." },
+    { "id": 10, "name": "Cinema",           "description": "Exclusive movie premieres, film festivals, and open-air screenings." }
+  ],
+
+  "events": [
+    {
+      "id": 1,
+      "name": "Vasko Vassilev: Cinema Violin",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/vesko_vasiliev.jpg",
+      "description": "A world-class performance of legendary movie soundtracks.",
+      "artistId": 1,
+      "active": true,
+      "categoryIds": [1, 9]
+    },
+    {
+      "id": 2,
+      "name": "Azis: The Balkan King Live",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/azis.jpg",
+      "description": "A massive production featuring the most iconic voice of the Balkans.",
+      "artistId": 2,
+      "active": true,
+      "categoryIds": [1, 2]
+    },
+    {
+      "id": 3,
+      "name": "Miro: Soul & Light Tour",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/miro.jpg",
+      "description": "An intimate yet powerful pop experience with Bulgaria's favorite vocalist.",
+      "artistId": 3,
+      "active": true,
+      "categoryIds": [1]
+    },
+    {
+      "id": 4,
+      "name": "Molec: Urban Poetry Tour",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/molec.jpg",
+      "description": "The breakout duo brings their unique mix of hip-hop and soul to the big stage.",
+      "artistId": 5,
+      "active": true,
+      "categoryIds": [1, 2]
+    },
+    {
+      "id": 5,
+      "name": "100 Kila: Hip-Hop Summer",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/100_kila.jpg",
+      "description": "High-energy rap show with the most iconic figure in Bulgarian hip-hop.",
+      "artistId": 6,
+      "active": true,
+      "categoryIds": [1, 2]
+    },
+    {
+      "id": 6,
+      "name": "Papi Hans: Pop-Up Mystery",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/papi_hans.jpg",
+      "description": "A creative and flamboyant pop spectacle like no other.",
+      "artistId": 4,
+      "active": true,
+      "categoryIds": [1, 10]
+    },
+    {
+      "id": 7,
+      "name": "Medi: The Club King Tour",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/medi.jpg",
+      "description": "Experience the ultimate nightlife vibe with the biggest hits of the year.",
+      "artistId": 7,
+      "active": true,
+      "categoryIds": [2]
+    },
+    {
+      "id": 8,
+      "name": "Vasko Vassilev: Sunset Classics",
+      "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/vesko_vasiliev.jpg",
+      "description": "An exclusive seaside performance under the stars.",
+      "artistId": 1,
+      "active": true,
+      "categoryIds": [1, 9]
+    }
+  ],
+
+  "eventLocations": [
+    { "id": 1,  "eventId": 1, "locationId": 1,  "date": "2026-02-20T20:00:00", "totalTickets": 50, "price": 85.00,  "status": "AVAILABLE" },
+    { "id": 2,  "eventId": 1, "locationId": 7,  "date": "2026-02-22T19:30:00", "totalTickets": 50, "price": 120.00, "status": "AVAILABLE" },
+    { "id": 3,  "eventId": 2, "locationId": 1,  "date": "2026-04-10T21:00:00", "totalTickets": 50, "price": 150.00, "status": "AVAILABLE" },
+    { "id": 4,  "eventId": 3, "locationId": 2,  "date": "2026-05-05T20:00:00", "totalTickets": 50, "price": 65.00,  "status": "AVAILABLE" },
+    { "id": 5,  "eventId": 4, "locationId": 9,  "date": "2026-05-20T19:00:00", "totalTickets": 50, "price": 40.00,  "status": "AVAILABLE" },
+    { "id": 6,  "eventId": 4, "locationId": 3,  "date": "2026-05-28T20:00:00", "totalTickets": 50, "price": 55.00,  "status": "AVAILABLE" },
+    { "id": 7,  "eventId": 5, "locationId": 4,  "date": "2026-07-15T23:00:00", "totalTickets": 20, "price": 45.00,  "status": "AVAILABLE" },
+    { "id": 8,  "eventId": 5, "locationId": 10, "date": "2026-02-28T22:00:00", "totalTickets": 21, "price": 35.00,  "status": "AVAILABLE" },
+    { "id": 9,  "eventId": 6, "locationId": 5,  "date": "2026-04-18T20:30:00", "totalTickets": 22, "price": 45.00,  "status": "AVAILABLE" },
+    { "id": 10, "eventId": 7, "locationId": 10, "date": "2026-03-05T23:30:00", "totalTickets": 23, "price": 50.00,  "status": "AVAILABLE" },
+    { "id": 11, "eventId": 7, "locationId": 8,  "date": "2026-03-12T22:00:00", "totalTickets": 24, "price": 40.00,  "status": "AVAILABLE" },
+    { "id": 12, "eventId": 8, "locationId": 6,  "date": "2026-08-20T20:30:00", "totalTickets": 25, "price": 100.00, "status": "AVAILABLE" }
+  ]
+}

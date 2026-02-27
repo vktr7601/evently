@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const LocationDetails = () => {
     const { id } = useParams();
@@ -19,7 +21,7 @@ const LocationDetails = () => {
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:9000/events/${id}/location`);
+                const response = await axiosClient.get(`${ROUTES.EVENTS.EVENT_LOCATION(id)}`);
                 setOccurrence(response.data);
                 console.log("Fetched event location details:", response.data);
             } catch (err) {
@@ -35,43 +37,29 @@ const LocationDetails = () => {
     const handleBooking = async () => {
         if (!isAuth) {
             alert("Please log in to book tickets.");
-        };
+            return;
+        }
 
         setError(null);
         try {
-            // 1. Check Availability
-            const availRes = await axios.get(`http://localhost:9000/tickets/availability`, {
+            await axiosClient.get(`${ROUTES.TICKETS.AVAILABILITY}`, {
                 params: {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity
-                },
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
                 }
             });
 
-
             try {
-                const orderRes = await axios.post("http://localhost:9000/orders", {
+                const orderRes = await axiosClient.post(`${ROUTES.ORDERS.BASE}`, {
                     eventLocationId: occurrence.id,
                     ticketsCount: quantity,
                     eventStartTime: occurrence.eventStartTime
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                    }
                 });
 
-                // 1. Validate the creation was successful (201 Created)
                 if (orderRes.status === 201 || orderRes.status === 204) {
-
-                    // 2. Sync your localStorage immediately
-                    console.log("Order created successfully:", orderRes.data);
-
-                    navigate(`/order/active`);
+                    navigate(ROUTES.ORDERS.ACTIVE);
                 }
             } catch (err) {
-                // 4. Handle specific backend errors (e.g., "User already has an active order")
                 const errorMessage = err.response?.data?.message || "Could not create order";
                 alert(errorMessage);
             }
@@ -115,14 +103,12 @@ const LocationDetails = () => {
                 </div>
             </section>
 
-            {/* Booking Action Card */}
             <section className="py-5">
                 <div className="container">
                     {error && <div className="alert alert-danger mb-4 rounded-3">{error}</div>}
 
                     <div className="card border-0 shadow-lg rounded-4 p-4 overflow-hidden">
                         <div className="row align-items-center g-4">
-                            {/* Date Column */}
                             <div className="col-md-4 border-end-md">
                                 <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Date & Time</label>
                                 <h4 className="fw-bold mb-0">
@@ -132,7 +118,6 @@ const LocationDetails = () => {
                                 </h4>
                             </div>
 
-                            {/* Price Column */}
                             <div className="col-md-3 border-end-md">
                                 <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Price</label>
                                 <h4 className="fw-bold mb-0 text-success">
@@ -140,7 +125,6 @@ const LocationDetails = () => {
                                 </h4>
                             </div>
 
-                            {/* Quantity Selection */}
                             <div className="col-md-2">
                                 <label className="text-muted small fw-bold d-block mb-1 text-uppercase">Quantity</label>
                                 <div className="d-flex align-items-center bg-light rounded px-2 py-1">

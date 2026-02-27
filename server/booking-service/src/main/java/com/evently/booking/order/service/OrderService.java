@@ -241,7 +241,7 @@ public class OrderService {
         });
     }
 
-    public void finishActiveUserOrder(Long userId,
+    public void finishActiveUserOrder(String userEmail, Long userId,
                                       FinishOrderRequest finishOrderRequest) throws ProcessOrderException, OrderExpiredException {
         Order order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
@@ -268,9 +268,12 @@ public class OrderService {
         }
 
         PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setAmount(order.getTotalPrice());
+        paymentRequest.setOrderNumber(order.getNumber().toString());
         paymentRequest.setStripePaymentMethodId(finishOrderRequest.getStripePaymentMethodId());
         paymentRequest.setAmount(order.getTotalPrice());
+        paymentRequest.setUserEmail(userEmail);
+        paymentRequest.setUserId(userId);
+        
         ResponseEntity<PaymentServiceResponse> response =
                 paymentServiceClient.processPayment(paymentRequest);
         if (response.getBody().isSuccess()) {

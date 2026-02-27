@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import ErrorModal from '../../components/modals/ErrorModal';
-import LocationDataGenerator from '../../utils/LocationDataGenerator';
+
 import { ROUTES } from '../../constants/routes';
+import axiosClient from '../../api/axiosClient';
+import { useNavigate } from 'react-router-dom';
 
 const CreateLocation = () => {
+    const navigate = useNavigate();
     const [locationData, setLocationData] = useState({
         name: '',
         description: ''
@@ -13,18 +15,7 @@ const CreateLocation = () => {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
-    const [eventAssignments, setEventAssignments] = useState([
-        { eventId: '', eventDate: '', tickets: 0, price: 0 }
-    ]);
-
-    const [availableEvents, setAvailableEvents] = useState([]);
     const [errorState, setErrorState] = useState({ show: false, title: '', messages: [] });
-
-    useEffect(() => {
-        axios.get(`${ROUTES.BASE_URL}/events`)
-            .then(res => setAvailableEvents(res.data))
-            .catch(err => console.error("Fetch error:", err));
-    }, []);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -38,51 +29,21 @@ const CreateLocation = () => {
         setImagePreview(null);
     };
 
-    const updateAssignment = (index, field, value) => {
-        const updated = [...eventAssignments];
-        updated[index][field] = (field === 'price' || field === 'tickets') ? Number(value) : value;
-        setEventAssignments(updated);
-    };
-
-    const addEventRow = () => {
-        setEventAssignments([...eventAssignments, { eventId: '', eventDate: '', tickets: 0, price: 0 }]);
-    };
-
-    const removeEventRow = (index) => {
-        setEventAssignments(eventAssignments.filter((_, i) => i !== index));
-    };
-
     const handleSubmit = async () => {
         try {
-            // STEP 1: Create location — use FormData to support optional image upload
             const form = new FormData();
             form.append('name', locationData.name);
             form.append('description', locationData.description);
-            if (image) form.append('image', image);
+            if (image) form.append('imageUrl', image);
 
-            const locRes = await axios.post(`${ROUTES.BASE_URL}/locations`, form, {
+            const locRes = await axiosClient.post(`${ROUTES.LOCATIONS.ADMIN_CREATE}`, form, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const newLocationId = locRes.data.id;
 
-            // STEP 2: Create all event assignments
-            const assignmentPromises = eventAssignments.map(assign =>
-                axios.post(`${ROUTES.BASE_URL}/events/${assign.eventId}/locations`, {
-                    ...assign,
-                    locationId: newLocationId
-                })
-            );
-
-            await Promise.all(assignmentPromises);
-            alert("Location created and all events scheduled!");
+            navigate(ROUTES.LOCATIONS.DETAILS(locRes.data.id));
         } catch (err) {
             handleError(err);
         }
-    };
-
-    const fillTestData = () => {
-        const generated = LocationDataGenerator.generate();
-        setLocationData({ name: generated.name, description: generated.description });
     };
 
     const handleError = (err) => {
@@ -94,16 +55,12 @@ const CreateLocation = () => {
         <div style={styles.page}>
             <div style={styles.container}>
                 <header style={styles.header}>
-                    <h1 style={styles.title}>New Venue & Schedule</h1>
-                    <button type="button" onClick={fillTestData} style={styles.fillBtn}>
-                        ⚡ Fill with Bulgarian Venue
-                    </button>
+                    <h1 style={styles.title}>Create Location</h1>
                 </header>
 
                 <form style={styles.formCard}>
-                    {/* SECTION: LOCATION INFO */}
                     <section style={styles.section}>
-                        <h3 style={styles.sectionTitle}>1. Location Details</h3>
+                        <h3 style={styles.sectionTitle}>Location Details</h3>
 
                         <div style={styles.inputGroup}>
                             <label style={styles.label}>Location Name</label>
@@ -152,48 +109,8 @@ const CreateLocation = () => {
                         </div>
                     </section>
 
-                    {/* SECTION: MULTIPLE EVENT ASSIGNMENTS */}
-                    <section style={styles.section}>
-                        <h3 style={styles.sectionTitle}>2. Scheduled Events at this Venue</h3>
-                        {eventAssignments.map((item, index) => (
-                            <div key={index} style={styles.locationRow}>
-                                <div style={{ flex: 2 }}>
-                                    <label style={styles.miniLabel}>Select Event</label>
-                                    <select
-                                        style={styles.input}
-                                        value={item.eventId}
-                                        onChange={(e) => updateAssignment(index, 'eventId', e.target.value)}
-                                    >
-                                        <option value="">Choose Event</option>
-                                        {availableEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.eventName}</option>)}
-                                    </select>
-                                </div>
-                                <div style={{ flex: 2 }}>
-                                    <label style={styles.miniLabel}>Date</label>
-                                    <input
-                                        type="datetime-local"
-                                        style={styles.input}
-                                        onChange={(e) => updateAssignment(index, 'eventDate', e.target.value)}
-                                    />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <label style={styles.miniLabel}>Price</label>
-                                    <input
-                                        type="number"
-                                        style={styles.input}
-                                        onChange={(e) => updateAssignment(index, 'price', e.target.value)}
-                                    />
-                                </div>
-                                {eventAssignments.length > 1 && (
-                                    <button type="button" onClick={() => removeEventRow(index)} style={styles.removeBtn}>×</button>
-                                )}
-                            </div>
-                        ))}
-                        <button type="button" onClick={addEventRow} style={styles.addBtn}>+ Add Another Event Date</button>
-                    </section>
-
                     <button type="button" style={styles.submitBtn} onClick={handleSubmit}>
-                        Save Venue and All Events
+                        Save Location
                     </button>
                 </form>
             </div>

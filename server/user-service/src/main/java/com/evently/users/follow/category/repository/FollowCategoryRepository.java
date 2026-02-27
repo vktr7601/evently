@@ -16,4 +16,11 @@ public interface FollowCategoryRepository extends JpaRepository<FollowCategory, 
                 WHERE up.categoryId IN (:ids)
             """)
     List<Long> findFollowersByCategories(@Param("ids") List<Long> ids);
+
+    @Query("""
+                SELECT fc.categoryId
+                FROM FollowCategory fc
+                WHERE fc.user.id = :userId
+            """)
+    List<Long> findAllByUserId(@Param("userId") long userId);
 }

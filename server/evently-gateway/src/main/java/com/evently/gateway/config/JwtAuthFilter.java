@@ -43,9 +43,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        if (jwtUtility.isExpired(token)) {
-            //todo : throw an exception
-        }
 
         if (!jwtUtility.isTokenValid(token)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid " +
@@ -55,10 +52,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         long userId = jwtUtility.extractUserId(token);
         String role = jwtUtility.extractRoles(token).get(0);
-
+        String email = jwtUtility.extractEmail(token);
         setSecurityContext(userId, role);
 
-        filterChain.doFilter(withUserDetails(request, userId, role), response);
+        // 3. Pass email to the wrapper
+        filterChain.doFilter(withUserDetails(request, userId, role, email),
+                response);
     }
 
     @Override
@@ -83,13 +82,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private HttpServletRequest withUserDetails(HttpServletRequest request,
-                                               long userId, String role) {
+                                               long userId, String role,
+                                               String email) {
         String userIdValue = String.valueOf(userId);
         return new HttpServletRequestWrapper(request) {
             @Override
             public String getHeader(String name) {
                 if ("X-User-Id".equalsIgnoreCase(name)) return userIdValue;
                 if ("X-User-Role".equalsIgnoreCase(name)) return role;
+                if ("X-User-Email".equalsIgnoreCase(name))
+                    return email; // Added email
                 return super.getHeader(name);
             }
 
@@ -99,14 +101,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return Collections.enumeration(List.of(userIdValue));
                 if ("X-User-Role".equalsIgnoreCase(name))
                     return Collections.enumeration(List.of(role));
+                if ("X-User-Email".equalsIgnoreCase(name))
+                    return Collections.enumeration(List.of(email)); // Added
+                // email
                 return super.getHeaders(name);
             }
 
             @Override
             public Enumeration<String> getHeaderNames() {
-                List<String> names = Collections.list(super.getHeaderNames());
+                List<String> names =
+                        new java.util.ArrayList<>(Collections.list(super.getHeaderNames()));
                 names.add("X-User-Id");
                 names.add("X-User-Role");
+                names.add("X-User-Email"); // Added email
                 return Collections.enumeration(names);
             }
         };

@@ -121,8 +121,9 @@ const Register = () => {
             locations: formData.locations.map(l => l.id),
             isSubscribedToNewsletter: formData.subscribeNewsletter
         };
+
         try {
-            const res = await axiosClient.post(`${ROUTES.AUTH.USER_REGISTER}`, payload);
+            const res = await axiosClient.post(`${ROUTES.AUTH.USER_REGISTER}`, payload, { noAuth: true });
             setModal({
                 show: true,
                 title: 'Registration Successful',

@@ -2,8 +2,10 @@ package com.evently.events.event.controller;
 
 import com.evently.events.event.dto.EventDetailDto;
 import com.evently.events.event.dto.EventListItemDto;
+import com.evently.events.event.dto.UserEventsLocations;
 import com.evently.events.event.service.EventService;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import constants.ApplicationHeaders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,31 +48,6 @@ public class EventsController {
         return ResponseEntity.ok(eventService.findAllEventsByCategoryName(category));
     }
 
-//    @PostMapping
-//    public ResponseEntity<EventDetailDto> createEvent( @RequestBody
-//    EventCreate createEventRequest) {
-//        EventDetailDto createdEvent =
-//                eventService.createEvent(createEventRequest);
-//
-//        log.info("Response sent: Successfully created event: {}",
-//                createdEvent.getEventName());
-//
-//        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
-//    }
-//
-//    @PutMapping("/{id}")
-//    public ResponseEntity<EventDetailDto> updateEvent(@PathVariable Long id,
-//                                                     @Valid @RequestBody
-//                                                     EventUpdate
-//                                                     updateEventRequest) {
-//        EventDetailDto eventDetailDto = eventService.updateEvent(id,
-//                updateEventRequest);
-//
-//
-//        return ResponseEntity.ok(eventDetailDto);
-//    }
-
-
     @GetMapping("/{id}/location")
     public ResponseEntity<EventsLocationsDto> getLocation(@PathVariable Long id) {
         EventsLocationsDto eventsLocationsDto =
@@ -80,13 +57,9 @@ public class EventsController {
 
         return ResponseEntity.ok(eventsLocationsDto);
     }
-//
-//
-//    @PostMapping("/clear-past-events")
-//    public ResponseEntity<String> triggerEventsClearing() {
-//        var processedIds = eventService.clearHistoryEvents();
-//
-//        return ResponseEntity.ok("Successfully cleared past events. Processed" +
-//                " event IDs: " + processedIds);
-//    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<UserEventsLocations> getUserFeed(@RequestHeader(ApplicationHeaders.USER_ID) long userId) {
+        return ResponseEntity.noContent().build();
+    }
 }

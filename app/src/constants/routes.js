@@ -3,9 +3,15 @@ export const ROUTES = {
   EVENTS: {
     BASE: '/events',
     ADMIN_CREATE: '/admin/events',
+    ADMIN_EDIT_EXISTING: (id) => `/admin/events/${id}`,
     ADMIN_EDIT: (id) => `/admin/events/${id}/edit`,
     DETAILS: (id) => `/events/${id}`,
     EVENT_LOCATIONS_DETAILS: (id) => `/event-details/${id}`,
+    EVENT_LOCATION: (id) => `/events/${id}/location`
+  },
+  TICKETS: {
+    AVAILABILITY: '/tickets/availability',
+    USER: '/tickets/',
   },
   ORDERS: {
     BASE: '/orders',
@@ -13,6 +19,7 @@ export const ROUTES = {
     ACTIVE: '/orders/active',
     ADMIN: '/admin/orders',
     CANCEL: '/orders/cancel',
+    DETAILS: (number) => `/orders/details/${number}`,
   },
   NOTIFICATIONS:{
     BASE: '/notifications',
@@ -26,7 +33,7 @@ export const ROUTES = {
   },
   LOCATIONS: {
     BASE: '/locations',
-    ADMIN_CREATE: '/admin/location/create',
+    ADMIN_CREATE: '/admin/location',
     DETAILS: (id) => `/locations/${id}`,
   },
   CATEGORIES: {
@@ -36,6 +43,9 @@ export const ROUTES = {
   },
   ARTISTS: {
     BASE: '/artists',
+    ADMIN_CREATE: '/admin/artist',
     DETAILS: (id) => `/artists/${id}`,
+    FOLLOW: (id) => `/follows/artist/${id}`,
+    STATUS: (id) => `/follows/artist/${id}/status`,
   },
 };

@@ -11,7 +11,7 @@ const ArtistDetails = () => {
     const [isFollowed, setIsFollowed] = useState(false);
 
     useEffect(() => {
-        let isMounted = true; // Prevents updating state on unmounted component
+        let isMounted = true;
         const token = localStorage.getItem("jwtToken");
 
         const fetchArtistData = async () => {
@@ -19,11 +19,8 @@ const ArtistDetails = () => {
                 const artistRes = await axiosClient.get(`${ROUTES.ARTISTS.DETAILS(id)}`);
                 if (isMounted) setArtist(artistRes.data);
 
-                // 2. Fetch Status only if authenticated
                 if (isAuth && token) {
-                    const statusRes = await axiosClient.get(`/follows/artist/${id}/status`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+                    const statusRes = await axiosClient.get(`${ROUTES.ARTISTS.STATUS(id)}`);
                     if (isMounted) setIsFollowed(statusRes.data.isFollowed);
                 }
             } catch (err) {
@@ -33,33 +30,23 @@ const ArtistDetails = () => {
 
         fetchArtistData();
 
-        return () => { isMounted = false; }; // Cleanup function
+        return () => { isMounted = false; };
     }, [id, isAuth]);
 
     const handleFollow = () => {
-        // if (!isFollowed) {
-        //     axios.post(`http://localhost:9000/follows/artist/${id}`, {}, {
-        //         headers: {
-        //             'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-        //         }
-        //     })
-        //         .then(res => {
-        //             setIsFollowed(true);
-        //         })
-        //         .catch(err => console.error(err));
-        // } else {
-        //     axios.delete(`http://localhost:9000/follows/artist/${id}`, {
-        //         headers: {
-        //             'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-        //         }
-        //     })
-        //         .then(res => {
-        //             setIsFollowed(false);
-        //         })
-        //         .catch(err => console.error(err));
-        // }
-
-        alert(`You are now following ${artist.name}!`);
+        if (!isFollowed) {
+            axiosClient.post(`${ROUTES.ARTISTS.FOLLOW(id)}`)
+                .then(res => {
+                    setIsFollowed(true);
+                })
+                .catch(err => console.error(err));
+        } else {
+            axiosClient.delete(`${ROUTES.ARTISTS.FOLLOW(id)}`)
+                .then(res => {
+                    setIsFollowed(false);
+                })
+                .catch(err => console.error(err));
+        }
     };
 
     if (!artist) return <div className="text-center py-5 mt-5"><div className="spinner-border text-primary"></div></div>;

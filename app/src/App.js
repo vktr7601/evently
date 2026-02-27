@@ -22,6 +22,9 @@ import Orders from './features/order/Orders';
 import OrderDetails from './features/order/OrderDetails';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ROUTES } from './constants/routes';
+import Tickets from './features/ticket/Tickets';
+import CreateLocation from './features/locations/CreateLocation';
+import CreateArtist from './features/artists/CreateArtist';
 
 function App() {
   return (
@@ -36,21 +39,21 @@ function App() {
             <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/locations" element={<Locations />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/locations/:id" element={<LocationDetails />} />
-            <Route path="/artists" element={<Artists />} />
-            <Route path="/artists/:id" element={<ArtistDetails />} />
-            <Route path="/events/:id/edit" element={<EditEvent />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/profile" element={< Profile />} />
-            {/* <Route path="/admin/events" element={<CreateEvent />} /> */}
-            <Route path="/events/details/:id" element={<EventDetails />} />
-            <Route path='/event-details/:id' element={<EventLocationDetails />} />
-            <Route path="/order/active" element={<OrderPayment />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/details/:number" element={<OrderDetails />} />
+            <Route path={ROUTES.LOCATIONS.BASE} element={<Locations />} />
+            <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
+            <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
+            <Route path={ROUTES.ARTISTS.BASE} element={<Artists />} />
+            <Route path={ROUTES.ARTISTS.DETAILS(':id')} element={<ArtistDetails />} />
+            <Route path={ROUTES.EVENTS.ADMIN_EDIT(':id')} element={<EditEvent />} />
+            <Route path={ROUTES.NOTIFICATIONS.BASE} element={<Notifications />} />
+            <Route path={ROUTES.AUTH.PROFILE} element={<Profile />} />
+            <Route path={ROUTES.ORDERS.ACTIVE} element={<OrderPayment />} />
+            <Route path={ROUTES.ORDERS.BASE} element={<Orders />} />
+            <Route path={ROUTES.ORDERS.DETAILS(':number')} element={<OrderDetails />} />
+            <Route path={ROUTES.TICKETS.USER} element={<Tickets />} />
+            <Route path={ROUTES.LOCATIONS.DETAILS(':id')} element={<LocationDetails />} />
+            <Route path={ROUTES.LOCATIONS.ADMIN_CREATE} element={<CreateLocation />} />
+            <Route path={ROUTES.ARTISTS.ADMIN_CREATE} element={<CreateArtist />} />
             {/* <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />
@@ -58,11 +61,9 @@ function App() {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={< Profile />} />
             <Route path='/event-details/:id' element={<EventLocationDetails />} />
-            <Route path="/order/active" element={<OrderPayment />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/details/:number" element={<OrderDetails />} />
+
             <Route path="/admin/event-management/:id" element={<EditEvent />} />
-            <Route path="/admin/location/create" element={<CreateLocation />} /> */} */} */}
+            <Route path="/admin/location/create" element={<CreateLocation />} /> */}
           </Routes>
         </div>
       </main>

@@ -1,9 +1,13 @@
 package com.evently.events.locations.service;
 
-import com.evently.events.infrastructure.clients.BookingServiceClient;
 import com.evently.events.eventsLocations.dto.request.EventsLocationsData;
+import com.evently.events.infrastructure.clients.BookingServiceClient;
+import com.evently.events.infrastructure.s3.S3Folders;
+import com.evently.events.infrastructure.s3.S3Service;
 import com.evently.events.locations.dto.LocationDetails;
 import com.evently.events.locations.dto.LocationListItem;
+import com.evently.events.locations.dto.mapper.LocationsMapper;
+import com.evently.events.locations.dto.request.LocationRequest;
 import com.evently.events.locations.model.Location;
 import com.evently.events.locations.repository.LocationRepository;
 import exceptions.ResourceNotFoundException;
@@ -21,7 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
-    
+    private final S3Service s3Service;
+    private final LocationsMapper locationsMapper;
     private final BookingServiceClient bookingServiceClient;
 
     @Transactional
@@ -96,6 +101,18 @@ public class LocationService {
                 .toList();
 
         return locationRepository.findAllById(locationIds);
+    }
+
+    @Transactional
+    public LocationDetails createLocation(LocationRequest locationRequest) {
+        String imageUrl = s3Service.uploadFile(locationRequest.getImageUrl(),
+                S3Folders.LOCATIONS);
+
+        Location location = locationsMapper.toEntity(locationRequest, imageUrl);
+
+        locationRepository.save(location);
+        
+        return locationsMapper.toDto(location);
     }
 
 //    public Map<Long, Location> findAllByIdIn(List<Long> locationIds) {

@@ -26,15 +26,16 @@ public class JWTUtility {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String username, long userId,
+    public String generateToken(String email, long userId,
                                 List<String> roles) {
         List<String> userRole = roles.stream()
                 .map(role -> "ROLE_" + role)
                 .toList();
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .claim("userId", userId)
                 .claim("roles", userRole)
+                .claim("email", email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
@@ -56,6 +57,10 @@ public class JWTUtility {
 
     public List<String> extractRoles(String token) {
         return extractAllClaims(token).get("roles", List.class);
+    }
+
+    public String extractEmail(String token) {
+        return extractAllClaims(token).get("email", String.class);
     }
 
     private Claims extractAllClaims(String token) {

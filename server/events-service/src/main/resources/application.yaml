@@ -1,3 +1,10 @@
+aws:
+  accessKeyId: ${AWS_ACCESS_KEY}
+  secretAccessKey: ${AWS_SECRET_KEY}
+  region: eu-north-1
+  s3:
+    bucketName: evently-spring
+
 spring:
   application:
     name: events-service
@@ -19,8 +26,7 @@ spring:
       auto-offset-reset: earliest
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "events.ticket"
-
+        spring.json.trusted.packages: "events.ticket,events.user"
 ---
 spring:
   config:

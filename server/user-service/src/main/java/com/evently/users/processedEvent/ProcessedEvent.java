@@ -2,23 +2,20 @@ package com.evently.users.processedEvent;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProcessedEvent {
     @Id
-    private UUID eventId;
-
+    private String eventId;
     private Instant processedAt;
-
-//    private String eventType; // Useful for debugging or cleanup later
-
-    public ProcessedEvent() {}
-
-    public ProcessedEvent(UUID eventId, String eventType) {
-        this.eventId = eventId;
-        this.processedAt = Instant.now();
-    }
 }

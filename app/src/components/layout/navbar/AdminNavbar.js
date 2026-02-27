@@ -21,6 +21,9 @@ const AdminNavbar = () => {
             <li className="nav-item">
                 <NavLink to={ROUTES.LOCATIONS.ADMIN_CREATE} className="nav-link px-3">Create Location</NavLink>
             </li>
+            <li className="nav-item">
+                <NavLink to={ROUTES.ARTISTS.ADMIN_CREATE} className="nav-link px-3">Create Artist</NavLink>
+            </li>
         </ul>
     );
 };

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import persistence.BaseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -51,4 +52,6 @@ public class User extends BaseEntity {
     private List<FollowArtist> followArtistsList;
     @Column(name = "notifications_on")
     private boolean shouldReceiveNotification;
+    @Column(name = "last_logged_in")
+    private LocalDateTime lastLoggedIn;
 }

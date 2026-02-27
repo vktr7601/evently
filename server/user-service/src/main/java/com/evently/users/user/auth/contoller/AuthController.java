@@ -25,6 +25,8 @@ public class AuthController {
         User user = userService.findByEmail(request.getEmail());
         String token = authService.generateToken(user,
                 request.getPassword());
+        userService.updateLastLoginDate(user);
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwtToken(token);
         authResponse.setUserRole(user.getUserRole().toString());

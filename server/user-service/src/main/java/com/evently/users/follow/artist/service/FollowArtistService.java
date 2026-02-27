@@ -3,22 +3,21 @@ package com.evently.users.follow.artist.service;
 import com.evently.users.follow.artist.model.FollowArtist;
 import com.evently.users.follow.artist.repository.FollowArtistRepository;
 import com.evently.users.user.model.User;
-import com.evently.users.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class FollowArtistService {
     private final FollowArtistRepository artistFollowRepository;
-    private final UserService userService;
 
     @Transactional
-    public void followArtist(Long userId, Long artistId) {
-        User user = userService.findById(userId);
+    public void followArtist(User user, Long artistId) {
         FollowArtist artistFollow = new FollowArtist();
         artistFollow.setUser(user);
         artistFollow.setArtistId(artistId);
@@ -38,5 +37,10 @@ public class FollowArtistService {
     public boolean isFollowed(long userId, long artistId) {
         return artistFollowRepository.findByArtistIdAndUserId(artistId,
                 userId).isPresent();
+    }
+
+    @Transactional
+    public List<Long> findAllByUserId(long userId) {
+        return artistFollowRepository.findAllByUserId(userId);
     }
 }

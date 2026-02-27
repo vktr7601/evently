@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ErrorModal from '../../components/modals/ErrorModal';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
+import { useNavigate } from 'react-router-dom';
 
 const CreateEvent = () => {
+    const navigate = useNavigate();
     const [errorState, setErrorState] = useState({ show: false, title: '', messages: [] });
     const [eventData, setEventData] = useState({
         eventName: '',
@@ -24,15 +28,14 @@ const CreateEvent = () => {
     const [categories, setCategories] = useState([]);
 
 
-  
-    // --- Fetch Data ---
-    useEffect(() => {
+      useEffect(() => {
         const fetchData = async () => {
             try {
                 const [locRes, artRes, catRes] = await Promise.all([
-                    axios.get('http://localhost:9000/locations'),
-                    axios.get('http://localhost:9000/artists'),
-                    axios.get('http://localhost:9000/categories')
+
+                    axiosClient.get(`${ROUTES.LOCATIONS.BASE}`),
+                    axiosClient.get(`${ROUTES.ARTISTS.BASE}`),
+                    axiosClient.get(`${ROUTES.CATEGORIES.BASE}`)
                 ]);
                 setLocations(locRes.data);
                 setArtists(artRes.data);
@@ -44,7 +47,6 @@ const CreateEvent = () => {
         fetchData();
     }, []);
 
-    // --- Handlers ---
     const handleError = (err) => {
         let title = "Submission Failed";
         let messages = ["An unexpected error occurred. Please try again."];
@@ -82,7 +84,6 @@ const CreateEvent = () => {
         setEventData(prev => {
             const updatedLocations = prev.eventLocations.map((loc, i) => {
                 if (i === index) {
-                    // CRITICAL FIX: Don't convert Date strings to Numbers
                     const isNumberField = ['locationId', 'ticketsCount', 'pricePerTicket'].includes(field);
                     const processedValue = isNumberField && value !== '' ? Number(value) : value;
                     
@@ -111,7 +112,6 @@ const CreateEvent = () => {
     };
 
     const createEvent = () => {
-        // Construct payload specifically to match your Java CreateEventRequest
         const payload = {
             eventName: eventData.eventName,
             eventDescription: eventData.eventDescription,
@@ -120,14 +120,9 @@ const CreateEvent = () => {
             eventLocations: eventData.eventLocations
         };
 
-        axios.post(`http://localhost:9000/admin/events`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                }
-            })
+        axiosClient.post(`${ROUTES.EVENTS.ADMIN_CREATE}`, payload)
             .then(res => {
-                alert("Event created successfully!");
-                console.log("Success:", res.data);
+                navigate(ROUTES.EVENTS.DETAILS(res.data.id));
             })
             .catch(err => handleError(err));
     };
@@ -141,7 +136,6 @@ const CreateEvent = () => {
                 </header>
 
                 <form style={styles.formCard} onSubmit={(e) => e.preventDefault()}>
-                    {/* SECTION 1: BASIC INFO */}
                     <section style={styles.section}>
                         <h3 style={styles.sectionTitle}>1. Basic Information</h3>
                         <div style={styles.inputGroup}>
@@ -165,7 +159,6 @@ const CreateEvent = () => {
                         </div>
                     </section>
 
-                    {/* SECTION 2: TALENT & CATEGORY */}
                     <section style={styles.section}>
                         <h3 style={styles.sectionTitle}>2. Talent & Classification</h3>
                         <div style={styles.grid2}>
@@ -198,7 +191,6 @@ const CreateEvent = () => {
                         </div>
                     </section>
 
-                    {/* SECTION 3: DATES & LOCATIONS */}
                     <section style={styles.section}>
                         <h3 style={styles.sectionTitle}>3. Dates & Locations</h3>
                         {eventData.eventLocations.map((loc, index) => (
