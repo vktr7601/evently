@@ -1,6 +1,10 @@
 spring:
   application:
     name: notification-service
+  thymeleaf:
+    suffix: .html
+    mode: HTML
+    prefix: classpath:/templates/
 
   kafka:
     producer:
@@ -10,7 +14,7 @@ spring:
       auto-offset-reset: earliest
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "events.user,events.ticket,events.event"
+        spring.json.trusted.packages: "events.user,events.ticket,events.event,events.order"
 
   datasource:
     url: jdbc:postgresql://localhost:5432/notifications_db

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; padding: 20px; }
+        .card { max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 40px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .success-icon { font-size: 48px; margin-bottom: 20px; }
+        h1 { font-size: 24px; margin-bottom: 10px; color: #0f172a; }
+
+        /* Amount Box Styling */
+        .amount-box { margin: 25px 0; padding: 20px; background-color: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0; }
+        .total-label { font-size: 14px; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; }
+        .total-value { font-size: 32px; font-weight: bold; color: #14532d; }
+
+        /* Primary Button */
+        .button { display: inline-block; background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+
+        /* Secondary Invoice Link */
+        .invoice-link { display: block; margin-top: 20px; font-size: 14px; color: #64748b; text-decoration: underline; }
+        .invoice-link:hover { color: #2563eb; }
+
+        .footer-text { margin-top: 30px; font-size: 13px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="success-icon">✅</div>
+    <h1>Order Confirmed!</h1>
+    <p>Thank you for your purchase. Your payment was processed successfully.</p>
+
+    <div class="amount-box">
+        <div class="total-label">Total Amount Paid</div>
+        <div class="total-value">$<span th:text="${totalAmount}">0.00</span></div>
+    </div>
+
+    <p>Your tickets are now available in your account.</p>
+
+    <a th:href="${orderHistoryUrl}" class="button">View Your Order Details</a>
+
+    <a th:href="${invoiceUrl}" class="invoice-link">Download / View Official Invoice (PDF)</a>
+
+    <div class="footer-text">
+        Need help? Contact support@evently.com<br>
+        Order ID: <span th:text="${orderId}">#000000</span>
+    </div>
+</div>
+</body>
+</html>

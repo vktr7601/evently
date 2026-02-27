@@ -9,8 +9,7 @@ const AdminNavbar = () => {
                     Inbox
                 </NavLink>
             </li>
-            {/* //adming orders */}
-             <li className="nav-item">
+            <li className="nav-item">
                 <NavLink to={ROUTES.ORDERS.ADMIN} className="nav-link px-3">
                     Orders
                 </NavLink>
@@ -24,7 +23,7 @@ const AdminNavbar = () => {
             <li className="nav-item">
                 <NavLink to={ROUTES.ARTISTS.ADMIN_CREATE} className="nav-link px-3">Create Artist</NavLink>
             </li>
-             <li className="nav-item">
+            <li className="nav-item">
                 <NavLink to={ROUTES.EVENTS.ADMIN_BULK_CREATE} className="nav-link px-3">Create Bulk Events</NavLink>
             </li>
         </ul>

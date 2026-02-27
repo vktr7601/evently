@@ -25,6 +25,7 @@ export const ROUTES = {
   },
   NOTIFICATIONS:{
     BASE: '/notifications',
+    SPECIFIC: (id) => `/notifications/${id}`,
   }, 
   AUTH: {
     REGISTER: '/register',

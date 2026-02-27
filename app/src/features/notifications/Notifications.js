@@ -1,30 +1,31 @@
 import NotificationList from './NotificationList';
 import Hero from '../../components/layout/Hero';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import axiosClient from '../../api/axiosClient';
+import { ROUTES } from '../../constants/routes';
 
 const Notifications = () => {
-    // This state connects the List (child) to the Detail view (parent)
     const [selectedNote, setSelectedNote] = useState(null);
     const handleDelete = (id) => {
-        // Placeholder for delete functionality
-
-        axios.delete(`http://localhost:9000/notifications/${id}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-            }
-        })
+        axiosClient.delete(`${ROUTES.NOTIFICATIONS.SPECIFIC(id)}`)
         .then(res => {
-            // If the deleted note is currently selected, clear the detail view
             if (selectedNote && selectedNote.id === id) {
                 setSelectedNote(null);
             }
-            // Optionally, you could also trigger a refresh of the notification list here
         })
         .catch(err => console.error("Delete error:", err));
-        alert(`Delete notification with ID: ${id}`);
     };
+    const handleMarkRead = (id) => {
+        axiosClient.put(`${ROUTES.NOTIFICATIONS.SPECIFIC(id)}`)
+        .then(res => {
+            if (selectedNote && selectedNote.id === id) {
+                setSelectedNote(null);
+            }
+        })
+        .catch(err => console.error("Mark read error:", err));
+    };
+
     return (
         <div className="bg-light min-vh-100">
             <Hero
@@ -40,27 +41,21 @@ const Notifications = () => {
                 <div className="card shadow-lg border-0 rounded-4 overflow-hidden">
                     <div className="row g-0" style={{ minHeight: '600px' }}>
                         
-                        {/* LEFT COLUMN: Notification List */}
                         <div className="col-lg-4 border-end bg-white overflow-auto" style={{ maxHeight: '800px' }}>
                             <div className="card-header bg-white py-3 px-4 border-bottom sticky-top">
                                 <h5 className="fw-black mb-0">Recent Updates</h5>
                             </div>
-                            {/* Pass the selection handler to the list */}
                             <NotificationList 
                                 onSelectNote={setSelectedNote} 
                                 activeId={selectedNote?.id} 
                             />
                         </div>
 
-                        {/* RIGHT COLUMN: Detailed View */}
                         <div className="col-lg-8 bg-white d-flex flex-column">
                             {selectedNote ? (
                                 <div className="p-4 p-md-5 animate__animated animate__fadeIn">
                                     <div className="d-flex justify-content-between align-items-start mb-4">
                                         <div>
-                                            <span className="badge bg-primary-subtle text-primary mb-2">
-                                                {selectedNote.type || 'Event Update'}
-                                            </span>
                                             <h2 className="display-6 fw-bold text-dark">{selectedNote.title}</h2>
                                             <p className="text-muted mb-0">
                                                 <i className="bi bi-clock me-2"></i>
@@ -72,14 +67,18 @@ const Notifications = () => {
                                     <hr className="my-4 opacity-75" />
 
                                     <div className="fs-5 text-secondary mb-5" style={{ lineHeight: '1.8' }}>
-                                        {/* Renders HTML if the message contains tags from the backend */}
-                                        <div dangerouslySetInnerHTML={{ __html: selectedNote.message }} />
+                                        <div dangerouslySetInnerHTML={{ __html: selectedNote.htmlBody }} />
                                     </div>
 
                                     <div className="mt-auto pt-4 d-flex gap-3">
                                         <button onClick={() => handleDelete(selectedNote.id)} className="btn btn-outline-light text-danger border-0 px-4">
                                             <i className="bi bi-trash3 me-2"></i> Delete
                                         </button>
+                                        {selectedNote.read !== 'true' && (
+                                        <button onClick={() => handleMarkRead(selectedNote.id)} className="btn btn-outline-light text-success border-0 px-4">
+                                            <i className="bi bi-check2-circle me-2"></i> Mark as Read
+                                        </button>
+                                        )}
                                     </div>
                                 </div>
                             ) : (
