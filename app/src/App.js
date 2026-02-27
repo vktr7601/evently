@@ -54,6 +54,7 @@ function App() {
             <Route path={ROUTES.LOCATIONS.DETAILS(':id')} element={<LocationDetails />} />
             <Route path={ROUTES.LOCATIONS.ADMIN_CREATE} element={<CreateLocation />} />
             <Route path={ROUTES.ARTISTS.ADMIN_CREATE} element={<CreateArtist />} />
+            <Route path={ROUTES.EVENTS.EVENT_LOCATIONS_DETAILS(':id')} element={<EventLocationDetails />} />
             {/* <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />

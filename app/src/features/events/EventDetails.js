@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ROUTES } from '../../constants/routes';
 import axiosClient from '../../api/axiosClient';
 import Spinner from '../../components/layout/Spinner';
+import EventLocationListItem from '../events/EventLocationListItem';
 
 
 const EventDetails = () => {
@@ -120,37 +121,7 @@ const EventDetails = () => {
                     <div className="row g-4">
                         {event.eventLocations && event.eventLocations.length > 0 ? (
                             event.eventLocations.map((loc) => (
-                                <div key={loc.id} className="col-12">
-                                    <div className={`card border-0 shadow-sm p-3 transition-hover ${loc.eventsLocationsStatus === 'SOLD_OUT' ? 'opacity-75' : ''}`}>
-                                        <div className="row align-items-center text-center text-md-start">
-                                            {/* Date/Time Column */}
-                                            <div className="col-md-2 border-end-md">
-                                                <h4 className="fw-bold mb-0">
-                                                    {new Date(loc.eventStartTime).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
-                                                </h4>
-                                                <small className="text-muted">
-                                                    {new Date(loc.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </small>
-                                            </div>
-
-                                            <div className="col-md-5">
-                                                <h5 className="fw-bold mb-1">{loc.locationName}</h5>
-                                                <p className="text-primary mb-0 small text-uppercase fw-bold">
-                                                    <i className="bi bi-geo-alt-fill me-1"></i>
-                                                    {loc.eventName}
-                                                </p>
-                                            </div>
-
-                                            <div className="col-md-2">
-                                                <span className="fs-5 fw-bold text-dark">€{loc.pricePerTicket.toFixed(2)}</span>
-                                            </div>
-
-                                            <div className="col-md-3 text-md-end mt-3 mt-md-0">
-                                                {renderBookingButton(loc)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <EventLocationListItem key={loc.id} loc={loc} />
                             ))
                         ) : (
                             <div className="col-12 text-center py-5">

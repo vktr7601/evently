@@ -55,7 +55,6 @@ const ArtistDetails = () => {
 
     return (
         <div className="bg-white min-vh-100">
-            {/* Hero Section: Artist Info */}
             <section className="py-5 bg-light border-bottom">
                 <div className="container">
                     <div className="row align-items-center">
