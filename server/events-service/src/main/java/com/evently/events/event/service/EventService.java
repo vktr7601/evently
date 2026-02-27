@@ -23,7 +23,6 @@ import com.evently.events.eventsLocations.service.data.FetchMode;
 import com.evently.events.infrastructure.clients.BookingServiceClient;
 import events.event.*;
 import events.ticket.TicketsCreationEvent;
-import events.user.UserRegisteredEvent;
 import exceptions.DuplicateResourceException;
 import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -263,15 +262,6 @@ public class EventService {
         eventsLocationsRepository.saveAll(existingMap.values());
 
         eventPublisher.publishEvent(eventTicketsBulkUpdate);
-    }
-
-    @Transactional
-    public void generateUserFeed(UserRegisteredEvent userRegisteredEvent) {
-        boolean hasCategories =
-                !userRegisteredEvent.getFollowCategories().isEmpty();
-        boolean hasLocations =
-                !userRegisteredEvent.getFollowLocations().isEmpty();
-
     }
 
     private void processAdditions(Event event,

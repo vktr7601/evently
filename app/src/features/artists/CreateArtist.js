@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState} from 'react';
 import ErrorModal from '../../components/modals/ErrorModal';
-import LocationDataGenerator from '../../utils/LocationDataGenerator';
 import { ROUTES } from '../../constants/routes';
 import axiosClient from '../../api/axiosClient';
 import { useNavigate } from 'react-router-dom';
@@ -46,11 +44,6 @@ const CreateArtist = () => {
         } catch (err) {
             handleError(err);
         }
-    };
-
-    const fillTestData = () => {
-        const generated = LocationDataGenerator.generate();
-        setArtistData({ name: generated.name, bio: generated.bio });
     };
 
     const handleError = (err) => {

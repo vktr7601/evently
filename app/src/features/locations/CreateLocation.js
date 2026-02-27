@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import ErrorModal from '../../components/modals/ErrorModal';
-import LocationDataGenerator from '../../utils/LocationDataGenerator';
+
 import { ROUTES } from '../../constants/routes';
 import axiosClient from '../../api/axiosClient';
 import { useNavigate } from 'react-router-dom';
@@ -41,16 +40,10 @@ const CreateLocation = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            alert("Location created and all events scheduled!");
             navigate(ROUTES.LOCATIONS.DETAILS(locRes.data.id));
         } catch (err) {
             handleError(err);
         }
-    };
-
-    const fillTestData = () => {
-        const generated = LocationDataGenerator.generate();
-        setLocationData({ name: generated.name, description: generated.description });
     };
 
     const handleError = (err) => {

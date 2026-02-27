@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
@@ -40,9 +39,9 @@ const OrderDetails = () => {
                         <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 fw-bold">
                             View Receipt
                         </a>
-                        <button onClick={handleRefundRequest} className="btn btn-success rounded-pill px-4 fw-bold">
+                        {/* <button onClick={handleRefundRequest} className="btn btn-success rounded-pill px-4 fw-bold">
                             Request Refund
-                        </button>
+                        </button> */}
                     </div>
                 );
             case 'CANCELLED':
@@ -54,18 +53,18 @@ const OrderDetails = () => {
         };
     };
 
-    const handleRefundRequest = async () => {
-        try {
-            await axios.post(`http://localhost:9000/orders/refund/${number}`, {}, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-                }
-            });
-            alert("Refund requested successfully.");
-        } catch (err) {
-            alert("Could not request refund.");
-        }
-    };
+    // const handleRefundRequest = async () => {
+    //     try {
+    //         await axiosClient.post(`http://localhost:9000/orders/refund/${number}`, {}, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
+    //             }
+    //         });
+    //         alert("Refund requested successfully.");
+    //     } catch (err) {
+    //         alert("Could not request refund.");
+    //     }
+    // };
 
     if (loading) return <div className="container mt-5 text-center text-muted">Loading order details...</div>;
     if (!order) return <div className="container mt-5 text-center text-danger">Order not found.</div>;
@@ -73,7 +72,6 @@ const OrderDetails = () => {
     return (
         <div className="container my-5" style={{ maxWidth: '1100px' }}>
 
-            {/* --- TOP SECTION: ORDER OVERVIEW --- */}
             <div className="card border-0 shadow-lg rounded-4 overflow-hidden mb-5">
                 <div className="card-header bg-white border-0 p-4 pt-5">
                     <div className="d-flex justify-content-between align-items-start">

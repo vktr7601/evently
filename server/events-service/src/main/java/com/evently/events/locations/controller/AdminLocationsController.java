@@ -8,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
@@ -23,12 +26,6 @@ public class AdminLocationsController {
     public ResponseEntity<LocationDetails> createLocation(@Valid @ModelAttribute LocationRequest locationRequest) {
         LocationDetails locationDetails =
                 locationService.createLocation(locationRequest);
-
-        return new ResponseEntity(locationDetails, HttpStatus.CREATED);
-    }
-
-    @PutMapping("{id}")
-    public ResponseEntity<?> updateExistingLocation() {
-        return null;
+        return ResponseEntity.status(HttpStatus.CREATED).body(locationDetails);
     }
 }

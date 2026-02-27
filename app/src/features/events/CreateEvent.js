@@ -3,8 +3,10 @@ import axios from 'axios';
 import ErrorModal from '../../components/modals/ErrorModal';
 import axiosClient from '../../api/axiosClient';
 import { ROUTES } from '../../constants/routes';
+import { useNavigate } from 'react-router-dom';
 
 const CreateEvent = () => {
+    const navigate = useNavigate();
     const [errorState, setErrorState] = useState({ show: false, title: '', messages: [] });
     const [eventData, setEventData] = useState({
         eventName: '',
@@ -120,7 +122,7 @@ const CreateEvent = () => {
 
         axiosClient.post(`${ROUTES.EVENTS.ADMIN_CREATE}`, payload)
             .then(res => {
-                alert("Event created successfully!");
+                navigate(ROUTES.EVENTS.DETAILS(res.data.id));
             })
             .catch(err => handleError(err));
     };
