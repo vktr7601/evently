@@ -1,4 +1,4 @@
-package com.evently.booking.infrastructure.clients.paymentService.data;
+package com.evently.payment.payments.provider.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,14 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentRequest implements Serializable {
+public class PaymentRequest {
     @JsonProperty("transactionId")
     private String transactionId;
     @JsonProperty("amount")

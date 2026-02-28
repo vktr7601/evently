@@ -7,5 +7,5 @@ import com.evently.payment.payments.entities.PaymentProcessingResult;
 public interface PaymentProvider {
     PaymentProcessingResult process(StripePaymentRequest request);
 
-    StripePaymentRequest processRefund(StripePaymentRefund  refund);
+    PaymentProcessingResponse processRefund(StripePaymentRefund  refund);
 }

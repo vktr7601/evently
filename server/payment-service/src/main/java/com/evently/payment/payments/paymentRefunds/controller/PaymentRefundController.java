@@ -1,0 +1,13 @@
+package com.evently.payment.payments.paymentRefunds.controller;
+
+import com.evently.payment.payments.paymentRefunds.service.PaymentRefundsService;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/payment-refunds")
+public class PaymentRefundController {
+    private final PaymentRefundsService paymentRefundsService;
+}

@@ -2,7 +2,9 @@ package com.evently.booking.order.service;
 
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
+import com.evently.booking.infrastructure.clients.paymentService.data.PaymentMapper;
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentRequest;
+import com.evently.booking.infrastructure.clients.paymentService.data.PaymentResponse;
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
 import com.evently.booking.infrastructure.exceptions.*;
 import com.evently.booking.order.data.OrderMapper;
@@ -31,7 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -40,7 +45,7 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final TicketService ticketService;
-
+    private final PaymentMapper paymentMapper;
     private final OrderMapper orderMapper;
     private final ObjectMapper objectMapper;
     private final PaymentServiceClient paymentServiceClient;
@@ -242,67 +247,89 @@ public class OrderService {
         });
     }
 
-    @Transactional
-    public void finishActiveUserOrder(String userEmail, Long userId,
-                                      FinishOrderRequest finishOrderRequest) throws ProcessOrderException, OrderExpiredException {
+    @Transactional(noRollbackFor = PriceChangedException.class)
+    public void completeOrder(String userEmail, Long userId,
+                              FinishOrderRequest finishOrderRequest) throws ProcessOrderException, OrderExpiredException {
         Order order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
-        //todo: this is buggy
-        boolean dateChanged =
-                order.getTickets().stream().anyMatch(t -> !t.getEventStartTime().equals(t.getOriginalEventStartTime()));
+        validateOrderDetails(order);
+        PaymentRequest paymentRequest =
+                paymentMapper.toPaymentRequest(finishOrderRequest, order,
+                        userEmail);
 
-        BigDecimal latestTotal =
-                order.getTickets().stream().map(Ticket::getPrice) // Assuming
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+        ResponseEntity<PaymentResponse> response =
+                paymentServiceClient.handlePayment(paymentRequest);
+        PaymentResponse paymentResponse = response.getBody();
+        if (paymentResponse.isSuccess()) {
+            handleSuccessfulPayment(order, paymentResponse);
+        } else {
+            handleFailedPayment(paymentResponse);
+        }
+    }
+
+    // important for validating whether the date of the events hasn't changed
+    // or price of tickets, causing the form to be reloaded to show latest
+    // details
+    public void validateOrderDetails(Order order) {
+        boolean dateChanged = order.getTickets().stream()
+                .anyMatch(t -> !t.getEventStartTime().equals(t.getOriginalEventStartTime()));
+
+        BigDecimal latestTotal = order.getTickets().stream()
+                .map(Ticket::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         boolean priceChanged =
                 latestTotal.compareTo(order.getTotalPrice()) != 0;
 
-        if (dateChanged || priceChanged) {
-            order.setTotalPrice(latestTotal);
 
+        if (dateChanged || priceChanged) {
+            log.info("Order [{}] snapshot invalid — dateChanged={}, " +
+                            "priceChanged={}, latestTotal={}",
+                    order.getId(), dateChanged, priceChanged, latestTotal);
+
+            order.setTotalPrice(latestTotal);
             order.getTickets().forEach(t -> t.setOriginalEventStartTime(t.getEventStartTime()));
             orderRepository.save(order);
-            throw new PriceChangedException(dateChanged ? "The event time " +
-                    "has" + " changed. Please confirm the new " + "details."
-                    : "The " + "price has been updated.");
+
+            String reason = dateChanged
+                    ? "The event time has changed. Please confirm the new " +
+                    "details."
+                    : "The price has been updated. Please refresh the page.";
+
+            throw new PriceChangedException(reason);
         }
+    }
 
-        PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setOrderNumber(order.getNumber().toString());
-        paymentRequest.setStripePaymentMethodId(finishOrderRequest.getStripePaymentMethodId());
-        paymentRequest.setAmount(order.getTotalPrice());
-        paymentRequest.setUserEmail(userEmail);
-        paymentRequest.setUserId(userId);
+    private void handleSuccessfulPayment(Order order,
+                                         PaymentResponse paymentResponse) {
+        log.info("Payment succeeded for order [{}], transactionId={}",
+                order.getId(), paymentResponse.getTransactionId());
 
-        ResponseEntity<PaymentServiceResponse> response =
-                paymentServiceClient.processPayment(paymentRequest);
-        if (response.getBody().isSuccess()) {
-            ticketService.finalizeOrder(order.getId());
-            order.setStatus(OrderStatus.CONFIRMED);
-            order.setActive(false);
-            order.setTotalPrice(latestTotal);
-            order.setReceiptUrl(response.getBody().getReceiptUrl());
-            order.setTransactionId(response.getBody().getTransactionId());
-            orderRepository.save(order);
+        ticketService.finalizeOrder(order.getId());
 
+        order.setStatus(OrderStatus.CONFIRMED);
+        order.setActive(false);
+        order.setTotalPrice(order.getTickets().stream()
+                .map(Ticket::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        order.setReceiptUrl(paymentResponse.getReceiptUrl());
+        order.setTransactionId(paymentResponse.getTransactionId());
+        orderRepository.save(order);
 
-            OrderDetails orderDetails = getOrderDetails(userId,
-                    order.getNumber());
+        OrderPaymentSucceededEvent event =
+                orderMapper.toOrderPaymentSucceededEvent(order);
+        eventPublisher.publishEvent(event);
+    }
 
-            OrderPaymentSucceededEvent orderPaymentSucceededEvent =
-                    orderMapper.toOrderPaymentSucceededEvent(order);
-            eventPublisher.publishEvent(orderPaymentSucceededEvent);
-            //  eventPublisher.publishEvent(new OrderCompletedEvent(order));
-        } else {
-            if (response.getBody().getMessage().startsWith("Invalid card")) {
-                throw new ProcessOrderException(response.getBody());
-            }
-            System.out.println();
-        }
+    private void handleFailedPayment(PaymentResponse payment) {
+        log.warn("Payment failed for order, message={}", payment.getMessage());
 
-
+//        if (payment.getMessage().startsWith("Invalid card")) {
+//            throw new ProcessOrderException(payment);
+//        }
+//
+//        throw new ProcessOrderException(payment);
     }
 
     public boolean isWithinRefundPeriod(Long userId, UUID number) {
@@ -322,11 +349,6 @@ public class OrderService {
         return orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(() -> new NoActiveOrderException(userId));
     }
 
-    public void save(Order order) {
-        orderRepository.save(order);
-    }
-
-
     OrderDetails mapToDto(Order order, List<TicketListItem> listItems) {
         OrderDetails orderDto = orderMapper.toDto(order, listItems);
 
@@ -336,11 +358,6 @@ public class OrderService {
         orderDto.setTotalPrice(totalSum);
 
         return orderDto;
-    }
-
-
-    public void saveAll(Set<Order> orders) {
-        orderRepository.saveAll(orders);
     }
 
     public List<OrderListItemDto> getSystemOrders() {

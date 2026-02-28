@@ -18,7 +18,7 @@ export const ROUTES = {
   },
   ORDERS: {
     BASE: '/orders',
-    ORDERS_CONFIRM: '/orders/confirm',
+    ORDERS_CONFIRM: '/orders/complete',
     ACTIVE: '/orders/active',
     ADMIN: '/admin/orders',
     CANCEL: '/orders/cancel',

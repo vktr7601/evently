@@ -5,6 +5,7 @@ import ErrorModal from '../../components/modals/ErrorModal';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'; // Added these
 import { ROUTES } from '../../constants/routes';
 import axiosClient from '../../api/axiosClient';
+import Spinner from '../../components/layout/Spinner';
 const CARD_ELEMENT_OPTIONS = {
     hidePostalCode: true,
     style: {
@@ -28,7 +29,7 @@ const OrderPayment = () => {
     const [promoCode, setPromoCode] = useState("");
     const [timeLeft, setTimeLeft] = useState("");
 
-    const [modal, setModal] = useState({ open: false, title: "", message: "" });
+    const [modal, setModal] = useState({ open: false, title: "", message: "", onClose: null });
 
 
     useEffect(() => {
@@ -62,37 +63,64 @@ const OrderPayment = () => {
         return () => clearInterval(interval);
     }, [expiryDate, navigate]);
 
-    // 3. Handlers
     const handlePayment = async () => {
-        if (!stripe || !elements) return;
+    if (!stripe || !elements) return;
 
-        setIsProcessing(true);
-        const cardElement = elements.getElement(CardElement);
+    // ✅ Step 1: Tokenize FIRST while CardElement is still mounted
+    const cardElement = elements.getElement(CardElement);
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+    });
 
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: 'card',
-            card: cardElement,
+    if (error) {
+        setModal({ open: true, title: "Card Error", message: error.message });
+        return;
+    }
+
+    // ✅ Step 2: Now safe to show spinner — CardElement no longer needed
+    setIsProcessing(true);
+
+    try {
+        await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
+            transactionId: paymentMethod.id,
+            promoCode: promoCode
         });
+        // ✅ No reset needed — navigation unmounts the component
+        navigate(`${ROUTES.ORDERS.BASE}`);
 
-        if (error) {
-            setModal({ open: true, title: "Card Error", message: error.message });
+    } catch (err) {
+        if (err.response?.status === 409) {
+            setModal({
+                open: true,
+                title: "Payment Failed",
+                message: "The tickets in your order have been released due to inactivity. Please try purchasing again.",
+                onClose: () => window.location.reload()
+            });
             setIsProcessing(false);
             return;
         }
 
-        try {
-            await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
-                stripePaymentMethodId: paymentMethod.id,
-                promoCode: promoCode
+        if (err.response?.status === 400) {
+            setModal({
+                open: true,
+                title: "Card Declined",
+                message: err.response.data.message || "Your card was declined. Please check your details or try another card.",
+                onClose: () => setModal({ open: false })
             });
-            navigate(`${ROUTES.ORDERS.BASE}`);
-        } catch (err) {
-            console.log("Payment error:", err);
-            const errorMsg = err.response?.data?.message || "Payment failed. Please try again.";
-            setModal({ open: true, title: "Transaction Failed", message: errorMsg });
             setIsProcessing(false);
+            return;
         }
-    };
+
+        setModal({
+            open: true,
+            title: "Something went wrong",
+            message: "An unexpected error occurred. Please try again.",
+            onClose: () => setModal({ open: false })
+        });
+        setIsProcessing(false);
+    }
+};
 
     const handleCancel = async () => {
         if (!window.confirm("Are you sure? Your tickets will be released.")) return;
@@ -106,6 +134,10 @@ const OrderPayment = () => {
     };
 
     if (!order) return <div style={styles.loading}>Loading your secure checkout...</div>;
+
+    if (isProcessing) {
+        return <Spinner message="Processing payment... Please, do not exit the page" />;
+    }
 
     return (
         <div style={styles.page}>
@@ -202,7 +234,17 @@ const OrderPayment = () => {
                     </div>
                 </div>
             </div>
-
+            {isProcessing ? (
+                <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Processing...
+                </span>
+            ) : (
+                "Pay Now"
+            )}
             <ErrorModal
                 show={modal.open}
                 onClose={() => setModal({ ...modal, open: false })}

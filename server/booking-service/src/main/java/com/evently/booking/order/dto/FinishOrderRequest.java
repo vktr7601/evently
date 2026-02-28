@@ -13,8 +13,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinishOrderRequest implements Serializable {
-    @JsonProperty("stripePaymentMethodId")
-    private String stripePaymentMethodId;
+    @JsonProperty("transactionId")
+    private String transactionId;
     @JsonProperty("promoCode")
     private String promoCode;
 }

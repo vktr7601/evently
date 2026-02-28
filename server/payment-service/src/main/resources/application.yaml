@@ -1,6 +1,10 @@
 spring:
   application:
     name: payment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payments_db
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:adminPassword}
 
 eureka:
   client:
@@ -14,11 +18,17 @@ spring:
   config:
     activate:
       on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  kafka:
+    bootstrap-servers: localhost:9092
+
 server:
   port: 8084
 
 stripe:
-  secret-key: ${STRIPE_SECRET_KEY}
+  secret-key: ${STRIPE_SECRET_KEY:placeholder_for_dev}
 
 eureka:
   client:
