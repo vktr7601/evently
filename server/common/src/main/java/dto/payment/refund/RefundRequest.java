@@ -1,4 +1,4 @@
-package com.evently.booking.infrastructure.clients.paymentService.data;
+package dto.payment.refund;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -11,15 +11,17 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class RefundRequest implements Serializable {
     @JsonProperty("orderNumber")
     private String orderNumber;
     @JsonProperty("transactionId")
     private String transactionId;
-    @JsonProperty("reason")
-    private String reason;
+    @JsonProperty("refundType")
+    private RefundType refundType;
     @JsonProperty("amount")
     private BigDecimal amount;
+    @JsonProperty("requestedBy")
+    private long requestedBy;
 }

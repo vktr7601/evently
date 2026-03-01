@@ -56,21 +56,10 @@ public class OrderController {
 
     @PostMapping("/complete")
     public ResponseEntity<?> complete(@RequestHeader(USER_ID) Long userId,
-                                 @RequestHeader(USER_EMAIL) String userEmail,
-                                 @RequestBody FinishOrderRequest finishOrderRequest) {
+                                      @RequestHeader(USER_EMAIL) String userEmail,
+                                      @RequestBody FinishOrderRequest finishOrderRequest) {
         orderService.completeOrder(userEmail, userId,
                 finishOrderRequest);
         return ResponseEntity.noContent().build();
     }
-
-//    @GetMapping("/{orderNumber}/refund-eligibility")
-//    public ResponseEntity<?> getRefundEligibility(
-//            @RequestHeader("X-User-Id") Long userId,
-//            @PathVariable UUID orderNumber) {
-//
-//        boolean eligible = orderService.isWithinRefundPeriod(userId,
-//                orderNumber);
-//
-//        return ResponseEntity.ok(eligible);
-//    }
 }

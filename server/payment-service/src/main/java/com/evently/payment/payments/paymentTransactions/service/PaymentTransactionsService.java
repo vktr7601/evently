@@ -1,11 +1,11 @@
 package com.evently.payment.payments.paymentTransactions.service;
 
 import com.evently.payment.payments.paymentTransactions.model.PaymentTransactionStatus;
-import com.evently.payment.payments.paymentTransactions.model.PaymentTransactions;
+import com.evently.payment.payments.paymentTransactions.model.PaymentTransaction;
 import com.evently.payment.payments.paymentTransactions.repository.PaymentTransactionsRepository;
 import com.evently.payment.payments.provider.contracts.PaymentProvider;
-import com.evently.payment.payments.provider.model.PaymentRequest;
-import com.evently.payment.payments.provider.model.PaymentResponse;
+import dto.payment.payment.PaymentRequest;
+import dto.payment.payment.PaymentResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ public class PaymentTransactionsService {
 
     @Transactional
     public PaymentResponse charge(PaymentRequest paymentRequest) {
-        PaymentTransactions paymentTransactions = new PaymentTransactions();
+        PaymentTransaction paymentTransactions = new PaymentTransaction();
         paymentTransactions.setAmount(paymentRequest.getAmount());
         paymentTransactions.setProviderName(paymentRequest.getPaymentProvider());
         paymentTransactions.setTransactionId(paymentRequest.getTransactionId());
@@ -41,5 +41,10 @@ public class PaymentTransactionsService {
         }
 
         return result;
+    }
+
+
+    public PaymentTransaction findByTransactionId(String transactionId) {
+        return paymentTransactionsRepository.findByTransactionId(transactionId).orElseThrow(() -> new RuntimeException("transaction not found"));
     }
 }

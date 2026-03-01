@@ -3,9 +3,6 @@ package com.evently.booking.order.service;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
 import com.evently.booking.infrastructure.clients.paymentService.data.PaymentMapper;
-import com.evently.booking.infrastructure.clients.paymentService.data.PaymentRequest;
-import com.evently.booking.infrastructure.clients.paymentService.data.PaymentResponse;
-import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
 import com.evently.booking.infrastructure.exceptions.*;
 import com.evently.booking.order.data.OrderMapper;
 import com.evently.booking.order.dto.FinishOrderRequest;
@@ -23,6 +20,8 @@ import com.evently.booking.ticket.service.TicketService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.payment.payment.PaymentRequest;
+import dto.payment.payment.PaymentResponse;
 import events.order.OrderPaymentSucceededEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -173,7 +172,6 @@ public class OrderService {
                     orderRequest.getTicketsCount() - ticketsByEventLocation.size();
             List<Ticket> tickets =
                     ticketService.getTicketsForEvent(orderRequest.getEventLocationId(), diff, orderRequest.getEventStartTime());
-//todo: this is buggy
             int requested = orderRequest.getTicketsCount();
 
             int available = tickets.size();
@@ -259,7 +257,7 @@ public class OrderService {
                         userEmail);
 
         ResponseEntity<PaymentResponse> response =
-                paymentServiceClient.handlePayment(paymentRequest);
+                paymentServiceClient.processPayment(paymentRequest);
         PaymentResponse paymentResponse = response.getBody();
         if (paymentResponse.isSuccess()) {
             handleSuccessfulPayment(order, paymentResponse);

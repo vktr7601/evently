@@ -2,6 +2,7 @@ package com.evently.booking.infrastructure.clients.paymentService.data;
 
 import com.evently.booking.order.dto.FinishOrderRequest;
 import com.evently.booking.order.model.Order;
+import dto.payment.payment.PaymentRequest;
 import org.springframework.stereotype.Component;
 
 @Component

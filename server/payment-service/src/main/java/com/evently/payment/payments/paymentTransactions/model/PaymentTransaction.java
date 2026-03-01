@@ -1,17 +1,20 @@
 package com.evently.payment.payments.paymentTransactions.model;
 
+import com.evently.payment.payments.paymentRefunds.model.PaymentRefund;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import persistence.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "payment_transactions")
-public class PaymentTransactions extends BaseEntity {
+public class PaymentTransaction extends BaseEntity {
     @Column(name = "order_number")
     private String orderNumber;
     @Column(name = "userId")
@@ -27,4 +30,6 @@ public class PaymentTransactions extends BaseEntity {
     @Column(name = "paymentTransactionStatus")
     @Enumerated(EnumType.STRING)
     private PaymentTransactionStatus paymentTransactionStatus;
+    @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY)
+    private List<PaymentRefund> refunds = new ArrayList<>();
 }

@@ -1,9 +1,9 @@
 package com.evently.payment.payments.provider.contracts;
 
-import com.evently.payment.payments.provider.model.PaymentRequest;
-import com.evently.payment.payments.provider.model.PaymentResponse;
-import com.evently.payment.payments.provider.model.RefundRequest;
-import com.evently.payment.payments.provider.model.RefundResponse;
+import dto.payment.payment.PaymentRequest;
+import dto.payment.payment.PaymentResponse;
+import dto.payment.refund.RefundRequest;
+import dto.payment.refund.RefundResponse;
 
 public interface PaymentProvider {
     PaymentResponse processPayment(PaymentRequest paymentRequest);

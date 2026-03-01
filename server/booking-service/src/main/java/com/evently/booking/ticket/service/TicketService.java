@@ -3,10 +3,6 @@ package com.evently.booking.ticket.service;
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
 import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
-import com.evently.booking.infrastructure.clients.paymentService.data.RefundRequest;
-import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
-import com.evently.booking.order.model.Order;
-import com.evently.booking.order.model.OrderStatus;
 import com.evently.booking.ticket.data.TicketMapper;
 import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.model.Ticket;
@@ -166,28 +162,6 @@ public class TicketService {
         ticketRepository.saveAll(tickets);
     }
 
-    @Transactional
-    public void refundTicket(Long userId, long ticketId) throws TicketNotRefundableException {
-        Ticket ticket = ticketRepository.findByUserIdAndTicketId(userId,
-                ticketId);
-
-        if (!LocalDateTime.now().isBefore(ticket.getEventStartTime().minusDays(1))) {
-            throw new TicketNotRefundableException();
-        }
-
-
-        Order order = ticket.getOrder();
-
-        List<Ticket> tickets = order.getTickets();
-        if (tickets.size() == 1) {
-            order.setStatus(OrderStatus.REFUNDED);
-        }
-        RefundRequest refundRequest = new RefundRequest();
-        refundRequest.setOrderNumber(order.getNumber().toString());
-        refundRequest.setReason("user requested");
-        refundRequest.setTransactionId(order.getTransactionId());
-        paymentService.processRefund(refundRequest);
-    }
 
     public Ticket findTicketById(long ticketId) {
         return ticketRepository.findById(ticketId).orElseThrow(() -> new RuntimeException("Ticket not found with id: " + ticketId));

@@ -1,4 +1,4 @@
-package com.evently.payment.payments.provider.model;
+package dto.payment.payment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package com.evently.payment.payments.paymentTransactions.controller;
 
 import com.evently.payment.payments.paymentTransactions.service.PaymentTransactionsService;
-import com.evently.payment.payments.provider.model.PaymentRequest;
-import com.evently.payment.payments.provider.model.PaymentResponse;
+import dto.payment.payment.PaymentRequest;
+import dto.payment.payment.PaymentResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

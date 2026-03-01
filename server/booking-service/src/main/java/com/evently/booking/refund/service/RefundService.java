@@ -1,13 +1,7 @@
 package com.evently.booking.refund.service;
 
 import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
-import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
-import com.evently.booking.infrastructure.clients.paymentService.data.RefundRequest;
-import com.evently.booking.infrastructure.clients.paymentService.data.RefundResponse;
-import com.evently.booking.infrastructure.clients.paymentService.data.RefundServiceResponse;
 import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException;
-import com.evently.booking.infrastructure.exceptions.ProcessOrderException;
-import com.evently.booking.infrastructure.exceptions.TicketNotRefundableException;
 import com.evently.booking.order.model.Order;
 import com.evently.booking.order.model.OrderStatus;
 import com.evently.booking.order.service.OrderService;
@@ -19,7 +13,11 @@ import com.evently.booking.ticket.model.TicketStatus;
 import com.evently.booking.ticket.service.TicketService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.payment.refund.RefundRequest;
+import dto.payment.refund.RefundResponse;
+import dto.payment.refund.RefundType;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,33 +28,15 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class RefundService {
     private final OrderService orderService;
     private final PaymentServiceClient paymentServiceClient;
     private final ObjectMapper objectMapper;
     private final TicketService ticketService;
 
-//    public boolean isOrderRefundable(Long userId, UUID number) {
-//        Order order = orderService.findByOrderNumberAndUserId(number, userId);
-//
-//        List<Ticket> tickets = order.getTickets();
-//
-//        boolean canRefund = true;
-//        for (Ticket ticket : tickets) {
-//            if (ticket.getEventStartTime().isBefore(LocalDateTime.now()
-//            .plusHours(2))) {
-//                canRefund = false;
-//                break;
-//            }
-//        }
-//
-//        return canRefund;
-//    }
-
-
     @Transactional
     public void refundOrder(UUID orderNumber, long userId) throws OrderNotRefundableException {
-
         OrderRefundEligibility orderRefundEligibility =
                 getOrderRefundEligibility(userId, orderNumber);
         if (!orderRefundEligibility.isEligible()) {
@@ -69,7 +49,6 @@ public class RefundService {
         RefundRequest refundRequest = new RefundRequest();
         refundRequest.setAmount(order.getTotalPrice());
         refundRequest.setTransactionId(order.getTransactionId());
-        refundRequest.setReason("User requested");
 
         ResponseEntity<RefundResponse> response =
                 paymentServiceClient.processRefund(refundRequest);
@@ -88,7 +67,7 @@ public class RefundService {
             });
 
             order.setStatus(OrderStatus.REFUNDED);
-            order.setRefundTransactionId(body.getRefundTransactionId());
+            order.setTransactionId(body.getRefundTransactionId());
 
             try {
                 order.setAudit(objectMapper.writeValueAsString(order.getTickets()));
@@ -100,46 +79,48 @@ public class RefundService {
             log.info("Order {} refunded successfully, refund transaction: {}",
                     orderNumber, body.getRefundTransactionId());
         } else {
-            throw new ProcessOrderException(body);
+            //  throw new ProcessOrderException(body);
         }
     }
-//    public void refundTicketRequest(Long userId, long ticketId) throws
-//    OrderNotRefundableException {
-//        Ticket ticket = ticketService.findTicketById(ticketId);
-//        if (isTicketRefundable(ticket)) {
-//            Order order = ticket.getOrder();
-//            if(order.getTickets().size() == 1){
-//                refundOrder(order.getNumber(), userId);
-//            }
 
-    /// /            if (ticket.getDateTime().isBefore(LocalDateTime.now()
-    /// .plusHours(2))) {
-    /// /                throw new OrderNotRefundableException(ticketId);
-    /// /            }
-    /// /
-    /// /            var order = ticket.getOrder();
-    /// /
-    /// /            List<Ticket> tickets = order.getTickets();
-    /// /            if (tickets.size() == 1) {
-    /// /                order.setStatus(OrderStatus.REFUNDED);
-    /// /                orderService.save(order);
-    /// /            }
-//        }
-//    }
-    public RefundServiceResponse refundTicket(long ticketId) {
+    public RefundResponse refundTicket(long ticketId, long userId) {
         Ticket ticket = ticketService.findTicketById(ticketId);
+
         if (!isWithinRefundWindow(ticket)) {
-            throw new TicketNotRefundableException();
+//            throw new TicketNotRefundableException(ticketId);
         }
 
-        var order = ticket.getOrder();
-
+        Order order = ticket.getOrder();
         List<Ticket> tickets = order.getTickets();
-        if (tickets.size() == 1) {
-            order.setStatus(OrderStatus.REFUNDED);
-            orderService.save(order);
+        boolean isOnlyTicket = tickets.size() == 1;
+
+        RefundRequest refundRequest = new RefundRequest();
+        refundRequest.setOrderNumber(order.getNumber().toString());
+        refundRequest.setTransactionId(order.getTransactionId());
+        refundRequest.setAmount(ticket.getPrice());
+        refundRequest.setRefundType(isOnlyTicket
+                ? RefundType.FULL_ORDER
+                : RefundType.PARTIAL_TICKET);
+
+        RefundResponse response =
+                paymentServiceClient.processRefund(refundRequest).getBody();
+
+        if (!response.isSuccess()) {
+            //throw new ProcessRefundException(response.getMessage());
+            System.out.println();
         }
-        return null;
+
+        ticket.setStatus(TicketStatus.REFUNDED);
+        ticket.setUserId(null);
+        ticket.setOrder(null);
+
+        // if it was the only ticket, close the order too
+        if (isOnlyTicket) {
+            order.setStatus(OrderStatus.REFUNDED);
+        }
+
+        orderService.save(order);
+        return response;
     }
 
     private boolean isWithinRefundWindow(Ticket ticket) {

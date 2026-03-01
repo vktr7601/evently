@@ -14,7 +14,6 @@ export const ROUTES = {
     AVAILABILITY: '/tickets/availability',
     VIEW: (id) => `/tickets/view/${id}`,
     PDF: (id) => `/tickets/view/${id}/pdf`,
-    REFUND: (id) => `/tickets/${id}/refund`,
     USER: '/tickets',
   },
   REFUNDS: {

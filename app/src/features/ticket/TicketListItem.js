@@ -15,7 +15,7 @@ const TicketListItem = ({ ticket }) => {
     };
 
     const handleRequest = (id) => {
-        axiosClient.post(`${ROUTES.TICKETS.REFUND(id)}`)
+        axiosClient.post(`${ROUTES.REFUNDS.TICKET_REFUND(id)}`)
             .then(res => {
                 const htmlString = res.data;
 

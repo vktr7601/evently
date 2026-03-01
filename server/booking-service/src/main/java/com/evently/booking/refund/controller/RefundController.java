@@ -1,10 +1,10 @@
 package com.evently.booking.refund.controller;
 
-import com.evently.booking.infrastructure.clients.paymentService.data.RefundServiceResponse;
 import com.evently.booking.refund.dto.OrderRefundEligibility;
 import com.evently.booking.refund.dto.RefundEligibility;
 import com.evently.booking.refund.service.RefundService;
 import constants.ApplicationHeaders;
+import dto.payment.refund.RefundResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +45,10 @@ public class RefundController {
 //            @PathVariable UUID orderNumber) { ...}
 //
     @PostMapping("/tickets/{ticketId}")
-    public ResponseEntity<RefundServiceResponse> refundTicket(
+    public ResponseEntity<RefundResponse> refundTicket(
             @RequestHeader(ApplicationHeaders.USER_ID) Long userId,
             @PathVariable("ticketId") long ticketId) {
-        refundService.refundTicket(ticketId);
+        refundService.refundTicket(ticketId, userId);
         return null;
     }
 }

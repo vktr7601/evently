@@ -1,4 +1,4 @@
-package com.evently.booking.infrastructure.clients.paymentService.data;
+package dto.payment.refund;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,21 +8,27 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class RefundResponse implements Serializable {
     @JsonProperty("success")
     private boolean success;
+    @JsonProperty("refundId")
+    private String refundId;
     @JsonProperty("refundTransactionId")
     private String refundTransactionId;
-    @JsonProperty("refundedAt")
-    private LocalDateTime refundedAt;
+    @JsonProperty("receiptUrl")
+    private String receiptUrl;
     @JsonProperty("refundedAmount")
     private BigDecimal refundedAmount;
+    @JsonProperty("timestamp")
+    private Instant timestamp;
     @JsonProperty("failureReason")
     private String failureReason;
+    @JsonProperty("message")
+    private String message;
 }
