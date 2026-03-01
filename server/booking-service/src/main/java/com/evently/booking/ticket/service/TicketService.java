@@ -12,6 +12,10 @@ import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.model.Ticket;
 import com.evently.booking.ticket.model.TicketStatus;
 import com.evently.booking.ticket.repository.TicketRepository;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import events.event.EventCreated;
 import events.event.EventTicketsBulkUpdate;
 import events.event.EventTicketsUpdate;
@@ -27,12 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,6 +50,7 @@ public class TicketService {
     private final ApplicationEventPublisher eventPublisher;
     private final TemplateEngine templateEngine;
     private final PaymentServiceClient paymentService;
+    private final PdfGenerationService pdfGenerationService;
 
     @Transactional
     public void createTickets(EventCreated eventCreated) {
@@ -321,10 +326,38 @@ public class TicketService {
         context.setVariable("eventDate", ticketListItem.getEventStartTime());
         context.setVariable("eventTime", ticketListItem.getEventStartTime());
         context.setVariable("ticketNumber", ticketListItem.getNumber());
-
+        String qrBase64 =
+                generateQrCodeBase64("ticket:" + ticketListItem.getNumber());
+        context.setVariable("qrCode", qrBase64);
+        context.setVariable("qrCode", qrBase64);
         String html = templateEngine.process("ticket-template", context);
 
 
         return html;
+    }
+
+
+    public byte[] pdfGeneration(String htmlContent) {
+        return pdfGenerationService.generateFromHtml(htmlContent);
+    }
+
+    public String generateQrCodeBase64(String content) {
+        try {
+            QRCodeWriter writer = new QRCodeWriter();
+            BitMatrix bitMatrix = writer.encode(content,
+                    BarcodeFormat.QR_CODE, 200, 200);
+
+            BufferedImage image =
+                    MatrixToImageWriter.toBufferedImage(bitMatrix);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(image, "PNG", outputStream);
+
+            return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+        } catch (Exception e) {
+//            throw new QrCodeGenerationException("Failed to generate QR
+//            code", e);
+        }
+
+        return null;
     }
 }

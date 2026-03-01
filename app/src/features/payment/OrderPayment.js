@@ -66,7 +66,6 @@ const OrderPayment = () => {
     const handlePayment = async () => {
     if (!stripe || !elements) return;
 
-    // ✅ Step 1: Tokenize FIRST while CardElement is still mounted
     const cardElement = elements.getElement(CardElement);
     const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
@@ -78,7 +77,6 @@ const OrderPayment = () => {
         return;
     }
 
-    // ✅ Step 2: Now safe to show spinner — CardElement no longer needed
     setIsProcessing(true);
 
     try {
@@ -86,7 +84,6 @@ const OrderPayment = () => {
             transactionId: paymentMethod.id,
             promoCode: promoCode
         });
-        // ✅ No reset needed — navigation unmounts the component
         navigate(`${ROUTES.ORDERS.BASE}`);
 
     } catch (err) {
@@ -174,7 +171,6 @@ const OrderPayment = () => {
                     </div>
                 </div>
 
-                {/* RIGHT: Payment */}
                 <div style={styles.rightCol}>
                     <div style={styles.paymentCard}>
                         <div style={styles.paymentHeader}>
@@ -300,14 +296,14 @@ const styles = {
         fontSize: '14px',
         fontWeight: '600',
         color: '#475569',
-        marginBottom: '10px', // More space between label and input
+        marginBottom: '10px',
     },
     stripeElementContainer: {
-        padding: '18px 14px', // Significant padding for a "spacious" feel
+        padding: '18px 14px',
         border: '1px solid #cbd5e1',
         borderRadius: '14px',
         backgroundColor: '#ffffff',
-        boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)', // Subtle depth
+        boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
         transition: 'border-color 0.2s ease',
     },
     helperText: {

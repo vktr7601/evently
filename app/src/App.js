@@ -59,6 +59,7 @@ function App() {
             <Route path={ROUTES.EVENTS.EVENT_LOCATIONS_DETAILS(':id')} element={<EventLocationDetails />} />
             <Route path={ROUTES.EVENTS.ADMIN_BULK_CREATE} element={<CreateEventApi />} />
             <Route path={ROUTES.ORDERS.ADMIN} element={<AdminOrders />} />
+            <Route path={ROUTES.TICKETS.USER} element={<Tickets />} />
             {/* <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistDetails />} />
             <Route path="/events/:id" element={<EventDetails />} />

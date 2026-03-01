@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axiosClient from '../../api/axiosClient';
 import { ROUTES } from '../../constants/routes';
 
-const TicketListItem = ({ ticket, onRefund }) => {
+const TicketListItem = ({ ticket }) => {
     const [isAdmin] = useState(localStorage.getItem("userRole") === "ADMIN");
     const formatDateTime = (dateString) => {
         return new Date(dateString).toLocaleString(undefined, {
@@ -26,7 +26,7 @@ const TicketListItem = ({ ticket, onRefund }) => {
             .catch(err => console.error(err));
     };
 
-    const viewTicket = () => {
+    const handleViewTicket = () => {
         axiosClient.get(`${ROUTES.TICKETS.VIEW(ticket.id)}`)
             .then(res => {
                 const htmlString = res.data;
@@ -36,6 +36,39 @@ const TicketListItem = ({ ticket, onRefund }) => {
                 newWindow.document.close();
             })
             .catch(err => console.error(err));
+    }
+
+    const handleDownloadPDF = () => {
+        axiosClient.get(`${ROUTES.TICKETS.PDF(ticket.id)}`, { responseType: 'blob' })
+            .then(res => {
+                const url = window.URL.createObjectURL(new Blob([res.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `ticket_${ticket.id}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            })
+            .catch(err => console.error(err));
+    }
+
+    const checkIfTicketIsRefundable = (ticket) => {
+        axiosClient.get(`${ROUTES.REFUNDS.TICKET_ELIGIBILITY(ticket.id)}`)
+            .then(res => {
+                const isEligible = res.data.isEligible;
+
+                if (isEligible) {
+                    const confirmed = window.confirm("Are you sure you want to refund this ticket? This action cannot be undone.");
+                    if (confirmed) {
+                        handleRequest(ticket.id);
+                    }
+                } else {
+                    alert("This ticket is not refundable.");
+                }
+            })
+            .catch(err => console.error(err));
+        const refundableStatuses = ['COMPLETED', 'CONFIRMED'];
+        console.log("Checking if ticket is refundable. Order status:", ticket.orderStatus, "Is refunded:", ticket.isRefunded);
     }
 
     const isCanceled = ticket.status === 'CANCELED';
@@ -62,29 +95,33 @@ const TicketListItem = ({ ticket, onRefund }) => {
                         {formatDateTime(ticket.eventStartTime)}
                     </h6>
                 </div>
-                
-                <div className="col-md-2 text-md-end">
-                    {!isCanceled && (
-                        <button onClick={viewTicket} className="btn btn-light border rounded-pill px-4 py-2 fw-bold w-100 transition-hover">
-                            <i className="bi bi-download me-2"></i>
-                            View Ticket
-                        </button>
-                    )}
-                </div>
-                
-                {/* {Todo: implemnt} */}
-                <div className="col-md-3 text-md-end">
+
+                <div className="col-md-5     text-md-end">
                     {isCanceled ? (
                         <span className="badge bg-danger-subtle text-danger rounded-pill px-4 py-2 fs-6 w-100">
                             CANCELED
                         </span>
                     ) : (
-                        <button
-                            className="btn btn-outline-danger btn-lg rounded-pill px-4 fw-bold w-100"
-                            onClick={() => handleRequest(ticket.id)}
-                        >
-                            Refund Ticket
-                        </button>
+                        <div className="d-flex gap-2">
+                            <button
+                                className="btn btn-outline-danger rounded-pill px-3 fw-bold"
+                                onClick={() => checkIfTicketIsRefundable(ticket)}
+                            >
+                                Refund Ticket
+                            </button>
+                            <button
+                                className="btn btn-outline-primary rounded-pill px-3 fw-bold"
+                                onClick={() => handleDownloadPDF(ticket.id)}
+                            >
+                                Download PDF
+                            </button>
+                            <button
+                                className="btn btn-outline-secondary rounded-pill px-3 fw-bold"
+                                onClick={() => handleViewTicket(ticket.id)}
+                            >
+                                View Ticket
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>

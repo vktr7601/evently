@@ -63,14 +63,14 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{orderNumber}/refund-eligibility")
-    public ResponseEntity<?> getRefundEligibility(
-            @RequestHeader("X-User-Id") Long userId,
-            @PathVariable UUID orderNumber) {
-
-        boolean eligible = orderService.isWithinRefundPeriod(userId,
-                orderNumber);
-
-        return ResponseEntity.ok(eligible);
-    }
+//    @GetMapping("/{orderNumber}/refund-eligibility")
+//    public ResponseEntity<?> getRefundEligibility(
+//            @RequestHeader("X-User-Id") Long userId,
+//            @PathVariable UUID orderNumber) {
+//
+//        boolean eligible = orderService.isWithinRefundPeriod(userId,
+//                orderNumber);
+//
+//        return ResponseEntity.ok(eligible);
+//    }
 }

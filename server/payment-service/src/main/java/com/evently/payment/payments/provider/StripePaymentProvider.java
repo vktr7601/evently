@@ -7,15 +7,9 @@ import com.evently.payment.payments.provider.model.RefundRequest;
 import com.evently.payment.payments.provider.model.RefundResponse;
 import com.evently.payment.payments.providers.stripe.model.PaymentStatus;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
-import com.stripe.model.CustomerCollection;
-import com.stripe.model.PaymentIntent;
-import com.stripe.model.PaymentMethod;
+import com.stripe.model.*;
 import com.stripe.net.RequestOptions;
-import com.stripe.param.CustomerCreateParams;
-import com.stripe.param.CustomerListParams;
-import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.PaymentMethodAttachParams;
+import com.stripe.param.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,51 +24,54 @@ public class StripePaymentProvider implements PaymentProvider {
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
 
-//    @Override
-//    public PaymentProcessingResult process(StripePaymentRequest request) {
-//
-//    }
-//
-//    @Override
-//    public StripeRefundServiceResponse processRefund(StripePaymentRefund
-//    refund) {
-//        RefundCreateParams params = RefundCreateParams.builder()
-//                .setPaymentIntent(refund.getTransactionId())
-//                .build();
-//
-//        RequestOptions options = RequestOptions.builder()
-//                .setApiKey(stripeSecretKey)
-//                .setIdempotencyKey("refund-" + refund.getTransactionId())
-//                .build();
-//
-//        try {
-//            Refund stripeRefund = Refund.create(params, options);
-//            String chargeId = stripeRefund.getChargeObject().getId();
-//            Charge charge = Charge.retrieve(chargeId, options);
-//            String receiptUrl = charge.getReceiptUrl(); // this is the real
-//            if (!"succeeded".equals(stripeRefund.getStatus())) {
-//                log.warn("Stripe refund did not succeed. Status: {}, " +
-//                                "TransactionId: {}",
-//                        stripeRefund.getStatus(), refund.getTransactionId());
-//                throw new StripeRefundException(
-//                        "Refund was not successful. Status: " +
-//                        stripeRefund.getStatus()
-//                );
-//            }
-//
-//            StripeRefundServiceResponse response =
-//                    new StripeRefundServiceResponse();
-//            response.setRefundId(stripeRefund.getId());
-//            response.setReceiptUrl(receiptUrl);
-//            return response;
-//
-//        } catch (StripeException e) {
-//            log.error("Stripe Refund Failed for transactionId={}: {}",
-//                    refund.getTransactionId(), e.getMessage());
-//            throw new StripeRefundException("Stripe refund failed: " + e
-//            .getMessage(), e);
-//        }
-//    }
+    @Override
+    public RefundResponse processRefund(RefundRequest refundRequest) {
+        try {
+            RequestOptions options = RequestOptions.builder()
+                    .setApiKey(stripeSecretKey)
+                    .setIdempotencyKey("refund-" + refundRequest.getTransactionId())
+                    .build();
+
+            RefundCreateParams params = RefundCreateParams.builder()
+                    .setPaymentIntent(refundRequest.getTransactionId())
+                    .build();
+
+            Refund stripeRefund = Refund.create(params, options);
+
+            if (!"succeeded".equals(stripeRefund.getStatus())) {
+                log.warn("Stripe refund did not succeed. Status: {}, " +
+                                "TransactionId: {}",
+                        stripeRefund.getStatus(),
+                        refundRequest.getTransactionId());
+
+                RefundResponse failedResponse = new RefundResponse();
+                failedResponse.setSuccess(false);
+                failedResponse.setMessage("Refund was not successful. Status:" +
+                        " " + stripeRefund.getStatus());
+                return failedResponse;
+            }
+
+            String chargeId = stripeRefund.getCharge();
+            Charge charge = Charge.retrieve(chargeId, options);
+
+            RefundResponse response = new RefundResponse();
+            response.setSuccess(true);
+            response.setRefundId(stripeRefund.getId());
+            response.setReceiptUrl(charge.getReceiptUrl());
+            response.setTimestamp(Instant.now());
+            return response;
+
+        } catch (StripeException e) {
+            log.error("Stripe refund failed for transactionId={}: {}",
+                    refundRequest.getTransactionId(), e.getMessage());
+
+            RefundResponse failedResponse = new RefundResponse();
+            failedResponse.setSuccess(false);
+            failedResponse.setMessage(e.getMessage());
+            failedResponse.setTimestamp(Instant.now());
+            return failedResponse;
+        }
+    }
 
     private String getOrCreateCustomer(long userID, String email,
                                        RequestOptions options) throws StripeException {

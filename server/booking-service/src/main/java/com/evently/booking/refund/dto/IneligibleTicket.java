@@ -1,4 +1,4 @@
-package com.evently.payment.payments.providers.stripe.model;
+package com.evently.booking.refund.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -7,16 +7,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class StripePaymentRefund implements Serializable {
-    @JsonProperty("orderNumber")
-    private String orderNumber;
-    @JsonProperty("transactionId")
-    private String transactionId;
+@NoArgsConstructor
+public class IneligibleTicket implements Serializable {
+    @JsonProperty("ticketNumber")
+    private UUID ticketNumber;
     @JsonProperty("reason")
     private String reason;
 }

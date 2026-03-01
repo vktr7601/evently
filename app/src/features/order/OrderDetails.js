@@ -25,6 +25,16 @@ const OrderDetails = () => {
         fetchOrderDetails();
     }, [number]);
 
+   const checkIsOrderRefundable = () => {
+        const refundableStatuses = ['COMPLETED', 'CONFIRMED'];
+        return refundableStatuses.includes(order.status);
+    };
+
+    const checkIfTicketIsRefundable = (ticket) => {
+        const refundableStatuses = ['COMPLETED', 'CONFIRMED'];
+        return refundableStatuses.includes(order.status) && !ticket.isRefunded;
+    }
+
     const renderActionButtons = () => {
         switch (order.status) {
             case 'PENDING_PAYMENT':
@@ -94,6 +104,11 @@ const OrderDetails = () => {
                         <div className="col-md-6 d-flex justify-content-md-end align-items-center">
                             {renderActionButtons()}
                         </div>
+                         <button
+                            className="btn btn-outline-danger btn-lg rounded-pill px-4 fw-bold w-100"
+                        >
+                            Refund Order
+                        </button>
                     </div>
                 </div>
 
@@ -105,7 +120,7 @@ const OrderDetails = () => {
                     <TicketListItem
                         key={ticket.id}
                         ticket={ticket}
-                        onRefund={(id) => console.log("Refunding ticket:", id)}
+                    
                     />
                 ))}
             </div>

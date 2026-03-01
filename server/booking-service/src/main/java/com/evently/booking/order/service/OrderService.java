@@ -363,4 +363,9 @@ public class OrderService {
     public List<OrderListItemDto> getSystemOrders() {
         return orderRepository.getAllOrders();
     }
+
+    @Transactional
+    public void save(Order order) {
+        orderRepository.save(order);
+    }
 }

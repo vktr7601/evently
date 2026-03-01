@@ -4,6 +4,7 @@ import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.service.TicketService;
 import constants.ApplicationHeaders;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,10 +52,16 @@ public class TicketController {
         return ResponseEntity.ok(htmlContent);
     }
 
-    @PostMapping("/{id}/refund")
-    public ResponseEntity<?> refundRequest(@RequestHeader(ApplicationHeaders.USER_ID) long userId, @PathVariable("id") Long ticketId) {
-        ticketService.refundTicket(userId, ticketId);
+    @GetMapping(value = "/view/{id}/pdf", produces =
+            MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> downloadTicketPdf(@PathVariable("id") Long id) {
+        TicketListItem ticketListItem = ticketService.getTicket(id);
+        String htmlContent = ticketService.fillTicketTemplate(ticketListItem);
 
-        return null;
+        byte[] pdfBytes = ticketService.pdfGeneration(htmlContent);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"ticket-" + id + ".pdf\"")
+                .body(pdfBytes);
     }
 }

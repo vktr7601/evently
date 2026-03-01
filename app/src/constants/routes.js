@@ -13,8 +13,15 @@ export const ROUTES = {
   TICKETS: {
     AVAILABILITY: '/tickets/availability',
     VIEW: (id) => `/tickets/view/${id}`,
+    PDF: (id) => `/tickets/view/${id}/pdf`,
     REFUND: (id) => `/tickets/${id}/refund`,
-    USER: '/tickets/',
+    USER: '/tickets',
+  },
+  REFUNDS: {
+    TICKET_ELIGIBILITY: (id) => `/refunds/tickets/${id}/eligible`,
+    TICKET_REFUND: (id) => `/refunds/tickets/${id}`,
+    ORDER_ELIGIBILITY: (id) => `/refunds/orders/${id}/eligible`,
+    ORDER_REFUND: (id) => `/refunds/orders/${id}`,
   },
   ORDERS: {
     BASE: '/orders',
@@ -24,10 +31,10 @@ export const ROUTES = {
     CANCEL: '/orders/cancel',
     DETAILS: (number) => `/orders/details/${number}`,
   },
-  NOTIFICATIONS:{
+  NOTIFICATIONS: {
     BASE: '/notifications',
     SPECIFIC: (id) => `/notifications/${id}`,
-  }, 
+  },
   AUTH: {
     REGISTER: '/register',
     USER_REGISTER: '/user/register',

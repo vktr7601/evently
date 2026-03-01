@@ -34,7 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+                String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing " +
@@ -55,7 +55,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String email = jwtUtility.extractEmail(token);
         setSecurityContext(userId, role);
 
-        // 3. Pass email to the wrapper
         filterChain.doFilter(withUserDetails(request, userId, role, email),
                 response);
     }

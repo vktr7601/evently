@@ -11,5 +11,5 @@ public interface PaymentServiceClient {
     ResponseEntity<PaymentResponse> handlePayment(PaymentRequest paymentServiceRequest);
 
     @PostMapping("/payments/refund")
-    ResponseEntity<RefundServiceResponse> processRefund(RefundRequest paymentServiceRequest);
+    ResponseEntity<RefundResponse> processRefund(RefundRequest paymentServiceRequest);
 }
