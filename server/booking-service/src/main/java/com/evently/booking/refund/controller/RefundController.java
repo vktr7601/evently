@@ -39,11 +39,13 @@ public class RefundController {
         return new ResponseEntity<>(refundEligibility, HttpStatus.OK);
     }
 
-    //    @PostMapping("/orders/{orderNumber}")
-//    public ResponseEntity<RefundResponse> refundOrder(
-//            @RequestHeader(ApplicationHeaders.USER_ID) Long userId,
-//            @PathVariable UUID orderNumber) { ...}
-//
+        @PostMapping("/orders/{orderNumber}")
+    public ResponseEntity<RefundResponse> refundOrder(
+            @RequestHeader(ApplicationHeaders.USER_ID) Long userId,
+            @PathVariable UUID orderNumber) {
+
+        }
+
     @PostMapping("/tickets/{ticketId}")
     public ResponseEntity<RefundResponse> refundTicket(
             @RequestHeader(ApplicationHeaders.USER_ID) Long userId,

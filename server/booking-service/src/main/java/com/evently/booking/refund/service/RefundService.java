@@ -49,17 +49,21 @@ public class RefundService {
         RefundRequest refundRequest = new RefundRequest();
         refundRequest.setAmount(order.getTotalPrice());
         refundRequest.setTransactionId(order.getTransactionId());
+        refundRequest.setOrderNumber(order.getNumber().toString());
+        refundRequest.setRequestedBy(userId);
+        refundRequest.setRefundType(RefundType.FULL_ORDER);
 
         ResponseEntity<RefundResponse> response =
                 paymentServiceClient.processRefund(refundRequest);
 
         RefundResponse body = response.getBody();
-//        if (body == null) {
-//            throw new ProcessOrderException("Empty response from payment " +
-//                    "service");
-//        }
 
         if (body.isSuccess()) {
+            order.setRefundId(body.getRefundId());
+            order.setRefundTime(LocalDateTime.now());
+            order.set
+            orderService.updateOrderDetails(order, OrderStatus.REFUNDED);
+
             order.getTickets().forEach(ticket -> {
                 ticket.setStatus(TicketStatus.REFUNDED);
                 ticket.setUserId(null);

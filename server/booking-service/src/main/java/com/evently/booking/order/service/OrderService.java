@@ -66,7 +66,7 @@ public class OrderService {
         return mapToDto(order, listItems);
     }
 
-
+    @Transactional
     public void cancelActiveOrder(long userId) {
         var order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
@@ -134,6 +134,37 @@ public class OrderService {
             }
             //todo: raise an event that order is cancelled or expired
             orderRepository.save(order);
+        }
+        if (status == OrderStatus.REFUNDED) {
+            List<TicketListItem> activeListItem =
+                    ticketService.getTicketsByOrderId(order.getId());
+            activeListItem.forEach(x -> x.setStatus(TicketStatus.REFUNDED));
+
+            try {
+                String json = objectMapper.writeValueAsString(activeListItem);
+                order.setAudit(json);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to create audit log for order {}",
+                        order.getId(), e);
+            }
+
+            order.setStatus(status);
+            order.setActive(false);
+
+            order.setStatus(status);
+            order.setActive(false);
+
+            List<Ticket> tickets = order.getTickets();
+            if (tickets != null) {
+                for (Ticket ticket : tickets) {
+                    ticket.setStatus(TicketStatus.AVAILABLE);
+                    ticket.setUserId(null);
+                    ticket.setOrder(null);
+                }
+            }
+
+            orderRepository.save(order);
+
         }
     }
 
