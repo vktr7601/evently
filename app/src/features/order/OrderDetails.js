@@ -25,7 +25,7 @@ const OrderDetails = () => {
         fetchOrderDetails();
     }, [number]);
 
-   const checkIsOrderRefundable = () => {
+    const checkIsOrderRefundable = () => {
         const refundableStatuses = ['COMPLETED', 'CONFIRMED'];
         return refundableStatuses.includes(order.status);
     };
@@ -46,9 +46,12 @@ const OrderDetails = () => {
             case 'CONFIRMED':
                 return (
                     <div className="d-flex gap-2">
-                        <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                        <Link to={`/payment-transactions/${order.transactionId}`} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                            View Transaction
+                        </Link>
+                        {/* <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 fw-bold">
                             View Receipt
-                        </a>
+                        </a> */}
                     </div>
                 );
             case 'CANCELLED':
@@ -74,10 +77,8 @@ const OrderDetails = () => {
                             </Link>
                             <h2 className="fw-extrabold mb-1">Order #{order.number}</h2>
                             <p className="text-muted mb-0">Placed on {new Date(order.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
-                            {order.transactionId === "NOT_APPLICABLE" ? (
+                            {order.transactionId === "NOT_APPLICABLE" && (
                                 <span className="badge bg-secondary-subtle text-secondary mt-2">No Transaction Applicable</span>
-                            ) : (
-                                <span className="badge bg-info-subtle text-info mt-2">Transaction ID: {order.transactionId}</span>
                             )}
                         </div>
                         <span className={`badge rounded-pill px-4 py-2 fs-6 ${order.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'
@@ -94,21 +95,19 @@ const OrderDetails = () => {
                             <h3 className="fw-bold text-success mb-0">${order.totalPrice.toFixed(2)}</h3>
                         </div>
                         <div className="col-md-3 border-end-md">
-                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Payment Method</label>
-                            <h5 className="fw-bold mb-0">Credit Card</h5>
-                        </div>
-                        <div className="col-md-3 border-end-md">
                             <label className="text-muted small fw-bold text-uppercase d-block mb-1">Total Items</label>
                             <h5 className="fw-bold mb-0">{order.tickets.length} Tickets</h5>
                         </div>
                         <div className="col-md-6 d-flex justify-content-md-end align-items-center">
                             {renderActionButtons()}
                         </div>
-                         <button
-                            className="btn btn-outline-danger btn-lg rounded-pill px-4 fw-bold w-100"
-                        >
-                            Refund Order
-                        </button>
+                        {order.status === 'CONFIRMED' && (
+                            <button
+                                className="btn btn-outline-danger btn-lg rounded-pill px-4 fw-bold w-100"
+                            >
+                                Refund Order
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -120,7 +119,7 @@ const OrderDetails = () => {
                     <TicketListItem
                         key={ticket.id}
                         ticket={ticket}
-                    
+
                     />
                 ))}
             </div>

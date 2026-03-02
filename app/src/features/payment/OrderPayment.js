@@ -139,7 +139,6 @@ const OrderPayment = () => {
     return (
         <div style={styles.page}>
             <div style={styles.container}>
-                {/* LEFT: Review */}
                 <div style={styles.leftCol}>
                     <div style={styles.sectionHeader}>
                         <h1 style={styles.mainTitle}>Review Your Order</h1>
@@ -230,17 +229,6 @@ const OrderPayment = () => {
                     </div>
                 </div>
             </div>
-            {isProcessing ? (
-                <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Processing...
-                </span>
-            ) : (
-                "Pay Now"
-            )}
             <ErrorModal
                 show={modal.open}
                 onClose={() => setModal({ ...modal, open: false })}
@@ -275,7 +263,6 @@ const styles = {
     paymentTitle: { margin: 0, fontSize: '20px', fontWeight: '700' },
     timerBadge: { backgroundColor: '#fff7ed', color: '#ea580c', padding: '6px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' },
     dot: { width: '8px', height: '8px', backgroundColor: '#ea580c', borderRadius: '50%' },
-    label: { display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' },
     input: { width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '16px', boxSizing: 'border-box' },
     promoSection: { marginTop: '20px' },
     promoInputGroup: { display: 'flex', gap: '10px' },

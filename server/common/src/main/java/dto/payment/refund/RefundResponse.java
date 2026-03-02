@@ -17,8 +17,6 @@ import java.time.Instant;
 public class RefundResponse implements Serializable {
     @JsonProperty("success")
     private boolean success;
-    @JsonProperty("refundId")
-    private String refundId;
     @JsonProperty("refundTransactionId")
     private String refundTransactionId;
     @JsonProperty("receiptUrl")

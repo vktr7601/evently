@@ -1,6 +1,8 @@
 package com.evently.booking.ticket.controller;
 
+import com.evently.booking.order.service.OrderService;
 import com.evently.booking.ticket.dto.TicketListItem;
+import com.evently.booking.ticket.service.PdfGenerationService;
 import com.evently.booking.ticket.service.TicketService;
 import constants.ApplicationHeaders;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import java.util.List;
 @RequestMapping("/tickets")
 public class TicketController {
     private final TicketService ticketService;
+    private final PdfGenerationService pdfGenerationService;
+    private final OrderService orderService;
 
     @GetMapping("/availability")
     public ResponseEntity<?> checkAvailability(@RequestParam("eventLocationId"
@@ -32,7 +36,8 @@ public class TicketController {
 
     @GetMapping
     public ResponseEntity<List<TicketListItem>> getUserTickets(@RequestHeader(ApplicationHeaders.USER_ID) long userId) {
-        List<TicketListItem> userTickets = ticketService.getUserTickets(userId);
+        List<TicketListItem> userTickets =
+                orderService.resolveUserTickets(userId);
 
         return ResponseEntity.ok(userTickets);
     }
@@ -58,7 +63,7 @@ public class TicketController {
         TicketListItem ticketListItem = ticketService.getTicket(id);
         String htmlContent = ticketService.fillTicketTemplate(ticketListItem);
 
-        byte[] pdfBytes = ticketService.pdfGeneration(htmlContent);
+        byte[] pdfBytes = pdfGenerationService.generateFromHtml(htmlContent);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"ticket-" + id + ".pdf\"")

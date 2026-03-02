@@ -74,7 +74,7 @@ const Notifications = () => {
                                         <button onClick={() => handleDelete(selectedNote.id)} className="btn btn-outline-light text-danger border-0 px-4">
                                             <i className="bi bi-trash3 me-2"></i> Delete
                                         </button>
-                                        {selectedNote.read !== 'true' && (
+                                        {selectedNote.isRead !== 'true' && (
                                         <button onClick={() => handleMarkRead(selectedNote.id)} className="btn btn-outline-light text-success border-0 px-4">
                                             <i className="bi bi-check2-circle me-2"></i> Mark as Read
                                         </button>

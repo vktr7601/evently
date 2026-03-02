@@ -1,14 +1,13 @@
 package com.evently.payment.payments.paymentTransactions.controller;
 
+import com.evently.payment.payments.paymentTransactions.dto.PaymentTransactionDetails;
 import com.evently.payment.payments.paymentTransactions.service.PaymentTransactionsService;
+import constants.ApplicationHeaders;
 import dto.payment.payment.PaymentRequest;
 import dto.payment.payment.PaymentResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -22,5 +21,14 @@ public class PaymentTransactionsController {
                 paymentTransactionsService.charge(paymentRequest);
 
         return ResponseEntity.ok(paymentResponse);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<PaymentTransactionDetails> getPaymentTransactionDetails(@PathVariable("id") Long id,
+                                                                                  @RequestHeader(ApplicationHeaders.USER_ID) long userId) {
+        PaymentTransactionDetails paymentTransactionDetails =
+                paymentTransactionsService.getPaymentTransactionDetails(id, userId);
+
+        return ResponseEntity.ok(paymentTransactionDetails);
     }
 }

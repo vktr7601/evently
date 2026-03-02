@@ -1,6 +1,7 @@
 package com.evently.payment.payments.provider;
 
 import com.evently.payment.payments.provider.contracts.PaymentProvider;
+import com.evently.payment.payments.provider.model.PaymentProviderResult;
 import dto.payment.payment.PaymentRequest;
 import dto.payment.payment.PaymentResponse;
 import dto.payment.refund.RefundRequest;
@@ -56,9 +57,10 @@ public class StripePaymentProvider implements PaymentProvider {
 
             RefundResponse response = new RefundResponse();
             response.setSuccess(true);
-            response.setRefundId(stripeRefund.getId());
+            response.setRefundTransactionId(stripeRefund.getId());
             response.setReceiptUrl(charge.getReceiptUrl());
             response.setTimestamp(Instant.now());
+            response.setRefundedAmount(refundRequest.getAmount());
             return response;
 
         } catch (StripeException e) {
@@ -112,7 +114,7 @@ public class StripePaymentProvider implements PaymentProvider {
     }
 
     @Override
-    public PaymentResponse processPayment(PaymentRequest paymentRequest) {
+    public PaymentProviderResult processPayment(PaymentRequest paymentRequest) {
         try {
             RequestOptions options =
                     RequestOptions.builder().setApiKey(stripeSecretKey).build();
@@ -152,7 +154,7 @@ public class StripePaymentProvider implements PaymentProvider {
 
             PaymentIntent intent = PaymentIntent.create(params, requestOptions);
 
-            PaymentResponse paymentResult = new PaymentResponse();
+            PaymentProviderResult paymentResult = new PaymentProviderResult();
             paymentResult.setAmount(paymentRequest.getAmount());
 
             paymentResult.setPaymentMethod(paymentRequest.getPaymentProvider());
@@ -165,7 +167,7 @@ public class StripePaymentProvider implements PaymentProvider {
         } catch (StripeException e) {
             log.error("Stripe Processing Error for User {}: {}",
                     paymentRequest.getUserEmail(), e.getMessage());
-            var paymentResult = new PaymentResponse();
+            var paymentResult = new PaymentProviderResult();
             paymentResult.setStatus(PaymentStatus.FAILED.getValue());
             paymentResult.setMessage(e.getMessage());
             paymentResult.setTimestamp(Instant.now());

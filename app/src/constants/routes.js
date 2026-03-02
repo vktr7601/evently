@@ -10,6 +10,12 @@ export const ROUTES = {
     EVENT_LOCATIONS_DETAILS: (id) => `/event-details/${id}`,
     EVENT_LOCATION: (id) => `/events/${id}/location`
   },
+  PAYMENTS:{
+    PAYMENT_TRANSACTIONS: '/payment-transactions',
+    PAYMENT_TRANSACTIONS_DETAILS: (id) => `/payment-transactions/${id}`,
+    TRANSACTION_DETAILS: (id) => `/transactions/${id}`,
+    TRANSACTIONS: '/transactions',
+  },
   TICKETS: {
     AVAILABILITY: '/tickets/availability',
     VIEW: (id) => `/tickets/view/${id}`,

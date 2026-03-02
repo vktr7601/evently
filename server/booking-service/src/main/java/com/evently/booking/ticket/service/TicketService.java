@@ -2,7 +2,7 @@ package com.evently.booking.ticket.service;
 
 import com.evently.booking.infrastructure.clients.eventsService.EventServiceClient;
 import com.evently.booking.infrastructure.clients.eventsService.data.EventsLocationsDto;
-import com.evently.booking.infrastructure.clients.paymentService.PaymentServiceClient;
+import com.evently.booking.order.model.Order;
 import com.evently.booking.ticket.data.TicketMapper;
 import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.model.Ticket;
@@ -45,7 +45,6 @@ public class TicketService {
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
     private final TemplateEngine templateEngine;
-    private final PaymentServiceClient paymentService;
     private final PdfGenerationService pdfGenerationService;
 
     @Transactional
@@ -137,20 +136,12 @@ public class TicketService {
     }
 
     @Transactional
-    public List<TicketListItem> getUserTickets(long userId) {
-        List<Ticket> tickets = ticketRepository.findAllByUserId(userId);
-
+    public List<TicketListItem> getTicketsByOrder(Order order) {
+        List<Ticket> tickets = order.getTickets();
         List<TicketListItem> ticketListItems =
                 enrichTicketsWithEventDetails(tickets);
-
+        log.info("Tickets for order ID {} has been fetched", order.getId());
         return ticketListItems;
-    }
-
-    public List<TicketListItem> getTicketsByOrderId(long orderId) {
-        List<Ticket> tickets = ticketRepository.findAllByOrderId(orderId);
-        var res = enrichTicketsWithEventDetails(tickets);
-        log.info("Tickets for order ID {} has been saved", orderId);
-        return res;
     }
 
     public void finalizeOrder(long orderId) {
@@ -310,12 +301,7 @@ public class TicketService {
         return html;
     }
 
-
-    public byte[] pdfGeneration(String htmlContent) {
-        return pdfGenerationService.generateFromHtml(htmlContent);
-    }
-
-    public String generateQrCodeBase64(String content) {
+    private String generateQrCodeBase64(String content) {
         try {
             QRCodeWriter writer = new QRCodeWriter();
             BitMatrix bitMatrix = writer.encode(content,
@@ -328,10 +314,7 @@ public class TicketService {
 
             return Base64.getEncoder().encodeToString(outputStream.toByteArray());
         } catch (Exception e) {
-//            throw new QrCodeGenerationException("Failed to generate QR
-//            code", e);
         }
-
         return null;
     }
 }

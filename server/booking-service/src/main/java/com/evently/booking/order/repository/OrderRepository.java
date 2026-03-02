@@ -72,4 +72,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "'PENDING_PAYMENT' AND o.expirationTime < :now")
     List<Order> findExpiredPendingOrders(@Param("now") LocalDateTime now);
 
+    List<Order> findAllByUserId(Long userId);
 }

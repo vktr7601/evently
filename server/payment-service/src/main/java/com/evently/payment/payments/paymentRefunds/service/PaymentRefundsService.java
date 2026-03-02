@@ -42,7 +42,7 @@ public class PaymentRefundsService {
 
         if (result.isSuccess()) {
             paymentRefund.setStatus(RefundStatus.SUCCEEDED);
-            paymentRefund.setProviderRefundId(result.getRefundId());
+            paymentRefund.setProviderRefundId(result.getRefundTransactionId());
             paymentRefund.setReceiptUrl(result.getReceiptUrl());
             paymentRefund.setProcessedAt(Instant.now());
         } else {

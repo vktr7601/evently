@@ -17,7 +17,7 @@ public class Paths {
             "/tickets/**",
             "/bookings/**",
             "/refunds/**",
-            "/payments/**",
+            "/payment-transactions/**",
             "/notifications/**"
     };
 

@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +60,10 @@ public class OrderService {
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new OrderExpiredException("Your booking window has " + "timed out. " + "Please start a new order."));
 
         List<TicketListItem> listItems =
-                ticketService.getTicketsByOrderId(order.getId());
+                ticketService.getTicketsByOrder(order);
 
-        return mapToDto(order, listItems);
+
+        return orderMapper.toDto(order, listItems);
     }
 
     @Transactional
@@ -110,7 +110,7 @@ public class OrderService {
         if (status == OrderStatus.CANCELLED || status == OrderStatus.EXPIRED) {
 
             List<TicketListItem> activeListItem =
-                    ticketService.getTicketsByOrderId(order.getId());
+                    ticketService.getTicketsByOrder(order);
             activeListItem.forEach(x -> x.setStatus(TicketStatus.CANCELED));
 
             try {
@@ -137,7 +137,7 @@ public class OrderService {
         }
         if (status == OrderStatus.REFUNDED) {
             List<TicketListItem> activeListItem =
-                    ticketService.getTicketsByOrderId(order.getId());
+                    ticketService.getTicketsByOrder(order);
             activeListItem.forEach(x -> x.setStatus(TicketStatus.REFUNDED));
 
             try {
@@ -151,8 +151,6 @@ public class OrderService {
             order.setStatus(status);
             order.setActive(false);
 
-            order.setStatus(status);
-            order.setActive(false);
 
             List<Ticket> tickets = order.getTickets();
             if (tickets != null) {
@@ -162,9 +160,7 @@ public class OrderService {
                     ticket.setOrder(null);
                 }
             }
-
             orderRepository.save(order);
-
         }
     }
 
@@ -239,8 +235,7 @@ public class OrderService {
                 userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
         List<TicketListItem> ticketListItems = resolveOrderItems(order);
-
-        return mapToDto(order, ticketListItems);
+        return orderMapper.toDto(order, ticketListItems);
     }
 
     public List<TicketListItem> resolveOrderItems(Order order) {
@@ -255,7 +250,7 @@ public class OrderService {
             }
         }
 
-        return ticketService.getTicketsByOrderId(order.getId());
+        return ticketService.getTicketsByOrder(order);
     }
 
     @Transactional
@@ -342,10 +337,8 @@ public class OrderService {
         order.setTotalPrice(order.getTickets().stream()
                 .map(Ticket::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-        order.setReceiptUrl(paymentResponse.getReceiptUrl());
         order.setTransactionId(paymentResponse.getTransactionId());
         orderRepository.save(order);
-
         OrderPaymentSucceededEvent event =
                 orderMapper.toOrderPaymentSucceededEvent(order);
         eventPublisher.publishEvent(event);
@@ -360,19 +353,6 @@ public class OrderService {
 //
 //        throw new ProcessOrderException(payment);
     }
-
-    public boolean isWithinRefundPeriod(Long userId, UUID number) {
-        Order order = orderRepository.findByOrderNumberAndUserId(number,
-                userId).orElseThrow(() -> new NoActiveOrderException(userId));
-
-
-        return order.getTickets().stream().allMatch(ticket -> {
-            LocalDateTime refundDeadline =
-                    ticket.getEventStartTime().minusDays(1);
-            return LocalDateTime.now().isBefore(refundDeadline);
-        });
-    }
-
 
     public Order findByOrderNumberAndUserId(UUID number, Long userId) {
         return orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(() -> new NoActiveOrderException(userId));
@@ -392,6 +372,13 @@ public class OrderService {
     public List<OrderListItemDto> getSystemOrders() {
         return orderRepository.getAllOrders();
     }
+
+    public List<TicketListItem> resolveUserTickets(long userId) {
+        return orderRepository.findAllByUserId(userId).stream()
+                .flatMap(order -> resolveOrderItems(order).stream())
+                .toList();
+    }
+
 
     @Transactional
     public void save(Order order) {

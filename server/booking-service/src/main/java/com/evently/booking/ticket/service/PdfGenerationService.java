@@ -7,7 +7,6 @@ import java.io.ByteArrayOutputStream;
 
 @Service
 public class PdfGenerationService {
-
     public byte[] generateFromHtml(String html) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

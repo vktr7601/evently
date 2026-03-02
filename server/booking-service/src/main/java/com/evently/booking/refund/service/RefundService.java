@@ -9,9 +9,7 @@ import com.evently.booking.refund.dto.IneligibleTicket;
 import com.evently.booking.refund.dto.OrderRefundEligibility;
 import com.evently.booking.refund.dto.RefundEligibility;
 import com.evently.booking.ticket.model.Ticket;
-import com.evently.booking.ticket.model.TicketStatus;
 import com.evently.booking.ticket.service.TicketService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.payment.refund.RefundRequest;
 import dto.payment.refund.RefundResponse;
@@ -48,7 +46,7 @@ public class RefundService {
 
         RefundRequest refundRequest = new RefundRequest();
         refundRequest.setAmount(order.getTotalPrice());
-        refundRequest.setTransactionId(order.getTransactionId());
+        //  refundRequest.setTransactionId(order.getTransactionId());
         refundRequest.setOrderNumber(order.getNumber().toString());
         refundRequest.setRequestedBy(userId);
         refundRequest.setRefundType(RefundType.FULL_ORDER);
@@ -58,33 +56,33 @@ public class RefundService {
 
         RefundResponse body = response.getBody();
 
-        if (body.isSuccess()) {
-            order.setRefundId(body.getRefundId());
-            order.setRefundTime(LocalDateTime.now());
-            order.set
-            orderService.updateOrderDetails(order, OrderStatus.REFUNDED);
-
-            order.getTickets().forEach(ticket -> {
-                ticket.setStatus(TicketStatus.REFUNDED);
-                ticket.setUserId(null);
-                ticket.setOrder(null);
-            });
-
-            order.setStatus(OrderStatus.REFUNDED);
-            order.setTransactionId(body.getRefundTransactionId());
-
-            try {
-                order.setAudit(objectMapper.writeValueAsString(order.getTickets()));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-
-            orderService.save(order);
-            log.info("Order {} refunded successfully, refund transaction: {}",
-                    orderNumber, body.getRefundTransactionId());
-        } else {
-            //  throw new ProcessOrderException(body);
-        }
+//        if (body.isSuccess()) {
+//            order.setRefundId(body.getRefundTransactionId());
+//            order.setRefundTime(LocalDateTime.now());
+//            orderService.updateOrderDetails(order, OrderStatus.REFUNDED);
+//
+//            order.getTickets().forEach(ticket -> {
+//                ticket.setStatus(TicketStatus.REFUNDED);
+//                ticket.setUserId(null);
+//                ticket.setOrder(null);
+//            });
+//
+//            order.setStatus(OrderStatus.REFUNDED);
+//            order.setTransactionId(body.getRefundTransactionId());
+//
+//            try {
+//                order.setAudit(objectMapper.writeValueAsString(order
+//                .getTickets()));
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            orderService.save(order);
+//            log.info("Order {} refunded successfully, refund transaction: {}",
+//                    orderNumber, body.getRefundTransactionId());
+//        } else {
+//            //  throw new ProcessOrderException(body);
+//        }
     }
 
     public RefundResponse refundTicket(long ticketId, long userId) {
@@ -100,8 +98,9 @@ public class RefundService {
 
         RefundRequest refundRequest = new RefundRequest();
         refundRequest.setOrderNumber(order.getNumber().toString());
-        refundRequest.setTransactionId(order.getTransactionId());
+        // refundRequest.setTransactionId(order.getTransactionId());
         refundRequest.setAmount(ticket.getPrice());
+        refundRequest.setRequestedBy(userId);
         refundRequest.setRefundType(isOnlyTicket
                 ? RefundType.FULL_ORDER
                 : RefundType.PARTIAL_TICKET);
@@ -113,17 +112,7 @@ public class RefundService {
             //throw new ProcessRefundException(response.getMessage());
             System.out.println();
         }
-
-        ticket.setStatus(TicketStatus.REFUNDED);
-        ticket.setUserId(null);
-        ticket.setOrder(null);
-
-        // if it was the only ticket, close the order too
-        if (isOnlyTicket) {
-            order.setStatus(OrderStatus.REFUNDED);
-        }
-
-        orderService.save(order);
+        orderService.updateOrderDetails(order, OrderStatus.REFUNDED);
         return response;
     }
 

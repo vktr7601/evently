@@ -31,7 +31,7 @@ const NotificationList = ({ onSelectNote, activeId }) => {
     }, []);
 
    if (isLoading) {
-        return <Spinner message="Loading orders..." />;
+        return <Spinner message="Loading notifications..." />;
     }
 
     return (

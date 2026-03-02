@@ -7,6 +7,7 @@ import lombok.Setter;
 import persistence.BaseEntity;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class PaymentTransaction extends BaseEntity {
     @Column(name = "paymentTransactionStatus")
     @Enumerated(EnumType.STRING)
     private PaymentTransactionStatus paymentTransactionStatus;
+    @Column(name = "paymentTransactionDateTime")
+    private LocalDateTime paymentTransactionDateTime;
     @OneToMany(mappedBy = "transaction", fetch = FetchType.LAZY)
     private List<PaymentRefund> refunds = new ArrayList<>();
 }

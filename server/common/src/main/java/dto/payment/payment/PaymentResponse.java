@@ -6,28 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentResponse {
     @JsonProperty("transactionId")
-    private String transactionId;
+    private long transactionId;
     @JsonProperty("isSuccessful")
     private boolean success;
-    @JsonProperty("message")
-    private String message;
-    @JsonProperty("receiptUrl")
-    private String receiptUrl;
-    @JsonProperty("amount")
-    private BigDecimal amount;
-    @JsonProperty("timestamp")
-    private Instant timestamp;
-    @JsonProperty("paymentMethod")
-    private String paymentMethod;
     @JsonProperty("status")
     private String status;
+    @JsonProperty("message")
+    private String message;
 }
