@@ -1,7 +1,8 @@
 package com.evently.booking.infrastructure.kafka.consumer;
 
-import com.evently.booking.ticket.TicketService;
-import dtos.KafkaTopics;
+import com.evently.booking.ticket.service.TicketService;
+import constants.KafkaTopics;
+import events.event.EventArchived;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,7 +15,7 @@ public class EventFinishedKafkaConsumer {
     private final TicketService ticketService;
 
     @KafkaListener(topics = KafkaTopics.EVENT_FINISHED)
-    public void consumeEventLocationCancellationMessage(dtos.EventFinished eventCancelled) {
+    public void consumeEventLocationCancellationMessage(EventArchived eventCancelled) {
         int result =
                 ticketService.discardAllUnboughtTickets(eventCancelled.getEventLocationId());
 

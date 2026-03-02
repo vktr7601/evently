@@ -1,28 +1,60 @@
 package com.evently.users.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import exceptions.EventlyErrorResponse;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
 
-@ControllerAdvice
+@RestControllerAdvice
+@RequiredArgsConstructor
 public class UserServiceExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailConflict(DuplicateEmailException ex) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("message", ex.getMessage());
-        map.put("status", HttpStatus.CONFLICT.value());
-        return new ResponseEntity<>(map, HttpStatus.CONFLICT);
+    public ResponseEntity<EventlyErrorResponse> handleDuplicateEmail(
+            DuplicateEmailException ex, HttpServletRequest request) {
+
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .message(ex.getMessage())
+                .errorCode("DUPLICATE_EMAIL")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("message", ex.getMessage());
-        map.put("status", HttpStatus.CONFLICT.value());
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<EventlyErrorResponse> handleUserNotFound(
+            UserNotFoundException ex, HttpServletRequest request) {
+
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(ex.getMessage())
+                .errorCode("USER_NOT_FOUND")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<EventlyErrorResponse> handleBadCredentials(
+            BadCredentialsException ex, HttpServletRequest request) {
+
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(ex.getMessage())
+                .errorCode("BAD_CREDENTIALS")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }

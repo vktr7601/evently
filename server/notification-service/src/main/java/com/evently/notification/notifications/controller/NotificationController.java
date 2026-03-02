@@ -1,0 +1,32 @@
+package com.evently.notification.notifications.controller;
+
+import com.evently.notification.notifications.dto.NotificationListItemDto;
+import com.evently.notification.notifications.service.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/notifications")
+@RequiredArgsConstructor
+public class NotificationController {
+    private final NotificationService notificationService;
+
+    @GetMapping
+    public ResponseEntity<List<NotificationListItemDto>> getUserNotification(@RequestHeader("X-User-Id") long userId) {
+        return ResponseEntity.ok(notificationService.findAllByUserId(userId));
+    }
+
+    @PutMapping("/{notificationId}")
+    public void markNotificationAsRead(@PathVariable long notificationId) {
+        notificationService.markNotificationAsRead(notificationId);
+    }
+
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<?> deleteNotification(@PathVariable long notificationId) {
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.noContent().build();
+    }
+}

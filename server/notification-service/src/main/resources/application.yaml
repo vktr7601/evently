@@ -1,20 +1,21 @@
 spring:
   application:
     name: notification-service
+  thymeleaf:
+    suffix: .html
+    mode: HTML
+    prefix: classpath:/templates/
+
   kafka:
-    bootstrap-servers: localhost:9092
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: notification-group
+      group-id: notification-service-group
       auto-offset-reset: earliest
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"
+        spring.json.trusted.packages: "events.user,events.ticket,events.event,events.order"
 
-  sql:
-    init:
-      mode: always
   datasource:
     url: jdbc:postgresql://localhost:5432/notifications_db
     username: admin
@@ -29,14 +30,16 @@ spring:
       hibernate:
         format_sql: true
         highlight_sql: true
+
 server:
   port: 8083
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      #      defaultZone: http://eureka:8761/eureka/
-#      defaultZone: http://localhost:8761/eureka/
-#  instance:
-#    prefer-ip-address: true
+kafka:
+  bootstrap-servers: localhost:9092
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true

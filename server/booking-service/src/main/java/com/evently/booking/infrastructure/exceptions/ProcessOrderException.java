@@ -1,9 +1,9 @@
 package com.evently.booking.infrastructure.exceptions;
 
-import com.evently.booking.infrastructure.clients.paymentService.data.PaymentServiceResponse;
+import dto.payment.payment.PaymentResponse;
 
 public class ProcessOrderException extends RuntimeException {
-    public ProcessOrderException(PaymentServiceResponse paymentServiceResponse) {
-        super("Payment processing failed: " + paymentServiceResponse.getMessage());
+    public ProcessOrderException(PaymentResponse paymentResponse) {
+        super("Payment processing failed: " + paymentResponse.getMessage());
     }
 }

@@ -6,3 +6,5 @@ CREATE
 DATABASE notifications_db;
 CREATE
 DATABASE booking_db;
+CREATE
+DATABASE payments_db;
