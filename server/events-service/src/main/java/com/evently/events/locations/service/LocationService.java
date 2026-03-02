@@ -6,6 +6,7 @@ import com.evently.events.infrastructure.s3.S3Folders;
 import com.evently.events.infrastructure.s3.S3Service;
 import com.evently.events.locations.dto.LocationDetails;
 import com.evently.events.locations.dto.LocationListItem;
+import com.evently.events.locations.dto.LocationSeed;
 import com.evently.events.locations.dto.mapper.LocationsMapper;
 import com.evently.events.locations.dto.request.LocationRequest;
 import com.evently.events.locations.model.Location;
@@ -58,14 +59,6 @@ public class LocationService {
         return locationDetails;
     }
 
-//    public void addLocations(Event event,
-//                             List<EventsLocationsDto> eventsLocationsDtos) {
-//        List<Long> locationsId =
-//                eventsLocationsDtos.stream().map
-//                (EventsLocationsDto::getLocationId).toList();
-//        Map<Long, Location> locationMap = findAllByIdIn(locationsId);
-//
-//    }
 
     @Transactional
     public List<Location> findAllByNameIn(List<String> locationNames) {
@@ -111,52 +104,20 @@ public class LocationService {
         Location location = locationsMapper.toEntity(locationRequest, imageUrl);
 
         locationRepository.save(location);
-        
+
         return locationsMapper.toDto(location);
     }
 
-//    public Map<Long, Location> findAllByIdIn(List<Long> locationIds) {
-//        if (locationIds.isEmpty()) {
-//            return new HashMap<>();
-//        }
-//
-//        List<Location> locations =
-//                locationRepository.findAllByIdIn(locationIds);
-//
-//        if (locations.size() != locationIds.size()) {
-//            log.warn("Some locations were not found for the provided IDs: {}"
-//                    , locationIds);
-//            throw new ResourceNotFoundException("Some locations were not " +
-//                    "found for the provided IDs: " + locationIds);
-//        }
-//
-//        Map<Long, Location> locationMap = locations.stream()
-//                .collect(Collectors.toMap(Location::getId,
-//                        location -> location));
-//
-//        return locationMap;
-//    }
+    @Transactional
+    public void seedLocations(List<LocationSeed> seedList) {
+        List<Location> locationList = new ArrayList<>();
 
-//    public LocationDetailsDto getVenueEvents(long id) {
-//        Location venue = locationRepository.findByIdOrThrow(id);
-//        // var allByEventId = eventsVenuesRepository.findAllByVenueId(id);
-//        return null;
-////        return new VenueDetailsDto(venue.getName(), venue.getImageUrl(),
-    // allByEventId);
-//    }
-//
-//    public LocationListItemDto saveVanue(LocationRequest locationRequest) {
-//        String imageUrl = "";
-//        try {
-//            imageUrl = s3BucketService.uploadFile(locationRequest
-//            .getImageUrl());
-//            Location location = locationMapper.toEntity(locationRequest);
-//            location.setImageUrl(imageUrl);
-//            Location savedEntity = locationRepository.save(location);
-//            return locationMapper.toDto(savedEntity);
-//        } catch (Exception e) {
-//            s3BucketService.deleteFile(imageUrl);
-//        }
-//        return null;
-//    }
+        for (LocationSeed locationSeed : seedList) {
+            if (!locationRepository.existsByName(locationSeed.getName())) {
+                locationList.add(locationsMapper.toEntity(locationSeed));
+            }
+        }
+
+        locationRepository.saveAll(locationList);
+    }
 }

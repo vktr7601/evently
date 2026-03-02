@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Vasko Vassilev",
+    "bio": "The world-famous violin virtuoso...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/vesko_vasiliev.jpg"
+  },
+  {
+    "name": "Azis",
+    "bio": "A global phenomenon...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/azis.jpg"
+  },
+  {
+    "name": "Miro",
+    "bio": "A powerhouse vocalist...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/miro.jpg"
+  },
+  {
+    "name": "Papi Hans",
+    "bio": "A creative visionary...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/papi_hans.jpg"
+  },
+  {
+    "name": "Molec",
+    "bio": "The biggest breakout duo...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/molec.jpg"
+  },
+  {
+    "name": "100 Kila",
+    "bio": "The most iconic figure...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/100_kila.jpg"
+  },
+  {
+    "name": "Medi",
+    "bio": "The current king of club music...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/artists/medi.jpg"
+  }
+]

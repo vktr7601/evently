@@ -1,0 +1,98 @@
+[
+  {
+    "eventId": 1,
+    "locationId": 1,
+    "eventStartTime": "2026-02-20T20:00:00",
+    "ticketsCount": 50,
+    "pricePerTicket": 85.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 1,
+    "locationId": 7,
+    "eventStartTime": "2026-02-22T19:30:00",
+    "ticketsCount": 50,
+    "pricePerTicket": 120.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 2,
+    "locationId": 1,
+    "eventStartTime": "2026-04-10T21:00:00",
+    "ticketsCount": 50,
+    "pricePerTicket": 150.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 3,
+    "locationId": 2,
+    "eventStartTime": "2026-05-05T20:00:00",
+    "ticketsCount": 50,
+    "pricePerTicket": 65.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 4,
+    "locationId": 9,
+    "eventStartTime": "2026-05-20T19:00:00",
+    "ticketsCount": 50,
+    "pricePerTicket": 40.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 4,
+    "locationId": 3,
+    "eventStartTime": "2026-05-28T20:00:00",
+    "ticketsCount": 50,
+    "pricePerTicket": 55.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 5,
+    "locationId": 4,
+    "eventStartTime": "2026-07-15T23:00:00",
+    "ticketsCount": 20,
+    "pricePerTicket": 45.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 5,
+    "locationId": 10,
+    "eventStartTime": "2026-02-28T22:00:00",
+    "ticketsCount": 21,
+    "pricePerTicket": 35.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 6,
+    "locationId": 5,
+    "eventStartTime": "2026-04-18T20:30:00",
+    "ticketsCount": 22,
+    "pricePerTicket": 45.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 7,
+    "locationId": 10,
+    "eventStartTime": "2026-03-05T23:30:00",
+    "ticketsCount": 23,
+    "pricePerTicket": 50.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 7,
+    "locationId": 8,
+    "eventStartTime": "2026-03-12T22:00:00",
+    "ticketsCount": 24,
+    "pricePerTicket": 40.00,
+    "status": "AVAILABLE"
+  },
+  {
+    "eventId": 8,
+    "locationId": 6,
+    "eventStartTime": "2026-08-20T20:30:00",
+    "ticketsCount": 25,
+    "pricePerTicket": 100.00,
+    "status": "AVAILABLE"
+  }
+]

@@ -1,6 +1,7 @@
 package com.evently.events.category.service;
 
 import com.evently.events.category.dto.CategoryDto;
+import com.evently.events.category.dto.CategorySeed;
 import com.evently.events.category.dto.mapper.CategoryMapper;
 import com.evently.events.category.dto.request.CreateCategoryRequest;
 import com.evently.events.category.model.Category;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.module.ResolutionException;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -65,5 +67,17 @@ public class CategoryService {
         }
 
         return existingCategories;
+    }
+
+    @Transactional
+    public void seedCategories(List<CategorySeed> seedList) {
+        List<Category> categoryList = new LinkedList<>();
+
+        for (CategorySeed categorySeed : seedList) {
+            if (!categoryRepository.existsByName(categorySeed.getName())) {
+                categoryList.add(categoryMapper.toEntity(categorySeed));
+            }
+        }
+        categoryRepository.saveAll(categoryList);
     }
 }

@@ -36,4 +36,6 @@ public interface ArtistsRepository extends JpaRepository<Artist, Long> {
             ORDER BY a.createdAt DESC
             """)
     List<ArtistListItem> findAllArtistsSortedByDateDesc();
+
+    boolean existsByName(String name);
 }

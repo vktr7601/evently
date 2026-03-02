@@ -1,19 +1,22 @@
 package com.evently.events.eventsLocations.service;
 
 
-import com.evently.events.eventsLocations.dto.mapper.EventLocationsMapper;
 import com.evently.events.event.model.Event;
+import com.evently.events.event.repository.EventRepository;
+import com.evently.events.eventsLocations.dto.EventLocationSeed;
+import com.evently.events.eventsLocations.dto.mapper.EventLocationsMapper;
 import com.evently.events.eventsLocations.dto.request.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
-import com.evently.events.eventsLocations.model.EventsLocationsStatus;
 import com.evently.events.eventsLocations.model.EventsLocations;
+import com.evently.events.eventsLocations.model.EventsLocationsStatus;
 import com.evently.events.eventsLocations.repository.EventsLocationsRepository;
 import com.evently.events.eventsLocations.service.data.FetchMode;
 import com.evently.events.infrastructure.clients.BookingServiceClient;
 import com.evently.events.infrastructure.exceptions.LocationCollisionException;
-import com.evently.events.locations.model.Location;
-import com.evently.events.locations.service.LocationService;
 import com.evently.events.locations.dto.LocationDetails;
+import com.evently.events.locations.model.Location;
+import com.evently.events.locations.repository.LocationRepository;
+import com.evently.events.locations.service.LocationService;
 import events.event.EventLive;
 import events.ticket.TicketsCreated;
 import exceptions.ResourceNotFoundException;
@@ -41,6 +44,8 @@ public class EventsLocationsService {
     private final BookingServiceClient bookingServiceClient;
     private final LocationService locationService;
     private final ApplicationEventPublisher eventPublisher;
+    private final EventRepository eventRepository;
+    private final LocationRepository locationRepository;
 
     @Transactional
     public List<EventsLocationsDto> addLocationDetails(Event event,
@@ -53,24 +58,20 @@ public class EventsLocationsService {
 
         validateNoArtistSchedulingConflicts(event, eventLocationData);
 
-        Map<Long, Location> locationsMap = locations.stream()
-                .collect(Collectors.toMap(Location::getId,
+        Map<Long, Location> locationsMap =
+                locations.stream().collect(Collectors.toMap(Location::getId,
                         Function.identity()));
 
         validateNoLocationSchedulingConflicts(eventLocationData, locationsMap);
 
-        List<EventsLocations> eventsLocations = eventLocationData.stream()
-                .map(data -> eventsLocationMapper.toEntity(event, data,
-                        locationsMap.get(data.getLocationId())))
-                .toList();
+        List<EventsLocations> eventsLocations =
+                eventLocationData.stream().map(data -> eventsLocationMapper.toEntity(event, data, locationsMap.get(data.getLocationId()))).toList();
 
         eventsLocationsRepository.saveAll(eventsLocations);
         log.info("Successfully linked event ID: {} with {} locations",
                 event.getId(), eventsLocations.size());
 
-        return eventsLocations.stream()
-                .map(eventsLocationMapper::toDto)
-                .toList();
+        return eventsLocations.stream().map(eventsLocationMapper::toDto).toList();
     }
 
 
@@ -78,10 +79,10 @@ public class EventsLocationsService {
         LongFunction<List<EventsLocationsDto>> repositoryCall =
                 eventsLocationsRepository::findUpcomingEventLocationsByEventId;
 
-        return fetchMode == FetchMode.WITH_AVAILABILITY
-                ? fetchUpcomingEventsWithAvailability("event", eventId,
-                repositoryCall)
-                : fetchUpcomingEvents("event", eventId, repositoryCall);
+        return fetchMode == FetchMode.WITH_AVAILABILITY ?
+                fetchUpcomingEventsWithAvailability("event", eventId,
+                        repositoryCall) : fetchUpcomingEvents("event",
+                eventId, repositoryCall);
     }
 
     public List<EventsLocationsDto> findAllUpcomingEventsByLocationId(long locationId, FetchMode fetchMode) {
@@ -91,10 +92,10 @@ public class EventsLocationsService {
         LongFunction<List<EventsLocationsDto>> repositoryCall =
                 eventsLocationsRepository::findAllUpcomingEventsByLocationId;
 
-        return fetchMode == FetchMode.WITH_AVAILABILITY
-                ? fetchUpcomingEventsWithAvailability("location", locationId,
-                repositoryCall)
-                : fetchUpcomingEvents("location", locationId, repositoryCall);
+        return fetchMode == FetchMode.WITH_AVAILABILITY ?
+                fetchUpcomingEventsWithAvailability("location", locationId,
+                        repositoryCall) : fetchUpcomingEvents("location",
+                locationId, repositoryCall);
     }
 
 //    public List<EventsLocationsDto> findAllEventsByLocationId(long
@@ -114,10 +115,10 @@ public class EventsLocationsService {
         LongFunction<List<EventsLocationsDto>> repositoryCall =
                 eventsLocationsRepository::findAllUpcomingEventsByArtistId;
 
-        return fetchMode == FetchMode.WITH_AVAILABILITY
-                ? fetchUpcomingEventsWithAvailability("event", artistId,
-                repositoryCall)
-                : fetchUpcomingEvents("event", artistId, repositoryCall);
+        return fetchMode == FetchMode.WITH_AVAILABILITY ?
+                fetchUpcomingEventsWithAvailability("event", artistId,
+                        repositoryCall) : fetchUpcomingEvents("event",
+                artistId, repositoryCall);
     }
 
     public List<EventsLocationsDto> findAllByIdsInRange(List<Long> ids,
@@ -171,9 +172,8 @@ public class EventsLocationsService {
 
     @Transactional
     public void markAsActive(TicketsCreated ticketsCreated) {
-        eventsLocationsRepository.updateStatusByIds(ticketsCreated.getEventLocationIds(),
-                EventsLocationsStatus.AVAILABLE);
-        
+        eventsLocationsRepository.updateStatusByIds(ticketsCreated.getEventLocationIds(), EventsLocationsStatus.AVAILABLE);
+
         EventLive eventLive = new EventLive(ticketsCreated.getEventName(),
                 ticketsCreated.getCategoryIds());
         eventPublisher.publishEvent(eventLive);
@@ -184,10 +184,7 @@ public class EventsLocationsService {
         log.info("Fetching event location for ID: {}", eventId);
 
         EventsLocationsDto location =
-                eventsLocationsRepository.findEventLocationById(eventId)
-                        .orElseThrow(() -> new ResourceNotFoundException(
-                                "Event " +
-                                        "location not found with id " + eventId));
+                eventsLocationsRepository.findEventLocationById(eventId).orElseThrow(() -> new ResourceNotFoundException("Event " + "location not found with id " + eventId));
 
         if (fetchMode == FetchMode.WITH_AVAILABILITY) {
             enrichWithAvailability(location);
@@ -197,8 +194,8 @@ public class EventsLocationsService {
     }
 
     public boolean checkEventLocationStateById(Long eventLocationId) {
-        EventsLocationsDto location = eventsLocationsRepository
-                .findEventLocationById(eventLocationId).orElseThrow(() -> new ResourceNotFoundException("Evnts"));
+        EventsLocationsDto location =
+                eventsLocationsRepository.findEventLocationById(eventLocationId).orElseThrow(() -> new ResourceNotFoundException("Evnts"));
         return location.getEventsLocationsStatus() == EventsLocationsStatus.AVAILABLE;
     }
 
@@ -209,8 +206,7 @@ public class EventsLocationsService {
         return repositoryCall.apply(id);
     }
 
-    private List<EventsLocationsDto> fetchUpcomingEventsWithAvailability(String entityType, long id,
-                                                                         LongFunction<List<EventsLocationsDto>> repositoryCall) {
+    private List<EventsLocationsDto> fetchUpcomingEventsWithAvailability(String entityType, long id, LongFunction<List<EventsLocationsDto>> repositoryCall) {
         var events = fetchUpcomingEvents(entityType, id, repositoryCall);
         log.info("Enriching {} events with availability status for {} ID: {}"
                 , events.size(), entityType, id);
@@ -230,8 +226,8 @@ public class EventsLocationsService {
             log.debug("Event location ID: {} is AVAILABLE",
                     eventsLocationsDto.getId());
         } catch (Exception e) {
-            log.error("Error checking availability for event location ID {}: " +
-                    "{}", eventsLocationsDto.getId(), e.getMessage());
+            log.error("Error checking availability for event location ID {}: "
+                    + "{}", eventsLocationsDto.getId(), e.getMessage());
             eventsLocationsDto.setEventsLocationsStatus(EventsLocationsStatus.SOLD_OUT);
         }
     }
@@ -246,9 +242,8 @@ public class EventsLocationsService {
 
         // 2. Create a Set of "Occupied Dates" (LocalDate)
         // This ignores time and just looks at the calendar day
-        Set<LocalDate> occupiedDates = allUpcomingEventsByArtist.stream()
-                .map(dto -> dto.getEventStartTime().toLocalDate())
-                .collect(Collectors.toSet());
+        Set<LocalDate> occupiedDates =
+                allUpcomingEventsByArtist.stream().map(dto -> dto.getEventStartTime().toLocalDate()).collect(Collectors.toSet());
 
         List<String> collisions = new ArrayList<>();
 
@@ -262,15 +257,13 @@ public class EventsLocationsService {
             // Check A: Is the artist already booked in the database for this
             // day?
             if (occupiedDates.contains(requestedDate)) {
-                collisions.add("Artist already has a performance scheduled " +
-                        "on: " + requestedDate);
+                collisions.add("Artist already has a performance scheduled " + "on: " + requestedDate);
             }
 
             // Check B: Are there two entries for the same day in the
             // incoming request?
             if (!datesInRequest.add(requestedDate)) {
-                collisions.add("Request contains multiple performances for " +
-                        "the same day: " + requestedDate);
+                collisions.add("Request contains multiple performances for " + "the same day: " + requestedDate);
             }
         }
 
@@ -280,10 +273,8 @@ public class EventsLocationsService {
     }
 
     @Transactional(readOnly = true)
-    public void validateNoArtistSchedulingConflicts(
-            Event event,
-            List<EventsLocationsData> eventLocationData,
-            Set<Long> excludeIds) throws LocationCollisionException {
+    public void validateNoArtistSchedulingConflicts(Event event,
+                                                    List<EventsLocationsData> eventLocationData, Set<Long> excludeIds) throws LocationCollisionException {
 
         // 1. Fetch upcoming events and FILTER OUT the ones we are currently
         // updating
@@ -293,11 +284,10 @@ public class EventsLocationsService {
 
         // 2. Create a Set of "Occupied Dates", excluding the records we are
         // modifying
-        Set<LocalDate> occupiedDates = allUpcomingEventsByArtist.stream()
-                .filter(dto -> !excludeIds.contains(dto.getId())) // This
-                // prevents self-collision
-                .map(dto -> dto.getEventStartTime().toLocalDate())
-                .collect(Collectors.toSet());
+        Set<LocalDate> occupiedDates =
+                allUpcomingEventsByArtist.stream().filter(dto -> !excludeIds.contains(dto.getId())) // This
+                        // prevents self-collision
+                        .map(dto -> dto.getEventStartTime().toLocalDate()).collect(Collectors.toSet());
 
         List<String> collisions = new ArrayList<>();
         Set<LocalDate> datesInRequest = new HashSet<>();
@@ -307,14 +297,12 @@ public class EventsLocationsService {
 
             // Check A: Database collision (ignoring current records)
             if (occupiedDates.contains(requestedDate)) {
-                collisions.add("Artist already has a performance scheduled " +
-                        "on: " + requestedDate);
+                collisions.add("Artist already has a performance scheduled " + "on: " + requestedDate);
             }
 
             // Check B: Intra-request collision (same day twice in the new form)
             if (!datesInRequest.add(requestedDate)) {
-                collisions.add("Request contains multiple performances for " +
-                        "the same day: " + requestedDate);
+                collisions.add("Request contains multiple performances for " + "the same day: " + requestedDate);
             }
         }
 
@@ -345,14 +333,11 @@ public class EventsLocationsService {
         if (eventLocationData.isEmpty()) return;
 
         // 1. Fetch Location Names for error messages (mapping logic moved here)
-        Set<Long> locationIds = eventLocationData.stream()
-                .map(EventsLocationsData::getLocationId)
-                .collect(Collectors.toSet());
+        Set<Long> locationIds =
+                eventLocationData.stream().map(EventsLocationsData::getLocationId).collect(Collectors.toSet());
 
         Map<Long, String> locationNamesMap =
-                locationService.findAllByIdIn(locationIds.stream().toList()).stream()
-                        .collect(Collectors.toMap(Location::getId,
-                                Location::getName));
+                locationService.findAllByIdIn(locationIds.stream().toList()).stream().collect(Collectors.toMap(Location::getId, Location::getName));
 
         List<String> collisions = new ArrayList<>();
 
@@ -377,19 +362,14 @@ public class EventsLocationsService {
     }
 
     @Transactional(readOnly = true)
-    public void validateNoLocationSchedulingConflicts(
-            List<EventsLocationsData> eventLocationData,
-            Set<Long> excludeIds) throws LocationCollisionException {
+    public void validateNoLocationSchedulingConflicts(List<EventsLocationsData> eventLocationData, Set<Long> excludeIds) throws LocationCollisionException {
 
         if (eventLocationData.isEmpty()) return;
-        Set<Long> locationIds = eventLocationData.stream()
-                .map(EventsLocationsData::getLocationId)
-                .collect(Collectors.toSet());
+        Set<Long> locationIds =
+                eventLocationData.stream().map(EventsLocationsData::getLocationId).collect(Collectors.toSet());
 
         Map<Long, String> locationNamesMap =
-                locationService.findAllByIdIn(new ArrayList<>(locationIds)).stream()
-                        .collect(Collectors.toMap(Location::getId,
-                                Location::getName));
+                locationService.findAllByIdIn(new ArrayList<>(locationIds)).stream().collect(Collectors.toMap(Location::getId, Location::getName));
         // 1. Fetch Location Names for descriptive error messages
 
         List<String> collisions = new ArrayList<>();
@@ -402,9 +382,8 @@ public class EventsLocationsService {
 
             // Update the repository call to include the exclusion list
 
-            Optional<EventsLocations> existingEvent = eventsLocationsRepository
-                    .findEventByLocationAndDate(x.getLocationId(), startOfDay
-                            , endOfDay);
+            Optional<EventsLocations> existingEvent =
+                    eventsLocationsRepository.findEventByLocationAndDate(x.getLocationId(), startOfDay, endOfDay);
 
             // 2. Logic: If an event exists AND it's not the one we are
             // currently updating
@@ -432,20 +411,34 @@ public class EventsLocationsService {
 
         LocationDetails locationDetails =
                 locationService.findLocationDetails(id);
-        log.debug("Successfully fetched location details for ID: {}, name: {}",
-                id, locationDetails.getName());
+        log.debug("Successfully fetched location details for ID: {}, name: " +
+                "{}", id, locationDetails.getName());
 
         LongFunction<List<EventsLocationsDto>> repositoryCall =
                 eventsLocationsRepository::findAllUpcomingEventsByLocationId;
 
-        var r = fetchMode == FetchMode.WITH_AVAILABILITY
-                ? fetchUpcomingEventsWithAvailability("event", id,
-                repositoryCall)
-                : fetchUpcomingEvents("event", id, repositoryCall);
+        var r = fetchMode == FetchMode.WITH_AVAILABILITY ?
+                fetchUpcomingEventsWithAvailability("event", id,
+                        repositoryCall) : fetchUpcomingEvents("event", id,
+                repositoryCall);
 
 
         locationDetails.setEventsLocations(r);
 
         return locationDetails;
+    }
+
+    @Transactional
+    public void seedEventLocations(List<EventLocationSeed> eventLocationSeeds) {
+        List<EventsLocations> eventsLocations = new ArrayList<>();
+        for (EventLocationSeed seed : eventLocationSeeds) {
+            Event event = eventRepository.findById(seed.getEventId()).get();
+            Location location =
+                    locationRepository.findById(seed.getLocationId()).get();
+            EventsLocations el = eventsLocationMapper.toEntity(event,
+                    location, seed);
+            eventsLocations.add(el);
+        }
+        eventsLocationsRepository.saveAll(eventsLocations);
     }
 }
