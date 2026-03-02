@@ -47,75 +47,88 @@ public class TicketService {
     private final TemplateEngine templateEngine;
     private final PdfGenerationService pdfGenerationService;
 
-    @Transactional
-    public void createTickets(EventCreated eventCreated) {
-        List<Ticket> tickets = new ArrayList<>();
-        for (TicketsCreationEvent ticketsCreationEvent :
-                eventCreated.getTicketsCreationEvents()) {
-            for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
-                Ticket ticket = ticketsMapper.convert(ticketsCreationEvent);
-                tickets.add(ticket);
-            }
-        }
+//    @Transactional
+//    public void createTickets(EventCreated eventCreated) {
+//        List<Ticket> tickets = new ArrayList<>();
+//        for (TicketsCreationEvent ticketsCreationEvent :
+//                eventCreated.getTicketsCreationEvents()) {
+//            for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
+//                Ticket ticket = ticketsMapper.toEntity(ticketsCreationEvent);
+//                tickets.add(ticket);
+//            }
+//        }
+//
+//        ticketRepository.saveAll(tickets);
+//        List<Long> eventLocationIds =
+//                eventCreated.getTicketsCreationEvents().stream().map(TicketsCreationEvent::getEventLocationId).toList();
+//        TicketsCreated ticketsCreated = new TicketsCreated();
+//        ticketsCreated.setEventLocationIds(eventLocationIds);
+//        eventPublisher.publishEvent(ticketsCreated);
+//    }
 
-        ticketRepository.saveAll(tickets);
+    @Transactional
+    public void addTickets(List<TicketsCreationEvent> ticketsCreationEvents) {
+        List<Ticket> newlyCreatedTickets =
+                ticketsCreationEvents.stream().map(ticketsMapper::toEntity).toList();
+
+        ticketRepository.saveAll(newlyCreatedTickets);
         List<Long> eventLocationIds =
-                eventCreated.getTicketsCreationEvents().stream().map(TicketsCreationEvent::getEventLocationId).toList();
+                ticketsCreationEvents.stream().map(TicketsCreationEvent::getEventLocationId).toList();
         TicketsCreated ticketsCreated = new TicketsCreated();
         ticketsCreated.setEventLocationIds(eventLocationIds);
         eventPublisher.publishEvent(ticketsCreated);
     }
 
-    @Transactional
-    public void createTickets(List<TicketsCreationEvent> data) {
-        LocalDateTime now = LocalDateTime.now();
-        log.info("Start Time" + LocalDateTime.now());
-
-        if (data == null || data.isEmpty()) {
-            log.warn("No ticket allocations provided. Skipping ticket " +
-                    "creation.");
-            return; // No data to process
-        }
-        List<Ticket> tickets = new ArrayList<>();
-
-        List<TicketsCreationEvent> list = data.stream().map(x -> {
-            if (ticketRepository.isPersisted(x.getEventLocationId(),
-                    x.getEventStartTime())) {
-                log.warn("Tickets for event location ID {} and date time {} " + "already exist. Skipping creation.", x.getEventLocationId(), x.getEventStartTime());
-                return null; // Skip this ticket allocation
-            }
-
-            return x;
-
-        }).toList();
-
-        if (list.isEmpty() || list.get(0) == null) {
-            log.warn("No new ticket allocations to create. All provided " +
-                    "ticket allocations already exist in the database.");
-            return; // No new tickets to create
-        }
-
-        for (TicketsCreationEvent ticketsCreationEvent : list) {
-            for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
-                Ticket ticket = ticketsMapper.convert(ticketsCreationEvent);
-                tickets.add(ticket);
-            }
-        }
-
-        ticketRepository.saveAll(tickets);
-        List<Long> eventLocationIds =
-                data.stream().map(TicketsCreationEvent::getEventLocationId).toList();
-        TicketsCreated ticketsCreated = new TicketsCreated();
-        ticketsCreated.setEventLocationIds(eventLocationIds);
-        eventPublisher.publishEvent(ticketsCreated);
-
-        log.info("End Time" + LocalDateTime.now());
-
-
-        LocalDateTime now1 = LocalDateTime.now();
-        Duration res = Duration.between(now, now1);
-        log.info("Total tickets created: " + res);
-    }
+//    @Transactional
+//    public void createTickets(List<TicketsCreationEvent> data) {
+//        LocalDateTime now = LocalDateTime.now();
+//        log.info("Start Time" + LocalDateTime.now());
+//
+//        if (data == null || data.isEmpty()) {
+//            log.warn("No ticket allocations provided. Skipping ticket " +
+//                    "creation.");
+//            return; // No data to process
+//        }
+//        List<Ticket> tickets = new ArrayList<>();
+//
+//        List<TicketsCreationEvent> list = data.stream().map(x -> {
+//            if (ticketRepository.isPersisted(x.getEventLocationId(),
+//                    x.getEventStartTime())) {
+//                log.warn("Tickets for event location ID {} and date time {} " + "already exist. Skipping creation.", x.getEventLocationId(), x.getEventStartTime());
+//                return null; // Skip this ticket allocation
+//            }
+//
+//            return x;
+//
+//        }).toList();
+//
+//        if (list.isEmpty() || list.get(0) == null) {
+//            log.warn("No new ticket allocations to create. All provided " +
+//                    "ticket allocations already exist in the database.");
+//            return; // No new tickets to create
+//        }
+//
+//        for (TicketsCreationEvent ticketsCreationEvent : list) {
+//            for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
+//                Ticket ticket = ticketsMapper.toEntity(ticketsCreationEvent);
+//                tickets.add(ticket);
+//            }
+//        }
+//
+//        ticketRepository.saveAll(tickets);
+//        List<Long> eventLocationIds =
+//                data.stream().map(TicketsCreationEvent::getEventLocationId).toList();
+//        TicketsCreated ticketsCreated = new TicketsCreated();
+//        ticketsCreated.setEventLocationIds(eventLocationIds);
+//        eventPublisher.publishEvent(ticketsCreated);
+//
+//        log.info("End Time" + LocalDateTime.now());
+//
+//
+//        LocalDateTime now1 = LocalDateTime.now();
+//        Duration res = Duration.between(now, now1);
+//        log.info("Total tickets created: " + res);
+//    }
 
     public boolean checkAvailability(long locationEventsId, int ticketCounts) {
         return ticketRepository.hasAvailableSeats(locationEventsId,

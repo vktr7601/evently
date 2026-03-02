@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "event-service", url = "http://localhost:8082")
+@FeignClient(name = "events-service")
 public interface EventServiceClient {
     @PostMapping("/internal/event-locations/check-state/{id}")
     ResponseEntity<Boolean> checkEventLocationsStateById(@PathVariable Long id);

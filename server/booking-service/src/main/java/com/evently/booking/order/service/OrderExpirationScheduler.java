@@ -29,7 +29,7 @@ public class OrderExpirationScheduler {
         }
 
         for (Order order : expiredOrders) {
-            orderService.updateOrderDetails(order, OrderStatus.EXPIRED);
+            orderService.updateOrder(order, OrderStatus.EXPIRED);
         }
 
         log.info("Expired {} overdue orders", expiredOrders.size());

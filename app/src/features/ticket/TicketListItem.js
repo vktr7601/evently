@@ -101,21 +101,21 @@ const TicketListItem = ({ ticket }) => {
         return (
             <div className="d-flex gap-2 justify-content-end">
                 <button
-                    className="btn btn-outline-danger rounded-pill px-3 fw-bold"
+                    className="btn btn-outline-danger rounded-pill px-4 fw-bold"
                     onClick={() => checkIfTicketIsRefundable(ticket)}
                     disabled={refunding}
                 >
                     {refunding ? "Processing..." : "Refund Ticket"}
                 </button>
                 <button
-                    className="btn btn-outline-primary rounded-pill px-3 fw-bold"
+                    className="btn btn-outline-dark rounded-pill px-4 fw-bold"
                     onClick={handleDownloadPDF}
                     disabled={downloading}
                 >
                     {downloading ? "Downloading..." : "Download PDF"}
                 </button>
                 <button
-                    className="btn btn-outline-secondary rounded-pill px-3 fw-bold"
+                    className="btn btn-outline-dark rounded-pill px-4 fw-bold"
                     onClick={handleViewTicket}
                 >
                     View Ticket

@@ -29,7 +29,7 @@ public class EventCreatedKafkaConsumer {
             return;
         }
         try {
-            ticketService.createTickets(eventCreated);
+            ticketService.addTickets(eventCreated.getTicketsCreationEvents());
 
             processedEventRepository.save(new ProcessedEvent(eventCreated.getMessageId(), Instant.now()));
         } catch (DataIntegrityViolationException e) {

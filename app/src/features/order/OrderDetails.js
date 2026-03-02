@@ -49,9 +49,9 @@ const OrderDetails = () => {
                         <Link to={`/payment-transactions/${order.transactionId}`} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
                             View Transaction
                         </Link>
-                        {/* <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 fw-bold">
-                            View Receipt
-                        </a> */}
+                        <button className="btn btn-outline-danger rounded-pill px-4 fw-bold">
+                            Refund Order
+                        </button>
                     </div>
                 );
             case 'CANCELLED':
@@ -101,13 +101,6 @@ const OrderDetails = () => {
                         <div className="col-md-6 d-flex justify-content-md-end align-items-center">
                             {renderActionButtons()}
                         </div>
-                        {order.status === 'CONFIRMED' && (
-                            <button
-                                className="btn btn-outline-danger btn-lg rounded-pill px-4 fw-bold w-100"
-                            >
-                                Refund Order
-                            </button>
-                        )}
                     </div>
                 </div>
 

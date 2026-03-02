@@ -12,7 +12,7 @@ import com.evently.booking.order.dto.OrderRequest;
 import com.evently.booking.order.model.Order;
 import com.evently.booking.order.model.OrderStatus;
 import com.evently.booking.order.repository.OrderRepository;
-import com.evently.booking.ticket.data.TicketNumberGenerator;
+import com.evently.booking.order.service.orderUpdate.OrderUpdateManager;
 import com.evently.booking.ticket.dto.TicketListItem;
 import com.evently.booking.ticket.model.Ticket;
 import com.evently.booking.ticket.model.TicketStatus;
@@ -49,6 +49,8 @@ public class OrderService {
     private final PaymentServiceClient paymentServiceClient;
     private final EventServiceClient eventServiceClient;
     private final ApplicationEventPublisher eventPublisher;
+    private final OrderUpdateManager orderUpdateManager;
+
 
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
@@ -71,7 +73,7 @@ public class OrderService {
         var order =
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
-        updateOrderDetails(order, OrderStatus.CANCELLED);
+        updateOrder(order, OrderStatus.CANCELLED);
     }
 
 
@@ -79,7 +81,7 @@ public class OrderService {
     Order createNewOrder(OrderRequest orderRequest, long userId) {
         //check if event location status was not changed during the user were
         // selecting a ticket
-        boolean isAvailable =
+        var isAvailable =
                 eventServiceClient.checkEventLocationsStateById(orderRequest.getEventLocationId()).getBody();
         if (!isAvailable) {
             throw new BookingUnavailableException();
@@ -106,6 +108,10 @@ public class OrderService {
     }
 
     @Transactional
+    public void updateOrder(Order order, OrderStatus orderStatus) {
+        orderUpdateManager.update(order, orderStatus);
+    }
+
     public void updateOrderDetails(Order order, OrderStatus status) {
         if (status == OrderStatus.CANCELLED || status == OrderStatus.EXPIRED) {
 
@@ -263,10 +269,10 @@ public class OrderService {
                 order.getTotalPrice() : BigDecimal.ZERO;
         order.setTotalPrice(currentTotal.add(batchTotal));
 
+        updateOrderDetails(order, OrderStatus.PENDING_PAYMENT);
         tickets.forEach(ticket -> {
             ticket.setUserId(order.getUserId());
             ticket.setStatus(TicketStatus.PENDING_PAYMENT);
-            ticket.setNumber(TicketNumberGenerator.generateV7());
             order.addTicket(ticket);
         });
     }
@@ -327,17 +333,18 @@ public class OrderService {
 
     private void handleSuccessfulPayment(Order order,
                                          PaymentResponse paymentResponse) {
-        log.info("Payment succeeded for order [{}], transactionId={}",
-                order.getId(), paymentResponse.getTransactionId());
-
-        ticketService.finalizeOrder(order.getId());
-
-        order.setStatus(OrderStatus.CONFIRMED);
-        order.setActive(false);
-        order.setTotalPrice(order.getTickets().stream()
-                .map(Ticket::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
+//        log.info("Payment succeeded for order [{}], transactionId={}",
+//                order.getId(), paymentResponse.getTransactionId());
+//
+//        ticketService.finalizeOrder(order.getId());
+//
+//        order.setStatus(OrderStatus.CONFIRMED);
+//        order.setActive(false);
+//        order.setTotalPrice(order.getTickets().stream()
+//                .map(Ticket::getPrice)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add));
         order.setTransactionId(paymentResponse.getTransactionId());
+        updateOrder(order, OrderStatus.CONFIRMED);
         orderRepository.save(order);
         OrderPaymentSucceededEvent event =
                 orderMapper.toOrderPaymentSucceededEvent(order);

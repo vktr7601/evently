@@ -25,6 +25,7 @@ public class Order extends BaseEntity {
     @Column(name = "totalPrice")
     private BigDecimal totalPrice = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private OrderStatus status;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch =
             FetchType.LAZY)

@@ -42,6 +42,20 @@ const OrderPayment = () => {
             });
     }, []);
 
+    const groupedTickets = useMemo(() => {
+        if (!order?.tickets) return [];
+        const groups = {};
+        order.tickets.forEach((t) => {
+            const key = `${t.eventName}-${t.eventLocationName || ''}-${t.eventStartTime}-${t.price}`;
+            if (!groups[key]) {
+                groups[key] = { ...t, quantity: 1 };
+            } else {
+                groups[key].quantity += 1;
+            }
+        });
+        return Object.values(groups);
+    }, [order]);
+
     const expiryDate = useMemo(() =>
         order?.expirationTime ? new Date(order.expirationTime) : null,
         [order]);
@@ -119,6 +133,10 @@ const OrderPayment = () => {
     }
 };
 
+    const handleReleaseTickets = async (ticket) => {
+        // TODO:    implement release logic
+    };
+
     const handleCancel = async () => {
         if (!window.confirm("Are you sure? Your tickets will be released.")) return;
 
@@ -146,8 +164,8 @@ const OrderPayment = () => {
                     </div>
 
                     <div style={styles.ticketList}>
-                        {order.tickets.map((t) => (
-                            <div key={t.id} style={styles.ticketCard}>
+                        {groupedTickets.map((t, idx) => (
+                            <div key={idx} style={styles.ticketCard}>
                                 <div style={styles.ticketGrid}>
                                     <div style={styles.dateCol}>
                                         <div style={styles.dateDay}>
@@ -160,11 +178,23 @@ const OrderPayment = () => {
                                     <div style={styles.infoCol}>
                                         <h4 style={styles.eventNameText}>{t.eventName}</h4>
                                         <p style={styles.locationLabel}>{t.eventLocationName || 'General Admission'}</p>
+                                        {t.quantity > 1 && (
+                                            <p style={styles.quantityLabel}>x{t.quantity} tickets</p>
+                                        )}
                                     </div>
                                     <div style={styles.priceCol}>
-                                        <span style={styles.priceText}>${t.price?.toFixed(2)}</span>
+                                        <span style={styles.priceText}>${(t.price * t.quantity).toFixed(2)}</span>
+                                        {t.quantity > 1 && (
+                                            <span style={styles.unitPrice}>${t.price?.toFixed(2)} each</span>
+                                        )}
                                     </div>
                                 </div>
+                                <button
+                                    style={styles.releaseButton}
+                                    onClick={() => handleReleaseTickets(t)}
+                                >
+                                    Release Tickets
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -257,7 +287,10 @@ const styles = {
     infoCol: { flex: 1 },
     eventNameText: { margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' },
     locationLabel: { margin: '6px 0 0', fontSize: '13px', color: '#2563eb', fontWeight: '600' },
-    priceText: { fontSize: '20px', fontWeight: '800', color: '#1e293b' },
+    quantityLabel: { margin: '4px 0 0', fontSize: '13px', color: '#64748b', fontWeight: '600' },
+    priceCol: { textAlign: 'right' },
+    priceText: { fontSize: '20px', fontWeight: '800', color: '#1e293b', display: 'block' },
+    unitPrice: { fontSize: '12px', color: '#94a3b8', fontWeight: '500' },
     paymentCard: { backgroundColor: '#fff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
     paymentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
     paymentTitle: { margin: 0, fontSize: '20px', fontWeight: '700' },
