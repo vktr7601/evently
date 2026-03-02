@@ -1,5 +1,7 @@
 package com.evently.payment.paymentTransactions.service;
 
+import com.evently.payment.paymentRefunds.dto.PaymentRefundListItem;
+import com.evently.payment.paymentRefunds.dto.mapper.PaymentRefundMapper;
 import com.evently.payment.paymentTransactions.dto.PaymentTransactionDetails;
 import com.evently.payment.paymentTransactions.model.PaymentTransaction;
 import com.evently.payment.paymentTransactions.model.PaymentTransactionStatus;
@@ -12,6 +14,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @AllArgsConstructor
@@ -19,6 +23,7 @@ public class PaymentTransactionsService {
     private final PaymentTransactionsRepository paymentTransactionsRepository;
     private final PaymentProvider paymentProvider;
     private final PaymentTransactionMapper paymentTransactionMapper;
+    private final PaymentRefundMapper paymentRefundMapper;
 
     @Transactional
     public PaymentResponse charge(PaymentRequest paymentRequest) {
@@ -64,9 +69,17 @@ public class PaymentTransactionsService {
                 paymentTransactionsRepository.findByIdAndUserId(transactionId
                         , userId).orElseThrow(() -> new RuntimeException(
                         "adasa"));
+
+        List<PaymentRefundListItem> list =
+                paymentTransaction.getRefunds().stream().map(x -> {
+                    PaymentRefundListItem paymentRefundListItem =
+                            paymentRefundMapper.toPaymentRefundListItem(x);
+                    paymentRefundListItem.setParentTransactionId(paymentTransaction.getId());
+                    return paymentRefundListItem;
+                }).toList();
         PaymentTransactionDetails paymentTransactionDetails =
                 paymentTransactionMapper.toPaymentTransactionDetails(paymentTransaction);
-
+        paymentTransactionDetails.setPaymentRefundList(list);
 
         return paymentTransactionDetails;
     }

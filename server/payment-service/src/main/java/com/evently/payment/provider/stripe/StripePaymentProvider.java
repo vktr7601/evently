@@ -60,10 +60,10 @@ public class StripePaymentProvider implements PaymentProvider {
 
             RefundResponse response = new RefundResponse();
             response.setSuccess(true);
-//            response.setRefundTransactionId(stripeRefund.getId());
-//            response.setReceiptUrl(charge.getReceiptUrl());
-//            response.setTimestamp(Instant.now());
-//            response.setRefundedAmount(refundRequest.getAmount());
+            response.setRefundTransactionId(stripeRefund.getId());
+            response.setReceiptUrl(charge.getReceiptUrl());
+            response.setTimestamp(Instant.now());
+            response.setRefundedAmount(refundRequest.getAmount());
             return response;
 
         } catch (StripeException e) {

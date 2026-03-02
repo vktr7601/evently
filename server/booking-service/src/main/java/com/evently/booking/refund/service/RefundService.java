@@ -57,7 +57,6 @@ public class RefundService {
 
         if (body.isSuccess()) {
             orderService.updateOrder(order, OrderStatus.REFUNDED);
-            orderService.save(order);
         }
 
         return body;

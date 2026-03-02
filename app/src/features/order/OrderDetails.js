@@ -71,7 +71,7 @@ const OrderDetails = () => {
                 return (
                     <div className="d-flex gap-2">
                         <Link to={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(order.transactionId)} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
-                            View Transaction
+                            View Transaction History
                         </Link>
                         <button onClick={handleRefundOrder} className="btn btn-outline-danger rounded-pill px-4 fw-bold">
                             Refund Order
@@ -81,7 +81,11 @@ const OrderDetails = () => {
             case 'CANCELLED':
                 return <span className="text-muted fw-bold">This order was cancelled. No further actions possible</span>;
             case 'REFUNDED':
-                return <span className="text-muted fw-bold">This order was returned.</span>;
+                  return (
+                      <Link to={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(order.transactionId)} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                          View Transaction
+                      </Link>
+                  );
             default:
                 return null;
         };

@@ -10,7 +10,10 @@ const TransactionDetails = () => {
 
     useEffect(() => {
         axiosClient.get(ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(id))
-            .then(res => setTransaction(res.data))
+            .then(res => {
+                setTransaction(res.data);
+                console.log("Fetched transaction details:", res.data);
+            })
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
     }, [id]);
@@ -81,15 +84,15 @@ const TransactionDetails = () => {
                 </div>
             </div>
 
-            {transaction.refunds?.length > 0 && (
+            {transaction.paymentRefunds?.length > 0 && (
                 <div className="mb-4">
                     <h4 className="fw-bold mb-4">Refund History</h4>
-                    {transaction.refunds.map((refund, i) => (
+                    {transaction.paymentRefunds.map((refund, i) => (
                         <div key={i} className="card border-0 shadow-sm rounded-3 mb-3 p-3">
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span className="fw-bold text-success fs-5">
-                                        ${refund.refundedAmount.toFixed(2)} Refunded
+                                        ${refund.amount.toFixed(2)} Refunded
                                     </span>
                                     <div className="text-muted small">
                                         {new Date(refund.processedAt).toLocaleDateString(undefined, { dateStyle: 'long' })}

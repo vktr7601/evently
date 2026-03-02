@@ -46,9 +46,14 @@ public class TicketService {
 
     @Transactional
     public void addTickets(List<TicketsCreationEvent> ticketsCreationEvents) {
-        List<Ticket> newlyCreatedTickets =
-                ticketsCreationEvents.stream().map(ticketsMapper::toEntity).toList();
-
+        List<Ticket> newlyCreatedTickets = new ArrayList<>();
+        for (TicketsCreationEvent ticketsCreationEvent :
+                ticketsCreationEvents) {
+            for (int i = 0; i < ticketsCreationEvent.getTicketsCount(); i++) {
+                newlyCreatedTickets.add(ticketsMapper.toEntity(ticketsCreationEvent));
+            }
+        }
+        
         ticketRepository.saveAll(newlyCreatedTickets);
         List<Long> eventLocationIds =
                 ticketsCreationEvents.stream().map(TicketsCreationEvent::getEventLocationId).toList();
@@ -56,7 +61,7 @@ public class TicketService {
         ticketsCreated.setEventLocationIds(eventLocationIds);
         eventPublisher.publishEvent(ticketsCreated);
     }
-    
+
     public boolean checkAvailability(long locationEventsId, int ticketCounts) {
         return ticketRepository.hasAvailableSeats(locationEventsId,
                 ticketCounts);
