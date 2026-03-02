@@ -7,7 +7,6 @@ import com.evently.notification.notifications.dto.NotificationListItemDto;
 import com.evently.notification.notifications.model.Notification;
 import com.evently.notification.notifications.repository.NotificationRepository;
 import events.event.EventLive;
-import events.user.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,21 +78,14 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createHelloNotification(UserRegisteredEvent userRegisteredEvent) {
-        NotificationContent notificationContent = new NotificationContent();
-        notificationContent.setTitle("Welcome on board: %s".formatted(userRegisteredEvent.getFirstName() + " " + userRegisteredEvent.getLastName()));
-        notificationContent.setHtmlBody("Welcome on board");
-
+    public void createNotification(Long userId,
+                                   NotificationContent notificationContent) {
         notificationContentRepository.save(notificationContent);
 
-        List<Notification> notifications = new ArrayList<>();
         Notification notification = new Notification();
         notification.setContent(notificationContent);
-        notification.setUserId(userRegisteredEvent.getUserId());
-        notifications.add(notification);
+        notification.setUserId(userId);
 
-        saveAll(notifications);
-
-
+        notificationRepository.save(notification);
     }
 }

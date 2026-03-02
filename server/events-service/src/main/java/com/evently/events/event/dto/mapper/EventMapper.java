@@ -6,6 +6,7 @@ import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.EventDetailDto;
 import com.evently.events.event.model.Event;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import events.ticket.TicketsCreationEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -63,5 +64,14 @@ public class EventMapper {
         dto.setCategoryDtoList(categories);
 
         return dto;
+    }
+
+    public TicketsCreationEvent toTicketsCreationEvent(EventsLocationsDto location) {
+        return new TicketsCreationEvent(
+                location.getId(),
+                location.getTicketsCount(),
+                location.getEventStartTime(),
+                location.getPricePerTicket()
+        );
     }
 }

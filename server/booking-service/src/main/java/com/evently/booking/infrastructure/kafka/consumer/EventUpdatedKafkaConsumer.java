@@ -16,6 +16,6 @@ public class EventUpdatedKafkaConsumer {
 
     @KafkaListener(topics = KafkaTopics.NEW_EVENT_LOCATIONS_ADDED)
     public void onEventUpdated(EventUpdated eventsLocationsDto) {
-        ticketService.createTickets(eventsLocationsDto.getNewTicketsToCreate());
+        ticketService.addTickets(eventsLocationsDto.getNewTicketsToCreate());
     }
 }

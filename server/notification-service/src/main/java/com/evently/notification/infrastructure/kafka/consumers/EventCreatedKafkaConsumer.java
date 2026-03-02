@@ -19,7 +19,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class EventCreatedKafkaConsumer {
-
     private final NotificationService notificationService;
     private final NotificationContentRepository notificationContentRepository;
     private final UserServiceClient userServiceClient;

@@ -27,4 +27,6 @@ public class UserRegisteredEvent extends BaseKafkaEvent implements Serializable 
     private List<Long> followLocations;
     @JsonProperty("shouldReceiveNotification")
     private boolean shouldReceiveNotification;
+    @JsonProperty("email")
+    private String email;
 }

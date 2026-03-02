@@ -15,4 +15,5 @@ public class KafkaTopics {
     public static final String NEW_EVENT_LOCATIONS_ADDED = "new-event" +
             "-locations-added-topic";
     public static final String EVENT_LIVE = "event-live-topic";
+    public static final String ORDER_SUCCESS = "order-success-topic";
 }

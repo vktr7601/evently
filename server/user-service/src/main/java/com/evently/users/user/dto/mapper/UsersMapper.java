@@ -30,6 +30,7 @@ public class UsersMapper {
         }
 
         userRegisteredEvent.setShouldReceiveNotification(user.isShouldReceiveNotification());
+        userRegisteredEvent.setEmail(user.getEmail());
         return userRegisteredEvent;
     }
 

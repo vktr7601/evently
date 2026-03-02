@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TicketMapper {
-    public Ticket convert(TicketsCreationEvent dto) {
+    public Ticket toEntity(TicketsCreationEvent dto) {
         if (dto == null) {
             return null;
         }
@@ -18,7 +18,7 @@ public class TicketMapper {
         ticket.setPrice(dto.getPricePerTicket());
         ticket.setEventStartTime(dto.getEventStartTime());
         ticket.setOriginalEventStartTime(dto.getEventStartTime());
-        ticket.setUserId(null);
+        ticket.setNumber(TicketNumberGenerator.generateV7());
         ticket.setStatus(TicketStatus.AVAILABLE);
 
         return ticket;

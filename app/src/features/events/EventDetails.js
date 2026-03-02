@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ROUTES } from '../../constants/routes';
 import axiosClient from '../../api/axiosClient';
 import Spinner from '../../components/layout/Spinner';
+import EventLocationListItem from '../events/EventLocationListItem';
 
 
 const EventDetails = () => {
@@ -25,34 +26,6 @@ const EventDetails = () => {
             });
     }, [id]);
 
-    const renderBookingButton = (loc) => {
-        switch (loc.eventsLocationsStatus) {
-            case 'AVAILABLE':
-                return (
-                    <Link to={ROUTES.EVENTS.EVENT_LOCATIONS_DETAILS(loc.id)} className="btn btn-primary rounded-pill px-5 py-2 shadow-sm">
-                        Book Tickets
-                    </Link>
-                );
-            case 'CANCELLED':
-                return (
-                    <button className="btn btn-outline-danger rounded-pill px-5 py-2 disabled" disabled>
-                        Cancelled
-                    </button>
-                );
-            case 'PENDING_TICKETS':
-                return (
-                    <button className="btn btn-warning rounded-pill px-5 py-2 disabled" disabled>
-                        Coming Soon
-                    </button>
-                );
-            default:
-                return (
-                    <button className="btn btn-secondary rounded-pill px-5 py-2 disabled" disabled>
-                        Sold Out
-                    </button>
-                );
-        }
-    };
 
     if (isLoading) {
         return <Spinner message="Loading event details..." />;
@@ -84,7 +57,6 @@ const EventDetails = () => {
                                 {event.eventDescription}
                             </p>
 
-                            {/* Artist Mention */}
                             <div className="d-flex align-items-center mb-4 p-3 bg-white rounded-3 shadow-sm border" style={{ maxWidth: '400px' }}>
                                 <img src={event.artist.imageUrl} alt={event.artist.name} className="rounded-circle me-3" style={{ width: '50px', height: '50px', objectFit: 'cover' }} />
                                 <div>
@@ -120,37 +92,7 @@ const EventDetails = () => {
                     <div className="row g-4">
                         {event.eventLocations && event.eventLocations.length > 0 ? (
                             event.eventLocations.map((loc) => (
-                                <div key={loc.id} className="col-12">
-                                    <div className={`card border-0 shadow-sm p-3 transition-hover ${loc.eventsLocationsStatus === 'SOLD_OUT' ? 'opacity-75' : ''}`}>
-                                        <div className="row align-items-center text-center text-md-start">
-                                            {/* Date/Time Column */}
-                                            <div className="col-md-2 border-end-md">
-                                                <h4 className="fw-bold mb-0">
-                                                    {new Date(loc.eventStartTime).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
-                                                </h4>
-                                                <small className="text-muted">
-                                                    {new Date(loc.eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </small>
-                                            </div>
-
-                                            <div className="col-md-5">
-                                                <h5 className="fw-bold mb-1">{loc.locationName}</h5>
-                                                <p className="text-primary mb-0 small text-uppercase fw-bold">
-                                                    <i className="bi bi-geo-alt-fill me-1"></i>
-                                                    {loc.eventName}
-                                                </p>
-                                            </div>
-
-                                            <div className="col-md-2">
-                                                <span className="fs-5 fw-bold text-dark">€{loc.pricePerTicket.toFixed(2)}</span>
-                                            </div>
-
-                                            <div className="col-md-3 text-md-end mt-3 mt-md-0">
-                                                {renderBookingButton(loc)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <EventLocationListItem key={loc.id} loc={loc} />
                             ))
                         ) : (
                             <div className="col-12 text-center py-5">

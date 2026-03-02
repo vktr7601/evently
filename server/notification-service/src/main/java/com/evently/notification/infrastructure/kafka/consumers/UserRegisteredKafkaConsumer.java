@@ -1,5 +1,7 @@
 package com.evently.notification.infrastructure.kafka.consumers;
 
+import com.evently.notification.notificationContent.model.NotificationContent;
+import com.evently.notification.notificationContent.contract.UserRegisteredContentProvider;
 import com.evently.notification.notifications.service.NotificationService;
 import com.evently.notification.processedEvent.ProcessedEvent;
 import com.evently.notification.processedEvent.ProcessedEventRepository;
@@ -20,6 +22,7 @@ import java.time.Instant;
 public class UserRegisteredKafkaConsumer {
     private final NotificationService notificationService;
     private final ProcessedEventRepository processedEventRepository;
+    private final UserRegisteredContentProvider contentProvider;
 
     @Transactional
     @KafkaListener(topics = KafkaTopics.USER_REGISTERED)
@@ -31,12 +34,14 @@ public class UserRegisteredKafkaConsumer {
         }
         try {
             if (event.isShouldReceiveNotification()) {
-                notificationService.createHelloNotification(event);
+                NotificationContent notificationContent =
+                        contentProvider.generateNotificationContent(event);
+                notificationService.createNotification(event.getUserId(),
+                        notificationContent);
             }
 
             ProcessedEvent processedEvent =
                     processedEventRepository.save(new ProcessedEvent(event.getMessageId(), Instant.now()));
-
         } catch (DataIntegrityViolationException e) {
             log.warn("Duplicate event detected during save: {}",
                     event.getMessageId());

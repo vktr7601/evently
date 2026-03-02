@@ -25,6 +25,40 @@ const OrderDetails = () => {
         fetchOrderDetails();
     }, [number]);
 
+    const checkIsOrderRefundable = () => {
+        const refundableStatuses = ['COMPLETED', 'CONFIRMED'];
+        return refundableStatuses.includes(order.status);
+    };
+
+    const checkIfTicketIsRefundable = (ticket) => {
+        const refundableStatuses = ['COMPLETED', 'CONFIRMED'];
+        return refundableStatuses.includes(order.status) && !ticket.isRefunded;
+    }
+
+    const handleRefundOrder = () => {
+       axiosClient.get(ROUTES.REFUNDS.ORDER_ELIGIBILITY(number))
+            .then(res => {
+                if (res.data.eligible) {
+                    if (window.confirm("Are you sure you want to refund this order?")) {
+                        axiosClient.post(ROUTES.REFUNDS.ORDER_REFUND(number))
+                            .then(() => {
+                                alert("Order refunded successfully.");
+                                setOrder(prev => ({ ...prev, status: 'REFUNDED' }));
+                            })
+                            .catch(err => {
+                                console.error("Error refunding order:", err);
+                                alert("Failed to refund order. Please try again later.");
+                            });
+                    }
+                } else {
+                    alert("This order is not eligible for a refund.");
+                }
+            })
+            .catch(err => {
+                console.error("Error checking refund eligibility:", err);
+                alert("Failed to check refund eligibility. Please try again later.");
+            });
+        };
     const renderActionButtons = () => {
         switch (order.status) {
             case 'PENDING_PAYMENT':
@@ -36,36 +70,26 @@ const OrderDetails = () => {
             case 'CONFIRMED':
                 return (
                     <div className="d-flex gap-2">
-                        <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 fw-bold">
-                            View Receipt
-                        </a>
-                        {/* <button onClick={handleRefundRequest} className="btn btn-success rounded-pill px-4 fw-bold">
-                            Request Refund
-                        </button> */}
+                        <Link to={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(order.transactionId)} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                            View Transaction History
+                        </Link>
+                        <button onClick={handleRefundOrder} className="btn btn-outline-danger rounded-pill px-4 fw-bold">
+                            Refund Order
+                        </button>
                     </div>
                 );
             case 'CANCELLED':
                 return <span className="text-muted fw-bold">This order was cancelled. No further actions possible</span>;
             case 'REFUNDED':
-                return <span className="text-muted fw-bold">This order was returned.</span>;
+                  return (
+                      <Link to={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(order.transactionId)} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                          View Transaction
+                      </Link>
+                  );
             default:
                 return null;
         };
     };
-
-    // const handleRefundRequest = async () => {
-    //     try {
-    //         await axiosClient.post(`http://localhost:9000/orders/refund/${number}`, {}, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${localStorage.getItem("jwtToken")}`,
-    //             }
-    //         });
-    //         alert("Refund requested successfully.");
-    //     } catch (err) {
-    //         alert("Could not request refund.");
-    //     }
-    // };
-
     if (loading) return <div className="container mt-5 text-center text-muted">Loading order details...</div>;
     if (!order) return <div className="container mt-5 text-center text-danger">Order not found.</div>;
 
@@ -81,10 +105,8 @@ const OrderDetails = () => {
                             </Link>
                             <h2 className="fw-extrabold mb-1">Order #{order.number}</h2>
                             <p className="text-muted mb-0">Placed on {new Date(order.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
-                            {order.transactionId === "NOT_APPLICABLE" ? (
+                            {order.transactionId === "NOT_APPLICABLE" && (
                                 <span className="badge bg-secondary-subtle text-secondary mt-2">No Transaction Applicable</span>
-                            ) : (
-                                <span className="badge bg-info-subtle text-info mt-2">Transaction ID: {order.transactionId}</span>
                             )}
                         </div>
                         <span className={`badge rounded-pill px-4 py-2 fs-6 ${order.status === 'COMPLETED' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'
@@ -99,10 +121,6 @@ const OrderDetails = () => {
                         <div className="col-md-3 border-end-md">
                             <label className="text-muted small fw-bold text-uppercase d-block mb-1">Total Amount</label>
                             <h3 className="fw-bold text-success mb-0">${order.totalPrice.toFixed(2)}</h3>
-                        </div>
-                        <div className="col-md-3 border-end-md">
-                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Payment Method</label>
-                            <h5 className="fw-bold mb-0">Credit Card</h5>
                         </div>
                         <div className="col-md-3 border-end-md">
                             <label className="text-muted small fw-bold text-uppercase d-block mb-1">Total Items</label>
@@ -122,7 +140,7 @@ const OrderDetails = () => {
                     <TicketListItem
                         key={ticket.id}
                         ticket={ticket}
-                        onRefund={(id) => console.log("Refunding ticket:", id)}
+
                     />
                 ))}
             </div>

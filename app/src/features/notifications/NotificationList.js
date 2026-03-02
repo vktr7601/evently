@@ -1,31 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import  { useState, useEffect } from 'react';
 import NotificationListItem from './NotificationListItem';
+import { ROUTES } from '../../constants/routes';
+import axiosClient from '../../api/axiosClient';
+import Spinner from '../../components/layout/Spinner';
 
 const NotificationList = ({ onSelectNote, activeId }) => {
     const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const[isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchMails = async () => {
             try {
-                const token = localStorage.getItem("jwtToken");
-                const res = await axios.get('http://localhost:9000/notifications', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                setNotifications(res.data);
+                axiosClient.get(ROUTES.NOTIFICATIONS.BASE)
+                    .then(res => {
+                        console.log("Fetched notifications:", res.data);
+                        setNotifications(res.data);
+                        setIsLoading(false);
+                    })
+                    .catch(err => {
+                        console.error("Error fetching notifications:", err);
+                        setIsLoading(false);
+                    });
             } catch (err) {
                 console.error("Fetch error:", err);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
         fetchMails();
     }, []);
 
-    if (loading) {
-        return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
+   if (isLoading) {
+        return <Spinner message="Loading notifications..." />;
     }
 
     return (

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Hero from '../../components/layout/Hero';
 import { ROUTES } from '../../constants/routes';
@@ -35,6 +35,13 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const token = localStorage.getItem("jwtToken");
+        if (token) {
+            navigate("/");
+        }
+    }, [navigate]);
 
     return (
         <div className="bg-light min-vh-100">

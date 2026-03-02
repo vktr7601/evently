@@ -43,5 +43,4 @@ const TicketList = () => {
 
 };
 
-
 export default TicketList;

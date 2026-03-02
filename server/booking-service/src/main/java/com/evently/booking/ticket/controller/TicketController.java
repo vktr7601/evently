@@ -1,9 +1,13 @@
 package com.evently.booking.ticket.controller;
 
+import com.evently.booking.order.service.OrderService;
 import com.evently.booking.ticket.dto.TicketListItem;
+import com.evently.booking.ticket.service.PdfGenerationService;
 import com.evently.booking.ticket.service.TicketService;
 import constants.ApplicationHeaders;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +18,8 @@ import java.util.List;
 @RequestMapping("/tickets")
 public class TicketController {
     private final TicketService ticketService;
+    private final PdfGenerationService pdfGenerationService;
+    private final OrderService orderService;
 
     @GetMapping("/availability")
     public ResponseEntity<?> checkAvailability(@RequestParam("eventLocationId"
@@ -30,7 +36,8 @@ public class TicketController {
 
     @GetMapping
     public ResponseEntity<List<TicketListItem>> getUserTickets(@RequestHeader(ApplicationHeaders.USER_ID) long userId) {
-        List<TicketListItem> userTickets = ticketService.getUserTickets(userId);
+        List<TicketListItem> userTickets =
+                orderService.resolveUserTickets(userId);
 
         return ResponseEntity.ok(userTickets);
     }
@@ -41,5 +48,25 @@ public class TicketController {
         int availableTickets =
                 ticketService.getAvailableTicketsCount(eventLocationId);
         return ResponseEntity.ok().body(availableTickets);
+    }
+
+    @GetMapping(value = "/view/{id}", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> viewTicket(@PathVariable("id") Long id) {
+        TicketListItem ticketListItem = ticketService.getTicket(id);
+        String htmlContent = ticketService.fillTicketTemplate(ticketListItem);
+        return ResponseEntity.ok(htmlContent);
+    }
+
+    @GetMapping(value = "/view/{id}/pdf", produces =
+            MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> downloadTicketPdf(@PathVariable("id") Long id) {
+        TicketListItem ticketListItem = ticketService.getTicket(id);
+        String htmlContent = ticketService.fillTicketTemplate(ticketListItem);
+
+        byte[] pdfBytes = pdfGenerationService.generateFromHtml(htmlContent);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"ticket-" + id + ".pdf\"")
+                .body(pdfBytes);
     }
 }

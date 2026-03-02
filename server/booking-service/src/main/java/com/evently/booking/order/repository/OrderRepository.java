@@ -37,6 +37,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     List<OrderListItemDto> getUserOrders(Long userId);
 
+    @Query(value = """
+            SELECT new com.evently.booking.order.dto.OrderListItemDto(
+               o.number,
+               o.totalPrice,
+               o.status,
+               o.createdAt
+            ) FROM Order o
+            ORDER BY o.createdAt
+            """)
+    List<OrderListItemDto> getAllOrders();
+
 
     @Query(value = """
             SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END
@@ -61,4 +72,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "'PENDING_PAYMENT' AND o.expirationTime < :now")
     List<Order> findExpiredPendingOrders(@Param("now") LocalDateTime now);
 
+    List<Order> findAllByUserId(Long userId);
 }

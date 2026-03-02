@@ -20,7 +20,7 @@ spring:
       auto-offset-reset: earliest
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "events.event"
+        spring.json.trusted.packages: "events.event,events.order"
   eureka:
     client:
       register-with-eureka: true

@@ -5,6 +5,7 @@ import ErrorModal from '../../components/modals/ErrorModal';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'; // Added these
 import { ROUTES } from '../../constants/routes';
 import axiosClient from '../../api/axiosClient';
+import Spinner from '../../components/layout/Spinner';
 const CARD_ELEMENT_OPTIONS = {
     hidePostalCode: true,
     style: {
@@ -28,7 +29,7 @@ const OrderPayment = () => {
     const [promoCode, setPromoCode] = useState("");
     const [timeLeft, setTimeLeft] = useState("");
 
-    const [modal, setModal] = useState({ open: false, title: "", message: "" });
+    const [modal, setModal] = useState({ open: false, title: "", message: "", onClose: null });
 
 
     useEffect(() => {
@@ -40,6 +41,20 @@ const OrderPayment = () => {
                 }
             });
     }, []);
+
+    const groupedTickets = useMemo(() => {
+        if (!order?.tickets) return [];
+        const groups = {};
+        order.tickets.forEach((t) => {
+            const key = `${t.eventName}-${t.eventLocationName || ''}-${t.eventStartTime}-${t.price}`;
+            if (!groups[key]) {
+                groups[key] = { ...t, quantity: 1 };
+            } else {
+                groups[key].quantity += 1;
+            }
+        });
+        return Object.values(groups);
+    }, [order]);
 
     const expiryDate = useMemo(() =>
         order?.expirationTime ? new Date(order.expirationTime) : null,
@@ -62,36 +77,64 @@ const OrderPayment = () => {
         return () => clearInterval(interval);
     }, [expiryDate, navigate]);
 
-    // 3. Handlers
     const handlePayment = async () => {
-        if (!stripe || !elements) return;
+    if (!stripe || !elements) return;
 
-        setIsProcessing(true);
-        const cardElement = elements.getElement(CardElement);
+    const cardElement = elements.getElement(CardElement);
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+    });
 
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: 'card',
-            card: cardElement,
+    if (error) {
+        setModal({ open: true, title: "Card Error", message: error.message });
+        return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+        await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
+            transactionId: paymentMethod.id,
+            promoCode: promoCode
         });
+        navigate(`${ROUTES.ORDERS.BASE}`);
 
-        if (error) {
-            setModal({ open: true, title: "Card Error", message: error.message });
+    } catch (err) {
+        if (err.response?.status === 409) {
+            setModal({
+                open: true,
+                title: "Payment Failed",
+                message: "The tickets in your order have been released due to inactivity. Please try purchasing again.",
+                onClose: () => window.location.reload()
+            });
             setIsProcessing(false);
             return;
         }
 
-        try {
-            await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
-                stripePaymentMethodId: paymentMethod.id,
-                promoCode: promoCode
+        if (err.response?.status === 400) {
+            setModal({
+                open: true,
+                title: "Card Declined",
+                message: err.response.data.message || "Your card was declined. Please check your details or try another card.",
+                onClose: () => setModal({ open: false })
             });
-            navigate(`${ROUTES.ORDERS.BASE}`);
-        } catch (err) {
-            console.log("Payment error:", err);
-            const errorMsg = err.response?.data?.message || "Payment failed. Please try again.";
-            setModal({ open: true, title: "Transaction Failed", message: errorMsg });
             setIsProcessing(false);
+            return;
         }
+
+        setModal({
+            open: true,
+            title: "Something went wrong",
+            message: "An unexpected error occurred. Please try again.",
+            onClose: () => setModal({ open: false })
+        });
+        setIsProcessing(false);
+    }
+};
+
+    const handleReleaseTickets = async (ticket) => {
+        // TODO:    implement release logic
     };
 
     const handleCancel = async () => {
@@ -107,10 +150,13 @@ const OrderPayment = () => {
 
     if (!order) return <div style={styles.loading}>Loading your secure checkout...</div>;
 
+    if (isProcessing) {
+        return <Spinner message="Processing payment... Please, do not exit the page" />;
+    }
+
     return (
         <div style={styles.page}>
             <div style={styles.container}>
-                {/* LEFT: Review */}
                 <div style={styles.leftCol}>
                     <div style={styles.sectionHeader}>
                         <h1 style={styles.mainTitle}>Review Your Order</h1>
@@ -118,8 +164,8 @@ const OrderPayment = () => {
                     </div>
 
                     <div style={styles.ticketList}>
-                        {order.tickets.map((t) => (
-                            <div key={t.id} style={styles.ticketCard}>
+                        {groupedTickets.map((t, idx) => (
+                            <div key={idx} style={styles.ticketCard}>
                                 <div style={styles.ticketGrid}>
                                     <div style={styles.dateCol}>
                                         <div style={styles.dateDay}>
@@ -132,17 +178,28 @@ const OrderPayment = () => {
                                     <div style={styles.infoCol}>
                                         <h4 style={styles.eventNameText}>{t.eventName}</h4>
                                         <p style={styles.locationLabel}>{t.eventLocationName || 'General Admission'}</p>
+                                        {t.quantity > 1 && (
+                                            <p style={styles.quantityLabel}>x{t.quantity} tickets</p>
+                                        )}
                                     </div>
                                     <div style={styles.priceCol}>
-                                        <span style={styles.priceText}>${t.price?.toFixed(2)}</span>
+                                        <span style={styles.priceText}>${(t.price * t.quantity).toFixed(2)}</span>
+                                        {t.quantity > 1 && (
+                                            <span style={styles.unitPrice}>${t.price?.toFixed(2)} each</span>
+                                        )}
                                     </div>
                                 </div>
+                                <button
+                                    style={styles.releaseButton}
+                                    onClick={() => handleReleaseTickets(t)}
+                                >
+                                    Release Tickets
+                                </button>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* RIGHT: Payment */}
                 <div style={styles.rightCol}>
                     <div style={styles.paymentCard}>
                         <div style={styles.paymentHeader}>
@@ -202,7 +259,6 @@ const OrderPayment = () => {
                     </div>
                 </div>
             </div>
-
             <ErrorModal
                 show={modal.open}
                 onClose={() => setModal({ ...modal, open: false })}
@@ -231,13 +287,15 @@ const styles = {
     infoCol: { flex: 1 },
     eventNameText: { margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' },
     locationLabel: { margin: '6px 0 0', fontSize: '13px', color: '#2563eb', fontWeight: '600' },
-    priceText: { fontSize: '20px', fontWeight: '800', color: '#1e293b' },
+    quantityLabel: { margin: '4px 0 0', fontSize: '13px', color: '#64748b', fontWeight: '600' },
+    priceCol: { textAlign: 'right' },
+    priceText: { fontSize: '20px', fontWeight: '800', color: '#1e293b', display: 'block' },
+    unitPrice: { fontSize: '12px', color: '#94a3b8', fontWeight: '500' },
     paymentCard: { backgroundColor: '#fff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
     paymentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
     paymentTitle: { margin: 0, fontSize: '20px', fontWeight: '700' },
     timerBadge: { backgroundColor: '#fff7ed', color: '#ea580c', padding: '6px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' },
     dot: { width: '8px', height: '8px', backgroundColor: '#ea580c', borderRadius: '50%' },
-    label: { display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' },
     input: { width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '16px', boxSizing: 'border-box' },
     promoSection: { marginTop: '20px' },
     promoInputGroup: { display: 'flex', gap: '10px' },
@@ -258,14 +316,14 @@ const styles = {
         fontSize: '14px',
         fontWeight: '600',
         color: '#475569',
-        marginBottom: '10px', // More space between label and input
+        marginBottom: '10px',
     },
     stripeElementContainer: {
-        padding: '18px 14px', // Significant padding for a "spacious" feel
+        padding: '18px 14px',
         border: '1px solid #cbd5e1',
         borderRadius: '14px',
         backgroundColor: '#ffffff',
-        boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)', // Subtle depth
+        boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
         transition: 'border-color 0.2s ease',
     },
     helperText: {

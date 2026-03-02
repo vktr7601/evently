@@ -25,6 +25,7 @@ public class Order extends BaseEntity {
     @Column(name = "totalPrice")
     private BigDecimal totalPrice = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private OrderStatus status;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch =
             FetchType.LAZY)
@@ -38,14 +39,8 @@ public class Order extends BaseEntity {
     @Column(name = "audit")
     @JdbcTypeCode(SqlTypes.JSON)
     private String audit;
-    @Column(name = "transactionId")
-    private String transactionId;
-    @Column(name = "refundId")
-    private String refundId;
-    @Column(name = "refundTime")
-    private LocalDateTime refundTime;
-    @Column(name = "receiptUrl")
-    private String receiptUrl;
+    @Column(name = "transaction_id")
+    private long transactionId;
 
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);
