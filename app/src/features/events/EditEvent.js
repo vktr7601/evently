@@ -123,7 +123,6 @@ const EditEvent = () => {
                             messages: errorList
                         });
                     } else if (status === 409) {
-                        // LocationCollisionException
                         setErrorModal({
                             show: true,
                             title: 'Scheduling Conflict',

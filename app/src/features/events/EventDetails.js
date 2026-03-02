@@ -57,7 +57,6 @@ const EventDetails = () => {
                                 {event.eventDescription}
                             </p>
 
-                            {/* Artist Mention */}
                             <div className="d-flex align-items-center mb-4 p-3 bg-white rounded-3 shadow-sm border" style={{ maxWidth: '400px' }}>
                                 <img src={event.artist.imageUrl} alt={event.artist.name} className="rounded-circle me-3" style={{ width: '50px', height: '50px', objectFit: 'cover' }} />
                                 <div>

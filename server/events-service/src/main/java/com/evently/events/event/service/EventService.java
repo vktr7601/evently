@@ -127,13 +127,12 @@ public class EventService {
         List<CategoryDto> categories =
                 eventsCategoriesService.categorizeEvent(event,
                         eventRequestDto.getCategories());
-
         List<EventsLocationsDto> eventLocations =
                 eventsLocationsService.addLocationDetails(event,
                         eventRequestDto.getEventLocations());
 
         List<TicketsCreationEvent> tickets = eventLocations.stream()
-                .map(this::toTicketsCreationEvent)
+                .map(eventsMapper::toTicketsCreationEvent)
                 .toList();
 
         EventCreated eventCreated = new EventCreated(
@@ -270,7 +269,7 @@ public class EventService {
                 eventsLocationsService.addLocationDetails(event, data);
 
         List<TicketsCreationEvent> tickets = created.stream()
-                .map(this::toTicketsCreationEvent).toList();
+                .map(eventsMapper::toTicketsCreationEvent).toList();
 
         eventPublisher.publishEvent(new EventUpdated(event.getId(),
                 tickets));
@@ -289,14 +288,5 @@ public class EventService {
         }
 
         return idsToProcess.size();
-    }
-
-    private TicketsCreationEvent toTicketsCreationEvent(EventsLocationsDto location) {
-        return new TicketsCreationEvent(
-                location.getId(),
-                location.getTicketsCount(),
-                location.getEventStartTime(),
-                location.getPricePerTicket()
-        );
     }
 }

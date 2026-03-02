@@ -35,6 +35,30 @@ const OrderDetails = () => {
         return refundableStatuses.includes(order.status) && !ticket.isRefunded;
     }
 
+    const handleRefundOrder = () => {
+       axiosClient.get(ROUTES.REFUNDS.ORDER_ELIGIBILITY(number))
+            .then(res => {
+                if (res.data.eligible) {
+                    if (window.confirm("Are you sure you want to refund this order?")) {
+                        axiosClient.post(ROUTES.REFUNDS.ORDER_REFUND(number))
+                            .then(() => {
+                                alert("Order refunded successfully.");
+                                setOrder(prev => ({ ...prev, status: 'REFUNDED' }));
+                            })
+                            .catch(err => {
+                                console.error("Error refunding order:", err);
+                                alert("Failed to refund order. Please try again later.");
+                            });
+                    }
+                } else {
+                    alert("This order is not eligible for a refund.");
+                }
+            })
+            .catch(err => {
+                console.error("Error checking refund eligibility:", err);
+                alert("Failed to check refund eligibility. Please try again later.");
+            });
+        };
     const renderActionButtons = () => {
         switch (order.status) {
             case 'PENDING_PAYMENT':
@@ -46,10 +70,10 @@ const OrderDetails = () => {
             case 'CONFIRMED':
                 return (
                     <div className="d-flex gap-2">
-                        <Link to={`/payment-transactions/${order.transactionId}`} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                        <Link to={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(order.transactionId)} className="btn btn-outline-dark rounded-pill px-4 fw-bold">
                             View Transaction
                         </Link>
-                        <button className="btn btn-outline-danger rounded-pill px-4 fw-bold">
+                        <button onClick={handleRefundOrder} className="btn btn-outline-danger rounded-pill px-4 fw-bold">
                             Refund Order
                         </button>
                     </div>

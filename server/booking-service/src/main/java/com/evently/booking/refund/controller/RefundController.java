@@ -1,5 +1,6 @@
 package com.evently.booking.refund.controller;
 
+import com.evently.booking.infrastructure.exceptions.OrderNotRefundableException;
 import com.evently.booking.refund.dto.OrderRefundEligibility;
 import com.evently.booking.refund.dto.RefundEligibility;
 import com.evently.booking.refund.service.RefundService;
@@ -42,15 +43,18 @@ public class RefundController {
     @PostMapping("/orders/{orderNumber}")
     public ResponseEntity<RefundResponse> refundOrder(
             @RequestHeader(ApplicationHeaders.USER_ID) Long userId,
-            @PathVariable UUID orderNumber) {
-        return null;
+            @PathVariable UUID orderNumber) throws OrderNotRefundableException {
+        RefundResponse refundResponse = refundService.refundOrder(orderNumber
+                , userId);
+
+        return ResponseEntity.ok(refundResponse);
     }
 
     @PostMapping("/tickets/{ticketId}")
     public ResponseEntity<RefundResponse> refundTicket(
             @RequestHeader(ApplicationHeaders.USER_ID) Long userId,
             @PathVariable("ticketId") long ticketId) {
-        RefundResponse refundResponse=  refundService.refundTicket(ticketId,
+        RefundResponse refundResponse = refundService.refundTicket(ticketId,
                 userId);
         return new ResponseEntity<>(refundResponse, HttpStatus.OK);
     }

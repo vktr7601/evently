@@ -17,7 +17,7 @@ public class RefundRequest implements Serializable {
     @JsonProperty("orderNumber")
     private String orderNumber;
     @JsonProperty("transactionId")
-    private String transactionId;
+    private long transactionId;
     @JsonProperty("refundType")
     private RefundType refundType;
     @JsonProperty("amount")

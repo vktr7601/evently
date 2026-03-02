@@ -10,7 +10,6 @@ import com.evently.booking.refund.dto.OrderRefundEligibility;
 import com.evently.booking.refund.dto.RefundEligibility;
 import com.evently.booking.ticket.model.Ticket;
 import com.evently.booking.ticket.service.TicketService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.payment.refund.RefundRequest;
 import dto.payment.refund.RefundResponse;
 import dto.payment.refund.RefundType;
@@ -30,11 +29,10 @@ import java.util.UUID;
 public class RefundService {
     private final OrderService orderService;
     private final PaymentServiceClient paymentServiceClient;
-    private final ObjectMapper objectMapper;
     private final TicketService ticketService;
 
     @Transactional
-    public void refundOrder(UUID orderNumber, long userId) throws OrderNotRefundableException {
+    public RefundResponse refundOrder(UUID orderNumber, long userId) throws OrderNotRefundableException {
         OrderRefundEligibility orderRefundEligibility =
                 getOrderRefundEligibility(userId, orderNumber);
         if (!orderRefundEligibility.isEligible()) {
@@ -46,43 +44,23 @@ public class RefundService {
 
         RefundRequest refundRequest = new RefundRequest();
         refundRequest.setAmount(order.getTotalPrice());
-        //  refundRequest.setTransactionId(order.getTransactionId());
         refundRequest.setOrderNumber(order.getNumber().toString());
         refundRequest.setRequestedBy(userId);
         refundRequest.setRefundType(RefundType.FULL_ORDER);
+        refundRequest.setTransactionId(order.getTransactionId());
 
         ResponseEntity<RefundResponse> response =
                 paymentServiceClient.processRefund(refundRequest);
 
         RefundResponse body = response.getBody();
 
-//        if (body.isSuccess()) {
-//            order.setRefundId(body.getRefundTransactionId());
-//            order.setRefundTime(LocalDateTime.now());
-//            orderService.updateOrderDetails(order, OrderStatus.REFUNDED);
-//
-//            order.getTickets().forEach(ticket -> {
-//                ticket.setStatus(TicketStatus.REFUNDED);
-//                ticket.setUserId(null);
-//                ticket.setOrder(null);
-//            });
-//
-//            order.setStatus(OrderStatus.REFUNDED);
-//            order.setTransactionId(body.getRefundTransactionId());
-//
-//            try {
-//                order.setAudit(objectMapper.writeValueAsString(order
-//                .getTickets()));
-//            } catch (JsonProcessingException e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            orderService.save(order);
-//            log.info("Order {} refunded successfully, refund transaction: {}",
-//                    orderNumber, body.getRefundTransactionId());
-//        } else {
-//            //  throw new ProcessOrderException(body);
-//        }
+
+        if (body.isSuccess()) {
+            orderService.updateOrder(order, OrderStatus.REFUNDED);
+            orderService.save(order);
+        }
+
+        return body;
     }
 
     public RefundResponse refundTicket(long ticketId, long userId) {
