@@ -49,4 +49,8 @@ public class FollowCategoryService {
     public List<Long> findAllByUserId(Long userId) {
         return followCategoryRepository.findAllByUserId(userId);
     }
+
+    public void saveAll(List<FollowCategory> followCategories) {
+        followCategoryRepository.saveAll(followCategories);
+    }
 }

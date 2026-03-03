@@ -1,0 +1,186 @@
+[
+  {
+    "userId": 1,
+    "follows": {
+      "artists": [
+        1,
+        2,
+        3,
+        5,
+        7
+      ],
+      "locations": [
+        1,
+        2,
+        3,
+        6,
+        9
+      ],
+      "categories": [
+        1,
+        2,
+        3,
+        5,
+        8,
+        10
+      ]
+    }
+  },
+  {
+    "userId": 2,
+    "follows": {
+      "artists": [
+        2,
+        7
+      ],
+      "locations": [
+        4,
+        9
+      ],
+      "categories": [
+        2,
+        5,
+        8
+      ]
+    }
+  },
+  {
+    "userId": 3,
+    "follows": {
+      "artists": [
+        1,
+        3
+      ],
+      "locations": [
+        2,
+        7,
+        10
+      ],
+      "categories": [
+        3,
+        9,
+        10
+      ]
+    }
+  },
+  {
+    "userId": 4,
+    "follows": {
+      "artists": [
+        4,
+        5
+      ],
+      "locations": [
+        5,
+        8
+      ],
+      "categories": [
+        4,
+        7
+      ]
+    }
+  },
+  {
+    "userId": 5,
+    "follows": {
+      "artists": [
+        6
+      ],
+      "locations": [
+        1,
+        5
+      ],
+      "categories": [
+        1,
+        5,
+        6
+      ]
+    }
+  },
+  {
+    "userId": 6,
+    "follows": {
+      "artists": [
+        5,
+        7
+      ],
+      "locations": [
+        9,
+        10
+      ],
+      "categories": [
+        1,
+        2,
+        5
+      ]
+    }
+  },
+  {
+    "userId": 7,
+    "follows": {
+      "artists": [
+        1,
+        2,
+        6
+      ],
+      "locations": [
+        1,
+        2
+      ],
+      "categories": [
+        1,
+        9
+      ]
+    }
+  },
+  {
+    "userId": 8,
+    "follows": {
+      "artists": [
+        4
+      ],
+      "locations": [
+        3,
+        5,
+        8
+      ],
+      "categories": [
+        7,
+        8
+      ]
+    }
+  },
+  {
+    "userId": 9,
+    "follows": {
+      "artists": [
+        3,
+        5
+      ],
+      "locations": [
+        6,
+        9
+      ],
+      "categories": [
+        3,
+        5,
+        10
+      ]
+    }
+  },
+  {
+    "userId": 10,
+    "follows": {
+      "artists": [
+        7
+      ],
+      "locations": [
+        10
+      ],
+      "categories": [
+        2,
+        8
+      ]
+    }
+  }
+]
