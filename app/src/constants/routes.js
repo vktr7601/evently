@@ -32,6 +32,7 @@ export const ROUTES = {
     BASE: '/orders',
     ORDERS_CONFIRM: '/orders/complete',
     ACTIVE: '/orders/active',
+    ACTIVE_TICKETS: '/orders/active/tickets',
     ADMIN: '/admin/orders',
     CANCEL: '/orders/cancel',
     DETAILS: (number) => `/orders/details/${number}`,

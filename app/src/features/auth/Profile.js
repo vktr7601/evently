@@ -36,6 +36,24 @@ const Profile = () => {
                                 </div>
                             </div>
                         </div>
+
+                        <div className="card border-0 shadow-sm p-4 mb-4">
+                            <h6 className="fw-bold small text-uppercase text-primary mb-3">Quick Links</h6>
+                            <div className="list-group list-group-flush">
+                                <Link to={ROUTES.ORDERS.BASE} className="list-group-item list-group-item-action border-0 d-flex align-items-center px-0 py-2">
+                                    <i className="bi bi-bag-fill text-primary me-3"></i>
+                                    <span className="fw-medium">My Orders</span>
+                                </Link>
+                                <Link to={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS} className="list-group-item list-group-item-action border-0 d-flex align-items-center px-0 py-2">
+                                    <i className="bi bi-credit-card-fill text-primary me-3"></i>
+                                    <span className="fw-medium">My Transactions</span>
+                                </Link>
+                                <Link to={ROUTES.TICKETS.USER} className="list-group-item list-group-item-action border-0 d-flex align-items-center px-0 py-2">
+                                    <i className="bi bi-ticket-perforated-fill text-primary me-3"></i>
+                                    <span className="fw-medium">My Tickets</span>
+                                </Link>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Дясна колона - Динамично съдържание */}

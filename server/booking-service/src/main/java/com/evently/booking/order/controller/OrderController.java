@@ -28,6 +28,12 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/active/tickets")
+    public ResponseEntity<OrderDetails> removeTickets(@RequestHeader(USER_ID) Long userId, @RequestBody OrderRequest orderRequest) {
+        OrderDetails result = orderService.releaseTickets(userId, orderRequest);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/active")
     public ResponseEntity<OrderDetails> getActive(@RequestHeader(USER_ID) Long userId) {
         var result = orderService.getActiveUserOrder(userId);
@@ -37,8 +43,7 @@ public class OrderController {
     @DeleteMapping("/active")
     public ResponseEntity<Void> discardActiveOrder(@RequestHeader(USER_ID) Long userId) {
         orderService.cancelActiveOrder(userId);
-        return ResponseEntity.noContent().build(); // 204 No Content is
-        // standard for successful DELETE
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,7 +34,6 @@ public class PaymentTransactionsService {
         transaction.setUserId(paymentRequest.getUserId());
         transaction.setPaymentTransactionStatus(PaymentTransactionStatus.PENDING);
         transaction.setOrderNumber(paymentRequest.getOrderNumber());
-        paymentTransactionsRepository.save(transaction);
 
         PaymentProviderResult result =
                 paymentProvider.processPayment(paymentRequest);
@@ -67,8 +67,7 @@ public class PaymentTransactionsService {
 
         PaymentTransaction paymentTransaction =
                 paymentTransactionsRepository.findByIdAndUserId(transactionId
-                        , userId).orElseThrow(() -> new RuntimeException(
-                        "adasa"));
+                        , userId).get(0);
 
         List<PaymentRefundListItem> list =
                 paymentTransaction.getRefunds().stream().map(x -> {
@@ -82,5 +81,29 @@ public class PaymentTransactionsService {
         paymentTransactionDetails.setPaymentRefundList(list);
 
         return paymentTransactionDetails;
+    }
+
+
+    public List<PaymentTransactionDetails> getPaymentTransactionDetails(long userId) {
+        List<PaymentTransaction> userTransactions =
+                paymentTransactionsRepository.findAllByUserId(userId);
+
+        return userTransactions.stream().map(transaction -> {
+            PaymentTransactionDetails details =
+                    paymentTransactionMapper.toPaymentTransactionDetails(transaction);
+
+            List<PaymentRefundListItem> refundItems =
+                    transaction.getRefunds().stream()
+                            .map(refund -> {
+                                PaymentRefundListItem item =
+                                        paymentRefundMapper.toPaymentRefundListItem(refund);
+                                item.setParentTransactionId(details.getId());
+                                return item;
+                            })
+                            .collect(Collectors.toList());
+
+            details.setPaymentRefundList(refundItems);
+            return details;
+        }).collect(Collectors.toList());
     }
 }

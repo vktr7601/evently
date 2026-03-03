@@ -1,0 +1,47 @@
+[
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "age": 30,
+    "email": "john.doe@admin.evently.com",
+    "userRole": "ADMIN",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "age": 25,
+    "email": "jane.smith@email.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Carlos",
+    "lastName": "Rivera",
+    "age": 34,
+    "email": "carlos.rivera@email.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Emily",
+    "lastName": "Chen",
+    "age": 28,
+    "email": "emily.chen@email.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Michael",
+    "lastName": "Brown",
+    "age": 42,
+    "email": "michael.brown@email.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  }
+]

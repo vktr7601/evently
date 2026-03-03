@@ -1,4 +1,4 @@
-package com.evently.users.config;
+package com.evently.users.config.seed;
 
 import com.evently.users.user.model.User;
 import com.evently.users.user.model.UserRole;

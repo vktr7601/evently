@@ -51,7 +51,6 @@ public class OrderService {
     private final ApplicationEventPublisher eventPublisher;
     private final OrderUpdateManager orderUpdateManager;
 
-
     @Transactional
     public void addTicketsToOrder(long userId, OrderRequest orderRequest) {
         orderRepository.findPendingOrderByIdAndUserId(userId).map(order -> updateExistingOrder(order, orderRequest, userId)).orElseGet(() -> createNewOrder(orderRequest, userId));
@@ -65,6 +64,38 @@ public class OrderService {
                 ticketService.getTicketsByOrder(order);
 
 
+        return orderMapper.toDto(order, listItems);
+    }
+
+    @Transactional
+    public OrderDetails releaseTickets(Long userId, OrderRequest orderRequest) {
+        Order order = orderRepository.findPendingOrderByIdAndUserId(userId)
+                .orElseThrow(() -> new NoActiveOrderException(userId));
+
+        List<Ticket> ticketsToRelease = order.getTickets().stream()
+                .filter(t -> t.getEventLocationsId().equals(orderRequest.getEventLocationId())
+                        && t.getEventStartTime().equals(orderRequest.getEventStartTime()))
+                .limit(orderRequest.getTicketsCount())
+                .collect(Collectors.toList());
+
+        for (Ticket ticket : ticketsToRelease) {
+            ticket.setStatus(TicketStatus.AVAILABLE);
+            ticket.setUserId(null);
+            ticket.setOrder(null);
+            order.setTotalPrice(order.getTotalPrice().subtract(ticket.getPrice()));
+        }
+        order.getTickets().removeAll(ticketsToRelease);
+
+        List<TicketListItem> listItems;
+        if (order.getTickets().isEmpty()) {
+            order.setStatus(OrderStatus.CANCELLED);
+            order.setActive(false);
+            listItems = Collections.emptyList();
+        } else {
+            listItems = ticketService.getTicketsByOrder(order);
+        }
+
+        orderRepository.save(order);
         return orderMapper.toDto(order, listItems);
     }
 
@@ -107,7 +138,6 @@ public class OrderService {
         return order;
     }
 
-    @Transactional
     public void updateOrder(Order order, OrderStatus orderStatus) {
         orderUpdateManager.update(order, orderStatus);
     }
@@ -138,7 +168,7 @@ public class OrderService {
                     ticket.setOrder(null);
                 }
             }
-            //todo: raise an event that order is cancelled or expired
+
             orderRepository.save(order);
         }
         if (status == OrderStatus.REFUNDED) {
@@ -333,19 +363,8 @@ public class OrderService {
 
     private void handleSuccessfulPayment(Order order,
                                          PaymentResponse paymentResponse) {
-//        log.info("Payment succeeded for order [{}], transactionId={}",
-//                order.getId(), paymentResponse.getTransactionId());
-//
-//        ticketService.finalizeOrder(order.getId());
-//
-//        order.setStatus(OrderStatus.CONFIRMED);
-//        order.setActive(false);
-//        order.setTotalPrice(order.getTickets().stream()
-//                .map(Ticket::getPrice)
-//                .reduce(BigDecimal.ZERO, BigDecimal::add));
         order.setTransactionId(paymentResponse.getTransactionId());
         updateOrder(order, OrderStatus.CONFIRMED);
-        orderRepository.save(order);
         OrderPaymentSucceededEvent event =
                 orderMapper.toOrderPaymentSucceededEvent(order);
         eventPublisher.publishEvent(event);
@@ -365,17 +384,6 @@ public class OrderService {
         return orderRepository.findByOrderNumberAndUserId(number, userId).orElseThrow(() -> new NoActiveOrderException(userId));
     }
 
-    OrderDetails mapToDto(Order order, List<TicketListItem> listItems) {
-        OrderDetails orderDto = orderMapper.toDto(order, listItems);
-
-        BigDecimal totalSum =
-                listItems.stream().map(TicketListItem::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        orderDto.setTotalPrice(totalSum);
-
-        return orderDto;
-    }
-
     public List<OrderListItemDto> getSystemOrders() {
         return orderRepository.getAllOrders();
     }
@@ -384,11 +392,5 @@ public class OrderService {
         return orderRepository.findAllByUserId(userId).stream()
                 .flatMap(order -> resolveOrderItems(order).stream())
                 .toList();
-    }
-
-
-    @Transactional
-    public void save(Order order) {
-        orderRepository.save(order);
     }
 }

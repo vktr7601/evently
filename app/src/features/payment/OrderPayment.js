@@ -34,7 +34,10 @@ const OrderPayment = () => {
 
     useEffect(() => {
         axiosClient.get(`${ROUTES.ORDERS.ACTIVE}`)
-            .then(res => setOrder(res.data))
+            .then(res => {
+                setOrder(res.data);
+                console.log("Fetched active order:", res.data);
+            })
             .catch(err => {
                 if (err.response?.status === 404 || err.response?.status === 410) {
                     navigate('/events');
@@ -134,7 +137,29 @@ const OrderPayment = () => {
 };
 
     const handleReleaseTickets = async (ticket) => {
-        // TODO:    implement release logic
+        if (!window.confirm("Are you sure? This will release the selected tickets back to inventory.")) return;
+
+        try {
+            const res = await axiosClient.delete(ROUTES.ORDERS.ACTIVE_TICKETS, {
+                data: {
+                    eventLocationId: ticket.eventLocationId,
+                    ticketsCount: ticket.quantity,
+                    eventStartTime: ticket.eventStartTime,
+                }
+            });
+            if (res.data.status === 'CANCELLED') {
+                navigate('/events');
+                return;
+            }
+            setOrder(res.data);
+        } catch (err) {
+            setModal({
+                open: true,
+                title: "Error Releasing Tickets",
+                message: "An error occurred while releasing the tickets. Please try again.",
+                onClose: () => setModal({ open: false })
+            });
+        }
     };
 
     const handleCancel = async () => {
@@ -291,6 +316,18 @@ const styles = {
     priceCol: { textAlign: 'right' },
     priceText: { fontSize: '20px', fontWeight: '800', color: '#1e293b', display: 'block' },
     unitPrice: { fontSize: '12px', color: '#94a3b8', fontWeight: '500' },
+    releaseButton: {
+        marginTop: '14px',
+        backgroundColor: 'transparent',
+        color: '#ef4444',
+        border: '1px solid #fecaca',
+        padding: '8px 16px',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+    },
     paymentCard: { backgroundColor: '#fff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
     paymentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
     paymentTitle: { margin: 0, fontSize: '20px', fontWeight: '700' },
