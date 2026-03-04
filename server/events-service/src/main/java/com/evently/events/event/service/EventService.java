@@ -316,6 +316,6 @@ public class EventService {
         List<EventListItemDto> category = new ArrayList<>();
         List<EventListItemDto> events = new ArrayList<>();
 
-        if(prefs.artis)
+       return null;
     }
 }

@@ -22,7 +22,7 @@ public class PromoCodeExpirationScheduler {
     @Transactional
     public void expireOldCodes() {
         List<PromoCode> expired = promoCodeRepository
-                .findByStatusAndExpiresAtBefore(PromoCodeStatus.ACTIVE,
+                .findByStatusAndExpiryDateBefore(PromoCodeStatus.ACTIVE,
                         Instant.now());
 
         expired.forEach(c -> c.setStatus(PromoCodeStatus.EXPIRED));

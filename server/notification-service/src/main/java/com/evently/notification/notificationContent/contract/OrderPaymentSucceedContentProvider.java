@@ -21,9 +21,8 @@ public class OrderPaymentSucceedContentProvider implements NotificationContentPr
         context.setVariable("totalAmount", event.getTotalAmount().setScale(2,
                 RoundingMode.HALF_UP).toString());
         context.setVariable("orderHistoryUrl", "http://localhost:3000/orders" +
-                "/" + event.getOrderNumber());
+                "/details/" + event.getOrderNumber());
 
-        context.setVariable("invoiceUrl", event.getReceiptUrl());
         context.setVariable("orderId", event.getOrderNumber());
 
         var html = templateEngine.process("order-success", context);

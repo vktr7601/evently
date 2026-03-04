@@ -31,12 +31,10 @@ public class UserRegisteredKafkaConsumer {
         }
         try {
             if (userRegisteredEvent.isShouldReceiveNotification()) {
-                String result =
-                        promoCodeService.generateForUser(userRegisteredEvent.getUserId());
+                promoCodeService.generateForUser(userRegisteredEvent.getUserId());
             }
             ProcessedEvent processedEvent =
                     processedEventRepository.save(new ProcessedEvent(userRegisteredEvent.getMessageId(), Instant.now()));
-
         } catch (DataIntegrityViolationException e) {
             log.warn("Duplicate event detected during save: {}",
                     userRegisteredEvent.getMessageId());

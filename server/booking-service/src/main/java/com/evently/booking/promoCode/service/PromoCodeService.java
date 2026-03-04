@@ -6,15 +6,18 @@ import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeOwnershi
 import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeRedeemedException;
 import com.evently.booking.promoCode.model.PromoCode;
 import com.evently.booking.promoCode.model.PromoCodeStatus;
-import com.evently.booking.promoCode.model.dto.PromoCodeMapper;
+import com.evently.booking.promoCode.model.dto.PromoCodeListItem;
+import com.evently.booking.promoCode.model.dto.mapper.PromoCodeMapper;
 import com.evently.booking.promoCode.repository.PromoCodeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -22,6 +25,8 @@ import java.time.Instant;
 public class PromoCodeService {
     private final PromoCodeRepository promoCodeRepository;
     private final PromoCodeMapper promoCodeMapper;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     public void validatePromoCode(String code, long userId) {
         PromoCode promoCode =
@@ -44,6 +49,12 @@ public class PromoCodeService {
     public String generateForUser(long userId) {
         PromoCode promoCode = promoCodeMapper.forUser(userId);
         promoCodeRepository.save(promoCode);
+
+        eventPublisher.publishEvent(promoCodeMapper.toPromoCodeCreated(promoCode));
         return promoCode.getCode();
+    }
+
+    public List<PromoCodeListItem> findAllByUserId(long userId) {
+        return promoCodeRepository.findAllByUserId(userId).stream().map(promoCodeMapper::toPromoCodeListItem).toList();
     }
 }

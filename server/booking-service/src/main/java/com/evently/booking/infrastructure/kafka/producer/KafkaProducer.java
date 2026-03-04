@@ -2,6 +2,7 @@ package com.evently.booking.infrastructure.kafka.producer;
 
 import constants.KafkaTopics;
 import events.order.OrderPaymentSucceededEvent;
+import events.promoCode.PromoCodeCreated;
 import events.ticket.TicketsCreated;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,5 +20,9 @@ public class KafkaProducer {
     public void sendOrderSuccessfullyFinished(OrderPaymentSucceededEvent orderPaymentSucceededEvent) {
         kafkaTemplate.send(KafkaTopics.ORDER_SUCCESS,
                 orderPaymentSucceededEvent);
+    }
+
+    public void sendPromoCodeCreated(PromoCodeCreated promoCodeCreated) {
+        kafkaTemplate.send(KafkaTopics.PROMO_CODE_CREATED, promoCodeCreated);
     }
 }

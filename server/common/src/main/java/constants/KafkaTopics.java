@@ -16,4 +16,5 @@ public class KafkaTopics {
             "-locations-added-topic";
     public static final String EVENT_LIVE = "event-live-topic";
     public static final String ORDER_SUCCESS = "order-success-topic";
+    public static final String PROMO_CODE_CREATED = "promo-code-created-topic";
 }

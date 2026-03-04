@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class PaymentTransactionsService {
         transaction.setUserId(paymentRequest.getUserId());
         transaction.setPaymentTransactionStatus(PaymentTransactionStatus.PENDING);
         transaction.setOrderNumber(paymentRequest.getOrderNumber());
-
+        transaction.setPaymentTransactionDateTime(LocalDateTime.now());
         PaymentProviderResult result =
                 paymentProvider.processPayment(paymentRequest);
 

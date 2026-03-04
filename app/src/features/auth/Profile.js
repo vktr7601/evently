@@ -5,8 +5,6 @@ import axiosClient from '../../api/axiosClient';
 import { ROUTES } from '../../constants/routes';
 
 const Profile = () => {
-    const [followedVenues, setFollowedLocations] = useState([]);
-    const [recommendedEvents, setRecommendedEvents] = useState([]);
     const [user, setUser] = useState({});
     useEffect(() => {
         axiosClient.get(`${ROUTES.AUTH.PROFILE}`)
@@ -54,6 +52,14 @@ const Profile = () => {
                                 <Link to={ROUTES.EVENTS.FOLLOWED} className="list-group-item list-group-item-action border-0 d-flex align-items-center px-0 py-2">
                                     <i className="bi bi-heart-fill text-primary me-3"></i>
                                     <span className="fw-medium">Suggested Events</span>
+                                </Link>
+                                <Link to={ROUTES.NOTIFICATIONS.BASE} className="list-group-item list-group-item-action border-0 d-flex align-items-center px-0 py-2">
+                                    <i className="bi bi-inbox-fill text-primary me-3"></i>
+                                    <span className="fw-medium">Inbox</span>
+                                </Link>
+                                <Link to={ROUTES.PROMO_CODES.USER} className="list-group-item list-group-item-action border-0 d-flex align-items-center px-0 py-2">
+                                    <i className="bi bi-ticket-perforated-fill text-primary me-3"></i>
+                                    <span className="fw-medium">My Promo Codes</span>
                                 </Link>
                             </div>
                         </div>

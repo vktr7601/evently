@@ -16,6 +16,10 @@ export const ROUTES = {
     TRANSACTION_DETAILS: (id) => `/transactions/${id}`,
     TRANSACTIONS: '/transactions',
   },
+  PROMO_CODES: {
+    USER: '/promo-codes/me',
+    DETAILS: (id) => `/promo-codes/${id}`,
+  },
   TICKETS: {
     AVAILABILITY: '/tickets/availability',
     VIEW: (id) => `/tickets/view/${id}`,

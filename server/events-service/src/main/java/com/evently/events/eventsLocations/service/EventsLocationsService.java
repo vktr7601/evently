@@ -105,7 +105,7 @@ public class EventsLocationsService {
         List<EventsLocationsDto> events = fetchUpcomingEvents("Locations",
                 locationId,
                 eventsLocationsRepository::findAllUpcomingEventsByLocationId);
-
+        return events;
     }
 
 

@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import persistence.BaseEntity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -102,6 +103,13 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public List<Long> getUserWithNotificationOn() {
+        List<User> users =
+                userRepository.findAllByShouldReceiveNotification(true);
+
+        return users.stream().map(BaseEntity::getId).toList();
+    }
+
     @Transactional
     public void seedUser(List<UserSeed> userSeeds) {
         List<User> users = new ArrayList<>();
@@ -127,7 +135,7 @@ public class UserService {
                 followArtists.add(followArtist);
             }
             List<FollowLocation> followLocations = new ArrayList<>();
-            for(int i = 0; i < seed.getFollowSeed().getLocations().size(); i++) {
+            for (int i = 0; i < seed.getFollowSeed().getLocations().size(); i++) {
                 FollowLocation followLocation = new FollowLocation();
                 followLocation.setUser(user);
                 followLocation.setLocationId(seed.getFollowSeed().getLocations().get(i));
