@@ -60,6 +60,6 @@ public class EventsController {
 
     @GetMapping("/feed")
     public ResponseEntity<UserEventsLocations> getUserFeed(@RequestHeader(ApplicationHeaders.USER_ID) long userId) {
-        return ResponseEntity.noContent().build();
+        return eventService.generateFeed(userId);
     }
 }

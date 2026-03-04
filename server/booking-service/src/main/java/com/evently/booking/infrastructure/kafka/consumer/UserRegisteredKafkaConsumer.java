@@ -1,9 +1,8 @@
-package com.evently.events.infrastructure.kafka.consumer;
+package com.evently.booking.infrastructure.kafka.consumer;
 
-import com.evently.events.event.service.EventService;
-import com.evently.events.eventsLocations.service.EventsLocationsService;
-import com.evently.events.processedEvent.ProcessedEvent;
-import com.evently.events.processedEvent.ProcessedEventRepository;
+import com.evently.booking.processedEvent.ProcessedEvent;
+import com.evently.booking.processedEvent.ProcessedEventRepository;
+import com.evently.booking.promoCode.service.PromoCodeService;
 import constants.KafkaTopics;
 import events.user.UserRegisteredEvent;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class UserRegisteredKafkaConsumer {
     private final ProcessedEventRepository processedEventRepository;
-    private final EventsLocationsService eventsLocationsService;
-    private final EventService eventService;
+    private final PromoCodeService promoCodeService;
 
     @Transactional
     @KafkaListener(topics = KafkaTopics.USER_REGISTERED)
@@ -32,9 +30,13 @@ public class UserRegisteredKafkaConsumer {
             return;
         }
         try {
-            eventService.generateFeed(userRegisteredEvent.getUserId());
+            if (userRegisteredEvent.isShouldReceiveNotification()) {
+                String result =
+                        promoCodeService.generateForUser(userRegisteredEvent.getUserId());
+            }
             ProcessedEvent processedEvent =
                     processedEventRepository.save(new ProcessedEvent(userRegisteredEvent.getMessageId(), Instant.now()));
+
         } catch (DataIntegrityViolationException e) {
             log.warn("Duplicate event detected during save: {}",
                     userRegisteredEvent.getMessageId());

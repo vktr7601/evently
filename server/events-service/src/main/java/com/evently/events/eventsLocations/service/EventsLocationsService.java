@@ -98,15 +98,15 @@ public class EventsLocationsService {
                 locationId, repositoryCall);
     }
 
-//    public List<EventsLocationsDto> findAllEventsByLocationId(long
-//    locationId) {
-//        log.info("Fetching all events for specific location ID: {}",
-//        locationId);
-//        List<EventsLocationsDto> events = fetchUpcomingEvents("Locations",
-//        locationId,
-//        eventsLocationsRepository::findAllUpcomingEventsByLocationId);
-//
-//    }
+    public List<EventsLocationsDto> findAllEventsByLocationId(long
+                                                                      locationId) {
+        log.info("Fetching all events for specific location ID: {}",
+                locationId);
+        List<EventsLocationsDto> events = fetchUpcomingEvents("Locations",
+                locationId,
+                eventsLocationsRepository::findAllUpcomingEventsByLocationId);
+
+    }
 
 
     public List<EventsLocationsDto> findAllUpcomingEventsByArtistId(long artistId, FetchMode fetchMode) {

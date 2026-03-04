@@ -49,25 +49,7 @@ public class DatabaseSeeder {
                     new TypeReference<List<UserPreferencesSeed>>() {}
             );
             userServices.seedUserPreferences(userPreferences);
-//            // 1. Create Users
-//            User john = createUser("John", "Doe", 30, "john.doe@admin
-//            .evently" +
-//                    ".com", UserRole.ADMIN, passwordEncoder);
-//            User jane = createUser("Jane", "Smith", 25, "jane.smith@email" +
-//                    ".com", UserRole.USER, passwordEncoder);
-//            User carlos = createUser("Carlos", "Rivera", 34, "carlos" +
-//                    ".rivera@email.com", UserRole.USER, passwordEncoder);
-//            User emily = createUser("Emily", "Chen", 28, "emily.chen@email" +
-//                    ".com", UserRole.USER, passwordEncoder);
-//            User michael = createUser("Michael", "Brown", 42, "michael" +
-//                    ".brown@email.com", UserRole.USER, passwordEncoder);
-//
-//            userRepository.saveAll(List.of(john, jane, carlos, emily,
-//            michael));
-
         };
-
-
     }
 
     private User createUser(String first, String last, int age, String email,

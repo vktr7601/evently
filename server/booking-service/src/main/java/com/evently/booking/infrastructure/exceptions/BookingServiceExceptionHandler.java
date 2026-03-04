@@ -1,5 +1,9 @@
 package com.evently.booking.infrastructure.exceptions;
 
+import com.evently.booking.infrastructure.exceptions.promoCode.ExpiredPromoCodeException;
+import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeNotFound;
+import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeNotFoundException;
+import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeOwnershipException;
 import exceptions.EventlyErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -76,6 +80,64 @@ public class BookingServiceExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+
+
+    @ExceptionHandler(PromoCodeNotFound.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(PromoCodeNotFound ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .errorCode("PROMO_CODE_NOT_FOUND")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(PromoCodeOwnershipException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(PromoCodeOwnershipException ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .errorCode("PROMO_CODE_OWNERSHIP")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ExpiredPromoCodeException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(ExpiredPromoCodeException ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .errorCode("PROMO_CODE_EXPIRED")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(PromoCodeNotFoundException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(PromoCodeNotFoundException ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .errorCode("PROMO_CODE_NOT_FOUND")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
 }
