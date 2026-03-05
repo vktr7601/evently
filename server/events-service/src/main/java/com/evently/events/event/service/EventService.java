@@ -32,6 +32,7 @@ import exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,7 +88,7 @@ public class EventService {
         return events;
     }
 
-    // @Cacheable(cacheNames = "events.eventDetails", key = "#id")
+     @Cacheable(cacheNames = "events.eventDetails", key = "#id")
     public EventDetailDto findEventDetailsById(Long id) {
         log.info("Attempting to find details for event ID: {}", id);
 

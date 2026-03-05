@@ -29,7 +29,7 @@ public class OrderDetails implements Serializable {
     @JsonProperty("status")
     private OrderStatus status;
     @JsonProperty("expirationTime")
-    private LocalDateTime expirationTime;
+    private Instant expirationTime;
     @JsonProperty("createdAt")
     private Instant createdAt;
     @JsonProperty("transactionId")

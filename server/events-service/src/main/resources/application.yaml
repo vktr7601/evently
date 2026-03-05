@@ -8,73 +8,59 @@ aws:
 spring:
   application:
     name: events-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/events_db
-    username: ${POSTGRES_USER:admin}
-    password: ${POSTGRES_PASSWORD:adminPassword}
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: 6379
-      username: admin
-      password: password123
+  jpa:
+    defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        order_inserts: true
+        order_updates: true
+        jdbc:
+          batch_size: 50
   kafka:
+    bootstrap-servers: kafka:9092
     producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       group-id: events-service-group
       auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "events.ticket,events.user"
----
-spring:
-  config:
-    activate:
-      on-profile: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/events_db
-    username: ${POSTGRES_USER:admin}
-    password: ${POSTGRES_PASSWORD:adminPassword}
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-      order_inserts: true
-      order_updates: true
-      jdbc:
-        batch_size: 50
-    defer-datasource-initialization: true
-    show-sql: true
-  sql:
-    init:
-      mode: always
-server:
-  port: 8082
-kafka:
-  bootstrap-servers: localhost:9092
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    url: jdbc:postgresql://${DB_HOST}:5432/events_db
+    url: jdbc:postgresql://postgres:5432/events_db
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-  kafka:
-    bootstrap-servers: kafka:9092
+#  data:
+#    redis:
+#      host: redis
+#      port: 6379
+#      username: admin
+#      password: password123
+
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+server:
+  port: 8082
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.springframework.orm: DEBUG
+    org.springframework.data: DEBUG
+    org.hibernate: DEBUG
