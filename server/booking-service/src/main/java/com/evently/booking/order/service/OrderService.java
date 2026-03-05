@@ -338,7 +338,9 @@ public class OrderService {
         PaymentResponse paymentResponse = response.getBody();
         if (paymentResponse.isSuccess()) {
             handleSuccessfulPayment(order, paymentResponse);
-            promoCodeService.updatePromoCode(finishOrderRequest.getPromoCode());
+            if (finishOrderRequest.getPromoCode() != null) {
+                promoCodeService.updatePromoCode(finishOrderRequest.getPromoCode());
+            }
         } else {
             handleFailedPayment(paymentResponse);
         }

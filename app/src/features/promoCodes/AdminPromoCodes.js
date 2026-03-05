@@ -17,30 +17,6 @@ const AdminPromoCodes = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // const handleError = (err) => {
-    //     let title = "Submission Failed";
-    //     let messages = ["An unexpected error occurred. Please try again."];
-
-    //     if (err.response) {
-    //         const status = err.response.status;
-    //         if (status === 400) {
-    //             title = "Validation Errors";
-    //             messages = typeof err.response.data === 'object'
-    //                 ? Object.values(err.response.data)
-    //                 : [err.response.data];
-    //         } else if (status === 409) {
-    //             title = "Conflict";
-    //             messages = [err.response.data];
-    //         } else if (status === 500) {
-    //             title = "Server Error";
-    //             messages = ["Our systems are having trouble. Please contact support."];
-    //         }
-    //     } else if (err.request) {
-    //         messages = ["Unable to reach the server. Please check your internet connection."];
-    //     }
-    //     setErrorState({ show: true, title, messages });
-    // };
-
     const handleSubmit = () => {
         const payload = {
             promoCode: form.promoCode,
@@ -118,7 +94,7 @@ const AdminPromoCodes = () => {
                                     onChange={handleChange}
                                 >
                                     <option value="Percentage">Percentage</option>
-                                    <option value="Fixed">FlatAmount</option>
+                                    <option value="FlatAmount">FlatAmount</option>
                                 </select>
                             </div>
                         </div>
