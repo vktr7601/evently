@@ -1,9 +1,6 @@
 package com.evently.booking.infrastructure.exceptions;
 
-import com.evently.booking.infrastructure.exceptions.promoCode.ExpiredPromoCodeException;
-import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeNotFound;
-import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeNotFoundException;
-import com.evently.booking.infrastructure.exceptions.promoCode.PromoCodeOwnershipException;
+import com.evently.booking.infrastructure.exceptions.promoCode.*;
 import exceptions.EventlyErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -83,7 +80,6 @@ public class BookingServiceExceptionHandler {
     }
 
 
-
     @ExceptionHandler(PromoCodeNotFound.class)
     public ResponseEntity<EventlyErrorResponse> handlePriceChanged(PromoCodeNotFound ex,
                                                                    HttpServletRequest request) {
@@ -138,6 +134,49 @@ public class BookingServiceExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+
+    @ExceptionHandler(DuplicatedPromoCodeException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(DuplicatedPromoCodeException ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .errorCode("DUPLICATED_PROMO_CODE")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InsufficientOrderAmountException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(InsufficientOrderAmountException ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .message(ex.getMessage())
+                .errorCode("INSUFFICIENT_ORDER_AMOUNT")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
+    }
+
+    @ExceptionHandler(PromoCodeRedeemedException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(PromoCodeRedeemedException ex,
+                                                                   HttpServletRequest request) {
+        EventlyErrorResponse error = EventlyErrorResponse.builder()
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .message(ex.getMessage())
+                .errorCode("PROMO_CODE_REDEEMED")
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
 }

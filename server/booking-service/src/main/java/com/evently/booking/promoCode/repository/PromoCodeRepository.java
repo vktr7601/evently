@@ -20,4 +20,6 @@ public interface PromoCodeRepository extends JpaRepository<PromoCode, Long> {
                                                Instant expiryDateAfter);
 
     List<PromoCode> findAllByUserId(Long userId);
+
+    boolean existsPromoCodeByCode(String code);
 }

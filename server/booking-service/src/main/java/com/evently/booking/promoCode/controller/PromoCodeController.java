@@ -3,12 +3,10 @@ package com.evently.booking.promoCode.controller;
 import com.evently.booking.promoCode.model.dto.PromoCodeListItem;
 import com.evently.booking.promoCode.service.PromoCodeService;
 import constants.ApplicationHeaders;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,20 +22,22 @@ public class PromoCodeController {
 
         List<PromoCodeListItem> promoCodes =
                 promoCodeService.findAllByUserId(userId);
-        
+
         return ResponseEntity.ok(promoCodes);
     }
 
-//    // GET /api/v1/promo-codes/validate?code=EVNT-A3F9X2
-//    @GetMapping("/validate")
-//    public ResponseEntity<PromoCodeValidationResponse> validate(
-//            @RequestParam @NotBlank String code,
-//            @AuthenticationPrincipal UUID userId) {
-//
-//        PromoCodeValidationResponse response = promoCodeService.validate(code
-//                , userId);
-//        return ResponseEntity.ok(response);
-//    }
+    @GetMapping("/validate")
+    public ResponseEntity<PromoCodeListItem> validate(
+            @RequestParam(name = "code") @NotBlank String code,
+            @RequestHeader(ApplicationHeaders.USER_ID) long userId) {
+
+        promoCodeService.validatePromoCode(code, userId);
+
+        PromoCodeListItem promoCodeListItem =
+                promoCodeService.getPromoCode(code);
+
+        return ResponseEntity.ok(promoCodeListItem);
+    }
 //
 //    // POST /api/v1/promo-codes/redeem
 //    @PostMapping("/redeem")

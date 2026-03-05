@@ -3,7 +3,6 @@ export const ROUTES = {
   EVENTS: {
     BASE: '/events',
     ADMIN_CREATE: '/admin/events',
-    ADMIN_BULK_CREATE: '/admin/events/bulk',
     ADMIN_EDIT_EXISTING: (id) => `/admin/events/${id}`,
     ADMIN_EDIT: (id) => `/admin/events/${id}/edit`,
     DETAILS: (id) => `/events/${id}`,
@@ -18,6 +17,8 @@ export const ROUTES = {
   },
   PROMO_CODES: {
     USER: '/promo-codes/me',
+    ADMIN: '/admin/promo-codes',
+    VALIDATE: (code) =>  `/promo-codes/validate?code=${code}`,
     DETAILS: (id) => `/promo-codes/${id}`,
   },
   TICKETS: {
@@ -69,4 +70,7 @@ export const ROUTES = {
     FOLLOW: (id) => `/follows/artist/${id}`,
     STATUS: (id) => `/follows/artist/${id}/status`,
   },
+  ADMIN:{
+    DASHBOARD: '/admin/dashboard',
+  }
 };
