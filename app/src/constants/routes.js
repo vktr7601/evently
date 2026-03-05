@@ -3,7 +3,6 @@ export const ROUTES = {
   EVENTS: {
     BASE: '/events',
     ADMIN_CREATE: '/admin/events',
-    ADMIN_BULK_CREATE: '/admin/events/bulk',
     ADMIN_EDIT_EXISTING: (id) => `/admin/events/${id}`,
     ADMIN_EDIT: (id) => `/admin/events/${id}/edit`,
     DETAILS: (id) => `/events/${id}`,
@@ -15,6 +14,13 @@ export const ROUTES = {
     PAYMENT_TRANSACTIONS_DETAILS: (id) => `/payment-transactions/${id}`,
     TRANSACTION_DETAILS: (id) => `/transactions/${id}`,
     TRANSACTIONS: '/transactions',
+  },
+  PROMO_CODES: {
+    USER: '/promo-codes/me',
+    CREATE: '/admin/promo-codes',
+    ADMIN_VIEW: '/admin/promo-codes',
+    VALIDATE: (code) =>  `/promo-codes/validate?code=${code}`,
+    DETAILS: (id) => `/promo-codes/${id}`,
   },
   TICKETS: {
     AVAILABILITY: '/tickets/availability',
@@ -32,6 +38,7 @@ export const ROUTES = {
     BASE: '/orders',
     ORDERS_CONFIRM: '/orders/complete',
     ACTIVE: '/orders/active',
+    ACTIVE_TICKETS: '/orders/active/tickets',
     ADMIN: '/admin/orders',
     CANCEL: '/orders/cancel',
     DETAILS: (number) => `/orders/details/${number}`,
@@ -64,4 +71,7 @@ export const ROUTES = {
     FOLLOW: (id) => `/follows/artist/${id}`,
     STATUS: (id) => `/follows/artist/${id}/status`,
   },
+  ADMIN:{
+    DASHBOARD: '/admin/dashboard',
+  }
 };

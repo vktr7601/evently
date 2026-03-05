@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Vasko Vasilev: Cinema Violin",
+    "description": "A world-class performance of legendary movie soundtracks.",
+    "artistId": 1,
+    "categoryIds": [
+      1,
+      9
+    ],
+    "active": true
+  },
+  {
+    "name": "Azis: The Balkan King Live",
+    "description": "A massive production featuring the most iconic voice of the Balkans.",
+    "artistId": 2,
+    "categoryIds": [
+      1,
+      2
+    ],
+    "active": true
+  },
+  {
+    "name": "Miro: Soul & Light Tour",
+    "description": "An intimate yet powerful pop experience with Bulgaria’s favorite vocalist.",
+    "artistId": 3,
+    "categoryIds": [
+      1
+    ],
+    "active": true
+  },
+  {
+    "name": "Molec: Urban Poetry Tour",
+    "description": "The breakout duo brings their unique mix of hip-hop and soul to the big stage.",
+    "artistId": 5,
+    "categoryIds": [
+      1,
+      2
+    ],
+    "active": true
+  },
+  {
+    "name": "100 Kila: Hip-Hop Summer",
+    "description": "High-energy rap show with the most iconic figure in Bulgarian hip-hop.",
+    "artistId": 6,
+    "categoryIds": [
+      1,
+      2
+    ],
+    "active": true
+  },
+  {
+    "name": "Papi Hans: Pop-Up Mystery",
+    "description": "A creative and flamboyant pop spectacle like no other.",
+    "artistId": 4,
+    "categoryIds": [
+      1,
+      10
+    ],
+    "active": true
+  },
+  {
+    "name": "Medi: The Club King Tour",
+    "description": "Experience the ultimate nightlife vibe with the biggest hits of the year.",
+    "artistId": 7,
+    "categoryIds": [
+      2
+    ],
+    "active": true
+  },
+  {
+    "name": "Vasko Vasilev: Sunset Classics",
+    "description": "An exclusive seaside performance under the stars.",
+    "artistId": 1,
+    "categoryIds": [
+      1,
+      9
+    ],
+    "active": true
+  }
+]

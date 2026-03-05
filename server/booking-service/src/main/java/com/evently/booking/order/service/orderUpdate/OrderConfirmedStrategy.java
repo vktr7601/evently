@@ -27,14 +27,9 @@ public class OrderConfirmedStrategy extends OrderUpdateBaseStrategy {
         order.getTickets().forEach(ticket -> {
             ticket.setStatus(TicketStatus.BOOKED);
         });
-//        ticketService.finalizeOrder(order.getId());
-
+        writeAudit(order, TicketStatus.BOOKED);
         order.setStatus(OrderStatus.CONFIRMED);
         order.setActive(false);
-////        order.setTotalPrice(order.getTickets().stream()
-////                .map(Ticket::getPrice)
-////                .reduce(BigDecimal.ZERO, BigDecimal::add));
-//        order.setTransactionId(paymentResponse.getTransactionId());
         orderRepository.save(order);
     }
 }

@@ -3,6 +3,7 @@ package com.evently.events.locations.dto.mapper;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import com.evently.events.eventsLocations.model.EventsLocations;
 import com.evently.events.locations.dto.LocationDetails;
+import com.evently.events.locations.dto.LocationSeed;
 import com.evently.events.locations.dto.request.LocationRequest;
 import com.evently.events.locations.model.Location;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public class LocationsMapper {
         EventsLocationsDto dto = new EventsLocationsDto();
 
         dto.setId(entity.getId());
-        dto.setEventStartTime(entity.getDate());
+        dto.setEventStartTime(entity.getEventStartTime());
         dto.setPricePerTicket(entity.getPrice());
         dto.setTicketsCount(entity.getTotalTickets());
         dto.setEventsLocationsStatus(entity.getEventsLocationsStatus());
@@ -55,5 +56,13 @@ public class LocationsMapper {
         locationDetails.setId(entity.getId());
 
         return locationDetails;
+    }
+
+    public Location toEntity(LocationSeed seed) {
+        Location location = new Location();
+        location.setName(seed.getName());
+        location.setDescription(seed.getDescription());
+        location.setImageUrl(seed.getImageUrl());
+        return location;
     }
 }

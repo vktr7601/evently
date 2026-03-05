@@ -43,4 +43,8 @@ public class FollowArtistService {
     public List<Long> findAllByUserId(long userId) {
         return artistFollowRepository.findAllByUserId(userId);
     }
+
+    public void saveAll(List<FollowArtist> followArtists) {
+        artistFollowRepository.saveAll(followArtists);
+    }
 }

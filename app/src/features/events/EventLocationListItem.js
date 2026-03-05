@@ -56,7 +56,7 @@ const EventLocationListItem = ({ loc }) => {
 
                     <div className="col-md-2">
                         <span className="fs-5 fw-bold text-dark">
-                            €{typeof loc.pricePerTicket === 'number' ? loc.pricePerTicket.toFixed(2) : '0.00'}
+                            ${typeof loc.pricePerTicket === 'number' ? loc.pricePerTicket.toFixed(2) : '0.00'}
                         </span>
                     </div>
 

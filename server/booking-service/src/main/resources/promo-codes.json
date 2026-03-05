@@ -1,0 +1,26 @@
+[
+  {
+    "promoCode": "SUMMER2026",
+    "discountPercentage": 15.50,
+    "isActive": true,
+    "expiryDate": "2026-12-31T23:59:59Z",
+    "discountType": "Percentage",
+    "userId": 1024,
+    "status": "ACTIVE"
+  },
+  {
+    "promoCode": "FLASH_SALE2026",
+    "discountPercentage": 15.50,
+    "isActive": true,
+    "expiryDate": "2026-12-31T23:59:59Z",
+    "discountType": "Percentage",
+    "status": "ACTIVE"
+  },
+  {
+    "promoCode": "FLASH_SALE2025",
+    "discountPercentage": 15.50,
+    "discountType": "PERCENTAGE",
+    "status": "EXPIRED",
+    "expiryDate": "2026-12-31T23:59:59Z"
+  }
+]

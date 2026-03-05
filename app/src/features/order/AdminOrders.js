@@ -6,6 +6,8 @@ import OrderListItem from "./OrderListItem";
 import { useState } from "react";
 
 const AdminOrders = () => {
+    const [isAdmin] = useState(localStorage.getItem("userRole") === "ADMIN");
+
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {

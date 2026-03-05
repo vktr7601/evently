@@ -52,4 +52,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
                 WHERE l.id  IN (:ids)
             """)
     List<Location> findAllByIdIn(Collection<Long> ids);
+
+    boolean existsByName(String name);
+
 }

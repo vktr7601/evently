@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
         columnList = "event_id"), @Index(name = "idx_location_date",
         columnList = "location_id," + " date")}, uniqueConstraints =
         {@UniqueConstraint(name = "uk_event_location_date", columnNames = {
-                "event_id", "location_id", "date"})})
+                "event_id", "location_id", "eventStartTime"})})
 public class EventsLocations extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,8 +28,8 @@ public class EventsLocations extends BaseEntity {
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
-    @Column(name = "date", nullable = false)
-    private LocalDateTime date;
+    @Column(name = "eventStartTime", nullable = false)
+    private LocalDateTime eventStartTime;
 
     @Column(name = "total_tickets", nullable = false)
     private int totalTickets;

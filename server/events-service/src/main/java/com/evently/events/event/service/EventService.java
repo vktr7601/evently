@@ -5,7 +5,9 @@ import com.evently.events.artists.model.Artist;
 import com.evently.events.artists.service.ArtistsService;
 import com.evently.events.category.dto.CategoryDto;
 import com.evently.events.event.dto.EventDetailDto;
+import com.evently.events.event.dto.EventFeed;
 import com.evently.events.event.dto.EventListItemDto;
+import com.evently.events.event.dto.EventSeed;
 import com.evently.events.event.dto.mapper.EventMapper;
 import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.request.EventUpdateRequest;
@@ -21,6 +23,8 @@ import com.evently.events.eventsLocations.repository.EventsLocationsRepository;
 import com.evently.events.eventsLocations.service.EventsLocationsService;
 import com.evently.events.eventsLocations.service.data.FetchMode;
 import com.evently.events.infrastructure.clients.BookingServiceClient;
+import com.evently.events.infrastructure.clients.userService.UserServiceClient;
+import com.evently.events.infrastructure.clients.userService.dto.UserPreferences;
 import events.event.*;
 import events.ticket.TicketsCreationEvent;
 import exceptions.DuplicateResourceException;
@@ -33,10 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,7 @@ public class EventService {
     private final BookingServiceClient bookingServiceClient;
     private final EventsLocationsRepository eventsLocationsRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserServiceClient userServiceClient;
 
     public List<EventListItemDto> findAllEventsByCategoryName(String categoryName) {
         List<EventCategoriesDto> allEventsByCategoryId =
@@ -238,10 +240,10 @@ public class EventService {
             eventTicketsUpdate.setEventLocationId(req.getId());
             if (entity == null) continue;
 
-            if (!entity.getDate().equals(req.getEventStartTime())) {
+            if (!entity.getEventStartTime().equals(req.getEventStartTime())) {
                 eventTicketsUpdate.setNewStartTime(req.getEventStartTime());
                 eventTicketsUpdate.setDateUpdated(true);
-                entity.setDate(req.getEventStartTime());
+                entity.setEventStartTime(req.getEventStartTime());
             }
 
             if (entity.getTotalTickets() < req.getTickets()) {
@@ -288,5 +290,32 @@ public class EventService {
         }
 
         return idsToProcess.size();
+    }
+
+    @Transactional
+    public void seedEvents(List<EventSeed> seedList) {
+        for (EventSeed seed : seedList) {
+            if (!eventRepository.existsByName(seed.getName())) {
+                Artist artist = artistsService.findById(seed.getArtistId());
+
+                Event event = eventsMapper.toEntity(seed, artist);
+                eventRepository.saveAndFlush(event);
+                eventsCategoriesService.categorizeEvent(event,
+                        seed.getCategoryIds());
+            }
+        }
+    }
+
+
+    //@Cacheable(:)
+    public EventFeed generateFeed(long userId) {
+        UserPreferences prefs =
+                userServiceClient.getUserPreferences(userId);
+
+        List<EventListItemDto> artist = new ArrayList<>();
+        List<EventListItemDto> category = new ArrayList<>();
+        List<EventListItemDto> events = new ArrayList<>();
+
+       return null;
     }
 }
