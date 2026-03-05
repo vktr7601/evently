@@ -23,12 +23,12 @@ const OrderPayment = () => {
     const navigate = useNavigate();
     const stripe = useStripe();
     const elements = useElements();
-
+    const [stripeReady, setStripeReady] = useState(false);
     const [order, setOrder] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [promoCode, setPromoCode] = useState("");
     const [timeLeft, setTimeLeft] = useState("");
-const [appliedPromo, setAppliedPromo] = useState(null);
+    const [appliedPromo, setAppliedPromo] = useState(null);
     const [modal, setModal] = useState({ open: false, title: "", message: "", onClose: null });
 
 
@@ -39,6 +39,7 @@ const [appliedPromo, setAppliedPromo] = useState(null);
                 console.log("Fetched active order:", res.data);
             })
             .catch(err => {
+                console.error("Error fetching active order:", err);
                 if (err.response?.status === 404 || err.response?.status === 410) {
                     navigate('/events');
                 }
@@ -84,6 +85,15 @@ const [appliedPromo, setAppliedPromo] = useState(null);
         if (!stripe || !elements) return;
 
         const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+            setModal({
+                open: true,
+                title: "Payment Error",
+                message: "Card input is not ready yet. Please wait a moment and try again.",
+                onClose: () => setModal({ open: false })
+            });
+            return;
+        }
         const { error, paymentMethod } = await stripe.createPaymentMethod({
             type: 'card',
             card: cardElement,
@@ -269,7 +279,10 @@ const [appliedPromo, setAppliedPromo] = useState(null);
                         <div style={styles.stripeInputWrapper}>
                             <label style={styles.label}>Credit or Debit Card</label>
                             <div style={styles.stripeElementContainer}>
-                                <CardElement options={CARD_ELEMENT_OPTIONS} />
+                                <CardElement
+                                    options={CARD_ELEMENT_OPTIONS}
+                                    onReady={() => setStripeReady(true)}
+                                />
                             </div>
                             <small style={styles.helperText}>Secured by Stripe. We do not store your card details.</small>
                         </div>
@@ -312,9 +325,9 @@ const [appliedPromo, setAppliedPromo] = useState(null);
 
                         <div style={styles.buttonGroup}>
                             <button
-                                style={{ ...styles.payButton, opacity: isProcessing ? 0.7 : 1 }}
+                                style={{ ...styles.payButton, opacity: (isProcessing || !stripeReady) ? 0.7 : 1 }}
                                 onClick={handlePayment}
-                                disabled={isProcessing || !stripe}
+                                disabled={isProcessing || !stripe || !stripeReady}
                             >
                                 {isProcessing ? "Processing..." : "Confirm & Pay"}
                             </button>

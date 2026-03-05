@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import axiosClient from '../../api/axiosClient';
-import { ROUTES } from '../../constants/routes';
-import Spinner from '../../components/layout/Spinner';
-import { NavLink } from 'react-router-dom';
+
+import { ROUTES } from '../../constants/routes';import { NavLink } from 'react-router-dom';
 const AdminDashboard = () => {
     const [user, setUser] = useState({});
     const[isAdmin] = useState(localStorage.getItem('isAdmin') === 'true');
