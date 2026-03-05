@@ -33,7 +33,9 @@ public class PromoCodeMapper {
         promoCode.setCode(promoCodeRequest.getPromoCode());
         promoCode.setDiscountPercentage(BigDecimal.valueOf(promoCodeRequest.getDiscountPercentage()));
         promoCode.setDiscountType(DiscountType.getFromString(promoCodeRequest.getDiscountType()));
-        promoCode.setExpiryDate(promoCodeRequest.getExpiryDate().toInstant());
+        promoCode.setExpiryDate(promoCodeRequest.getExpiryDate());
+        promoCode.setStatus(PromoCodeStatus.ACTIVE);
+
 
         return promoCode;
     }

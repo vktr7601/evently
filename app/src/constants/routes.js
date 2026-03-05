@@ -17,7 +17,8 @@ export const ROUTES = {
   },
   PROMO_CODES: {
     USER: '/promo-codes/me',
-    ADMIN: '/admin/promo-codes',
+    CREATE: '/admin/promo-codes',
+    ADMIN_VIEW: '/admin/promo-codes',
     VALIDATE: (code) =>  `/promo-codes/validate?code=${code}`,
     DETAILS: (id) => `/promo-codes/${id}`,
   },

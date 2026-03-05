@@ -9,6 +9,7 @@ import com.evently.booking.promoCode.model.dto.PromoCodeListItem;
 import com.evently.booking.promoCode.model.dto.PromoCodeRequest;
 import com.evently.booking.promoCode.model.dto.mapper.PromoCodeMapper;
 import com.evently.booking.promoCode.repository.PromoCodeRepository;
+import events.promoCode.PromoCodeCreated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -68,14 +69,22 @@ public class PromoCodeService {
     @Transactional
     public PromoCodeListItem create(PromoCodeRequest promoCodeRequest) {
         if (promoCodeRepository.existsPromoCodeByCode(promoCodeRequest.getPromoCode())) {
-            throw new DuplicatedPromoCodeException(promoCodeRequest.getPromoCode());
+            throw new DuplicatePromoCodeException(promoCodeRequest.getPromoCode());
         }
 
         PromoCode promoCode = promoCodeMapper.toPromoCode(promoCodeRequest);
 
         promoCodeRepository.save(promoCode);
-        //raise an event
+        PromoCodeCreated promoCodeCreated =
+                promoCodeMapper.toPromoCodeCreated(promoCode);
+        eventPublisher.publishEvent(promoCodeCreated);
         return promoCodeMapper.toPromoCodeListItem(promoCode);
+    }
+
+    public List<PromoCodeListItem> getSystemPromoCodes() {
+        List<PromoCode> all = promoCodeRepository.findAll();
+
+        return all.stream().map(promoCodeMapper::toPromoCodeListItem).toList();
     }
 
 

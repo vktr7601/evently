@@ -18,7 +18,7 @@ public class PromoCodeCreatedEventListener {
     private final KafkaProducer kafkaProducer;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void omOrderPaymentSucceed(PromoCodeCreated promoCodeCreated) {
+    public void onPromoCodeCreated(PromoCodeCreated promoCodeCreated) {
         promoCodeCreated.setMessageId(UUID.randomUUID().toString());
         promoCodeCreated.setOccurredAt(Instant.now());
         kafkaProducer.sendPromoCodeCreated(promoCodeCreated);

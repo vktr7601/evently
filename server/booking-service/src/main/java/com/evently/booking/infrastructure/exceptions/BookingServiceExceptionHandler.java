@@ -137,8 +137,8 @@ public class BookingServiceExceptionHandler {
     }
 
 
-    @ExceptionHandler(DuplicatedPromoCodeException.class)
-    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(DuplicatedPromoCodeException ex,
+    @ExceptionHandler(DuplicatePromoCodeException.class)
+    public ResponseEntity<EventlyErrorResponse> handlePriceChanged(DuplicatePromoCodeException ex,
                                                                    HttpServletRequest request) {
         EventlyErrorResponse error = EventlyErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())

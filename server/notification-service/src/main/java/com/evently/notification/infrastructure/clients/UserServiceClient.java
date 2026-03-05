@@ -13,6 +13,6 @@ public interface UserServiceClient {
     @PostMapping("/preferences")
     List<Long> fetchUserIds(@RequestBody List<Long> data);
 
-    @GetMapping("/notification-on")
+    @GetMapping("/user/notification-on")
     ResponseEntity<List<Long>> getUserWithNotificationOn();
 }

@@ -17,6 +17,46 @@ const AdminPromoCodes = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // const handleError = (err) => {
+    //     let title = "Submission Failed";
+    //     let messages = ["An unexpected error occurred. Please try again."];
+
+    //     if (err.response) {
+    //         const status = err.response.status;
+    //         if (status === 400) {
+    //             title = "Validation Errors";
+    //             messages = typeof err.response.data === 'object'
+    //                 ? Object.values(err.response.data)
+    //                 : [err.response.data];
+    //         } else if (status === 409) {
+    //             title = "Conflict";
+    //             messages = [err.response.data];
+    //         } else if (status === 500) {
+    //             title = "Server Error";
+    //             messages = ["Our systems are having trouble. Please contact support."];
+    //         }
+    //     } else if (err.request) {
+    //         messages = ["Unable to reach the server. Please check your internet connection."];
+    //     }
+    //     setErrorState({ show: true, title, messages });
+    // };
+
+    const handleSubmit = () => {
+        const payload = {
+            promoCode: form.promoCode,
+            discountPercentage: parseFloat(form.discountPercentage),
+            discountType: form.discountType,
+            expiresAt: new Date(form.expiryDate).toISOString()
+        };
+        setSuccess("");
+        console.log("Submitting form:", payload);
+        axiosClient.post(ROUTES.PROMO_CODES.ADMIN, payload)
+            .then(() => {
+                setSuccess("Promo code created successfully!");
+            })
+            .catch((err) => handleError(err));
+    };
+
     const handleError = (err) => {
         let title = "Submission Failed";
         let messages = ["An unexpected error occurred. Please try again."];
@@ -25,11 +65,11 @@ const AdminPromoCodes = () => {
             const status = err.response.status;
             if (status === 400) {
                 title = "Validation Errors";
-                messages = typeof err.response.data === 'object'
-                    ? Object.values(err.response.data)
+                messages = typeof err.response.data === 'object' 
+                    ? Object.values(err.response.data) 
                     : [err.response.data];
             } else if (status === 409) {
-                title = "Conflict";
+                title = "Schedule Conflict";
                 messages = [err.response.data];
             } else if (status === 500) {
                 title = "Server Error";
@@ -39,23 +79,6 @@ const AdminPromoCodes = () => {
             messages = ["Unable to reach the server. Please check your internet connection."];
         }
         setErrorState({ show: true, title, messages });
-    };
-
-    const handleSubmit = () => {
-        const payload = {
-            promoCode: form.promoCode,
-            discountPercentage: parseFloat(form.discountPercentage),
-            discountType: form.discountType.toUpperCase(),
-            expiryDate: new Date(form.expiryDate).toISOString().slice(0, 19)
-        };
-        setSuccess("");
-        console.log("Submitting form:", payload);
-        axiosClient.post(ROUTES.PROMO_CODES.ADMIN, payload)
-            .then(() => {
-                setSuccess("Promo code created successfully!");
-               // setForm({ promoCode: "", discountPercentage: "", discountType: "Percentage", expiryDate: "" });
-            })
-            .catch((err) => handleError(err.data ? err : { response: err }));
     };
 
     return (
@@ -95,7 +118,7 @@ const AdminPromoCodes = () => {
                                     onChange={handleChange}
                                 >
                                     <option value="Percentage">Percentage</option>
-                                    <option value="Fixed">Fixed</option>
+                                    <option value="Fixed">FlatAmount</option>
                                 </select>
                             </div>
                         </div>

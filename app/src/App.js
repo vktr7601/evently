@@ -66,7 +66,7 @@ function App() {
             <Route path={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS_DETAILS(':id')} element={<TransactionDetails />} />
             <Route path={ROUTES.PAYMENTS.PAYMENT_TRANSACTIONS} element={<TransactionList />} />
             <Route path={ROUTES.PROMO_CODES.USER} element={<PromoCodesList />} />
-            <Route path={ROUTES.PROMO_CODES.ADMIN} element={<AdminPromoCodes />} />
+            <Route path={ROUTES.PROMO_CODES.CREATE} element={<AdminPromoCodes />} />
             <Route path={ROUTES.PROMO_CODES.DETAILS(':id')} element={<AdminPromoCodes />} />
             <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
             {/* <Route path="/artists" element={<Artists />} />

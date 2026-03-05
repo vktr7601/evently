@@ -71,6 +71,7 @@ public class UsersMapper {
         user.setPassword(passwordEncoder.encode(userSeed.getPassword()));
         user.setAge(userSeed.getAge());
         user.setUserRole(UserRole.convertFromString(userSeed.getUserRole()));
+        user.setShouldReceiveNotification(userSeed.isShouldReceiveNotification());
         return user;
     }
 }
