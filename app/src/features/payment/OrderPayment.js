@@ -23,19 +23,23 @@ const OrderPayment = () => {
     const navigate = useNavigate();
     const stripe = useStripe();
     const elements = useElements();
-
+    const [stripeReady, setStripeReady] = useState(false);
     const [order, setOrder] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [promoCode, setPromoCode] = useState("");
     const [timeLeft, setTimeLeft] = useState("");
-
+    const [appliedPromo, setAppliedPromo] = useState(null);
     const [modal, setModal] = useState({ open: false, title: "", message: "", onClose: null });
 
 
     useEffect(() => {
         axiosClient.get(`${ROUTES.ORDERS.ACTIVE}`)
-            .then(res => setOrder(res.data))
+            .then(res => {
+                setOrder(res.data);
+                console.log("Fetched active order:", res.data);
+            })
             .catch(err => {
+                console.error("Error fetching active order:", err);
                 if (err.response?.status === 404 || err.response?.status === 410) {
                     navigate('/events');
                 }
@@ -57,7 +61,7 @@ const OrderPayment = () => {
     }, [order]);
 
     const expiryDate = useMemo(() =>
-        order?.expirationTime ? new Date(order.expirationTime) : null,
+            order?.expirationTime ? new Date(order.expirationTime) : null,
         [order]);
 
     useEffect(() => {
@@ -78,63 +82,94 @@ const OrderPayment = () => {
     }, [expiryDate, navigate]);
 
     const handlePayment = async () => {
-    if (!stripe || !elements) return;
+        if (!stripe || !elements) return;
 
-    const cardElement = elements.getElement(CardElement);
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-    });
-
-    if (error) {
-        setModal({ open: true, title: "Card Error", message: error.message });
-        return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-        await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
-            transactionId: paymentMethod.id,
-            promoCode: promoCode
-        });
-        navigate(`${ROUTES.ORDERS.BASE}`);
-
-    } catch (err) {
-        if (err.response?.status === 409) {
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
             setModal({
                 open: true,
-                title: "Payment Failed",
-                message: "The tickets in your order have been released due to inactivity. Please try purchasing again.",
-                onClose: () => window.location.reload()
+                title: "Payment Error",
+                message: "Card input is not ready yet. Please wait a moment and try again.",
+                onClose: () => setModal({ open: false })
             });
-            setIsProcessing(false);
+            return;
+        }
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+            type: 'card',
+            card: cardElement,
+        });
+
+        if (error) {
+            setModal({ open: true, title: "Card Error", message: error.message });
             return;
         }
 
-        if (err.response?.status === 400) {
+        setIsProcessing(true);
+
+        try {
+            await axiosClient.post(`${ROUTES.ORDERS.ORDERS_CONFIRM}`, {
+                transactionId: paymentMethod.id,
+                promoCode: promoCode
+            });
+            navigate(`${ROUTES.ORDERS.BASE}`);
+
+        } catch (err) {
+            if (err.response?.status === 409) {
+                setModal({
+                    open: true,
+                    title: "Payment Failed",
+                    message: "The tickets in your order have been released due to inactivity. Please try purchasing again.",
+                    onClose: () => window.location.reload()
+                });
+                setIsProcessing(false);
+                return;
+            }
+
+            if (err.response?.status === 400) {
+                setModal({
+                    open: true,
+                    title: "Card Declined",
+                    message: err.response.data.message || "Your card was declined. Please check your details or try another card.",
+                    onClose: () => setModal({ open: false })
+                });
+                setIsProcessing(false);
+                return;
+            }
+
             setModal({
                 open: true,
-                title: "Card Declined",
-                message: err.response.data.message || "Your card was declined. Please check your details or try another card.",
+                title: "Something went wrong",
+                message: "An unexpected error occurred. Please try again.",
                 onClose: () => setModal({ open: false })
             });
             setIsProcessing(false);
-            return;
         }
-
-        setModal({
-            open: true,
-            title: "Something went wrong",
-            message: "An unexpected error occurred. Please try again.",
-            onClose: () => setModal({ open: false })
-        });
-        setIsProcessing(false);
-    }
-};
+    };
 
     const handleReleaseTickets = async (ticket) => {
-        // TODO:    implement release logic
+        if (!window.confirm("Are you sure? This will release the selected tickets back to inventory.")) return;
+
+        try {
+            const res = await axiosClient.delete(ROUTES.ORDERS.ACTIVE_TICKETS, {
+                data: {
+                    eventLocationId: ticket.eventLocationId,
+                    ticketsCount: ticket.quantity,
+                    eventStartTime: ticket.eventStartTime,
+                }
+            });
+            if (res.data.status === 'CANCELLED') {
+                navigate('/events');
+                return;
+            }
+            setOrder(res.data);
+        } catch (err) {
+            setModal({
+                open: true,
+                title: "Error Releasing Tickets",
+                message: "An error occurred while releasing the tickets. Please try again.",
+                onClose: () => setModal({ open: false })
+            });
+        }
     };
 
     const handleCancel = async () => {
@@ -146,6 +181,37 @@ const OrderPayment = () => {
         } catch (err) {
             navigate("/events");
         }
+    };
+    const finalTotal = useMemo(() => {
+        if (!order) return 0;
+        if (!appliedPromo) return order.totalPrice;
+
+        if (appliedPromo.discountType === "Percentage") {
+            return order.totalPrice * (1 - appliedPromo.discountPercentage / 100);
+        } else {
+            return Math.max(0, order.totalPrice - appliedPromo.discountPercentage);
+        }
+    }, [order, appliedPromo]);
+    const handleApplyPromo = () => {
+        axiosClient.get(`${ROUTES.PROMO_CODES.VALIDATE(promoCode)}`)
+            .then(res => {
+                setAppliedPromo(res.data);
+                setModal({
+                    open: true,
+                    title: "Promo Code Applied",
+                    message: `${res.data.discountPercentage}% discount applied successfully!`,
+                    onClose: () => setModal({ open: false })
+                });
+            })
+            .catch(err => {
+                setAppliedPromo(null);
+                setModal({
+                    open: true,
+                    title: "Invalid Promo Code",
+                    message: err.response?.data?.message || "Promo code is invalid or expired.",
+                    onClose: () => setModal({ open: false })
+                });
+            });
     };
 
     if (!order) return <div style={styles.loading}>Loading your secure checkout...</div>;
@@ -213,7 +279,10 @@ const OrderPayment = () => {
                         <div style={styles.stripeInputWrapper}>
                             <label style={styles.label}>Credit or Debit Card</label>
                             <div style={styles.stripeElementContainer}>
-                                <CardElement options={CARD_ELEMENT_OPTIONS} />
+                                <CardElement
+                                    options={CARD_ELEMENT_OPTIONS}
+                                    onReady={() => setStripeReady(true)}
+                                />
                             </div>
                             <small style={styles.helperText}>Secured by Stripe. We do not store your card details.</small>
                         </div>
@@ -228,22 +297,37 @@ const OrderPayment = () => {
                                     value={promoCode}
                                     onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                                 />
-                                <button style={styles.applyButton}>Apply</button>
+                                <button style={styles.applyButton} onClick={handleApplyPromo}>Apply</button>
                             </div>
                         </div>
 
                         <div style={styles.divider}></div>
 
                         <div style={styles.totalRow}>
-                            <span>Total</span>
-                            <span style={styles.totalAmount}>${order.totalPrice.toFixed(2)}</span>
+                            {appliedPromo && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                                    <span>{appliedPromo.promoCode} ({appliedPromo.discountPercentage}% off)</span>
+                                    <span>-${(order.totalPrice - finalTotal).toFixed(2)}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>Total</span>
+                                <div style={{ textAlign: 'right' }}>
+                                    {appliedPromo && (
+                                        <div style={{ fontSize: '13px', color: '#94a3b8', textDecoration: 'line-through' }}>
+                                            ${order.totalPrice.toFixed(2)}
+                                        </div>
+                                    )}
+                                    <span style={styles.totalAmount}>${finalTotal.toFixed(2)}</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div style={styles.buttonGroup}>
                             <button
-                                style={{ ...styles.payButton, opacity: isProcessing ? 0.7 : 1 }}
+                                style={{ ...styles.payButton, opacity: (isProcessing || !stripeReady) ? 0.7 : 1 }}
                                 onClick={handlePayment}
-                                disabled={isProcessing || !stripe}
+                                disabled={isProcessing || !stripe || !stripeReady}
                             >
                                 {isProcessing ? "Processing..." : "Confirm & Pay"}
                             </button>
@@ -291,6 +375,18 @@ const styles = {
     priceCol: { textAlign: 'right' },
     priceText: { fontSize: '20px', fontWeight: '800', color: '#1e293b', display: 'block' },
     unitPrice: { fontSize: '12px', color: '#94a3b8', fontWeight: '500' },
+    releaseButton: {
+        marginTop: '14px',
+        backgroundColor: 'transparent',
+        color: '#ef4444',
+        border: '1px solid #fecaca',
+        padding: '8px 16px',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+    },
     paymentCard: { backgroundColor: '#fff', borderRadius: '24px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' },
     paymentHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' },
     paymentTitle: { margin: 0, fontSize: '20px', fontWeight: '700' },
@@ -331,17 +427,6 @@ const styles = {
         marginTop: '8px',
         fontSize: '12px',
         color: '#94a3b8',
-    },
-    cancelButton: {
-        width: '100%',
-        backgroundColor: 'transparent',
-        color: '#64748b', // Subtle gray
-        border: 'none',
-        padding: '10px',
-        fontSize: '14px',
-        fontWeight: '600',
-        textDecoration: 'underline',
-        cursor: 'pointer'
     }
 };
 

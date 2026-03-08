@@ -30,5 +30,4 @@ public class AdminArtistController {
         return new ResponseEntity<>(artistDetails,
                 HttpStatus.CREATED);
     }
-
 }

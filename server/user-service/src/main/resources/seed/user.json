@@ -1,0 +1,92 @@
+[
+  {
+    "firstName": "Sarah",
+    "lastName": "Miller",
+    "age": 22,
+    "email": "sarah.m@gmail.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Viktor",
+    "lastName": "Petrov",
+    "age": 31,
+    "email": "v.petrov@admin.evently.com",
+    "userRole": "ADMIN",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Aiko",
+    "lastName": "Tanaka",
+    "age": 27,
+    "email": "aiko.t@outlook.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": false,
+    "password": "password123"
+  },
+  {
+    "firstName": "Marcus",
+    "lastName": "Jordan",
+    "age": 45,
+    "email": "mj@business.co",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Elena",
+    "lastName": "Dimitrova",
+    "age": 29,
+    "email": "elena.d@email.bg",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Liam",
+    "lastName": "O'Connor",
+    "age": 19,
+    "email": "liam.oc@university.edu",
+    "userRole": "USER",
+    "shouldReceiveNotification": false,
+    "password": "password123"
+  },
+  {
+    "firstName": "Sofia",
+    "lastName": "Gomez",
+    "age": 38,
+    "email": "sofia.g@freemail.com",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "David",
+    "lastName": "Wilson",
+    "age": 52,
+    "email": "d.wilson@corporate.net",
+    "userRole": "USER",
+    "shouldReceiveNotification": false,
+    "password": "password123"
+  },
+  {
+    "firstName": "Maya",
+    "lastName": "Patel",
+    "age": 26,
+    "email": "maya.patel@techhub.io",
+    "userRole": "USER",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  },
+  {
+    "firstName": "Chris",
+    "lastName": "Evans",
+    "age": 33,
+    "email": "c.evans@support.evently.com",
+    "userRole": "ADMIN",
+    "shouldReceiveNotification": true,
+    "password": "password123"
+  }
+]

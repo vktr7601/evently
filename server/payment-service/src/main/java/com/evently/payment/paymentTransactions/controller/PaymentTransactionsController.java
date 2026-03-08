@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/payment-transactions")
@@ -27,8 +29,14 @@ public class PaymentTransactionsController {
     public ResponseEntity<PaymentTransactionDetails> getPaymentTransactionDetails(@PathVariable("id") Long id,
                                                                                   @RequestHeader(ApplicationHeaders.USER_ID) long userId) {
         PaymentTransactionDetails paymentTransactionDetails =
-                paymentTransactionsService.getPaymentTransactionDetails(id, userId);
+                paymentTransactionsService.getPaymentTransactionDetails(userId, id);
+
 
         return ResponseEntity.ok(paymentTransactionDetails);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PaymentTransactionDetails>> getPaymentTransactionDetails(@RequestHeader(ApplicationHeaders.USER_ID) long userId) {
+        return ResponseEntity.ok(paymentTransactionsService.getPaymentTransactionDetails(userId));
     }
 }

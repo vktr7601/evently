@@ -33,6 +33,7 @@ public class TicketMapper {
         return new TicketListItem(
                 ticket.getId(),
                 ticket.getNumber(),
+                ticket.getEventLocationsId(),
                 eventName,
                 locationName,
                 ticket.getStatus(),

@@ -1,9 +1,10 @@
 package com.evently.events.eventsLocations.dto.mapper;
 
 import com.evently.events.event.model.Event;
-import com.evently.events.eventsLocations.model.EventsLocations;
+import com.evently.events.eventsLocations.dto.EventLocationSeed;
 import com.evently.events.eventsLocations.dto.request.EventsLocationsData;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
+import com.evently.events.eventsLocations.model.EventsLocations;
 import com.evently.events.eventsLocations.model.EventsLocationsStatus;
 import com.evently.events.locations.model.Location;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class EventLocationsMapper {
         EventsLocations entity = new EventsLocations();
         entity.setEvent(event);
         entity.setLocation(location);
-        entity.setDate(data.getEventStartTime());
+        entity.setEventStartTime(data.getEventStartTime());
         entity.setTotalTickets(data.getTickets());
         entity.setPrice(data.getPrice());
         entity.setEventsLocationsStatus(EventsLocationsStatus.PENDING_TICKETS);
@@ -31,10 +32,22 @@ public class EventLocationsMapper {
         dto.setLocationId(entity.getLocation().getId());
         dto.setEventName(entity.getEvent().getName());
         dto.setLocationName(entity.getLocation().getName());
-        dto.setEventStartTime(entity.getDate());
+        dto.setEventStartTime(entity.getEventStartTime());
         dto.setPricePerTicket(entity.getPrice());
         dto.setEventsLocationsStatus(entity.getEventsLocationsStatus());
         dto.setTicketsCount(entity.getTotalTickets());
         return dto;
+    }
+
+    public EventsLocations toEntity(Event event, Location location,
+                                    EventLocationSeed seed) {
+        EventsLocations entity = new EventsLocations();
+        entity.setEvent(event);
+        entity.setLocation(location);
+        entity.setEventStartTime(seed.getEventStartTime());
+        entity.setPrice(seed.getPricePerTicket());
+        entity.setTotalTickets(seed.getTicketsCount());
+        entity.setEventsLocationsStatus(EventsLocationsStatus.fromString(seed.getStatus()));
+        return entity;
     }
 }

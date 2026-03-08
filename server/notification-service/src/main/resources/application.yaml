@@ -5,41 +5,40 @@ spring:
     suffix: .html
     mode: HTML
     prefix: classpath:/templates/
-
-  kafka:
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      group-id: notification-service-group
-      auto-offset-reset: earliest
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "events.user,events.ticket,events.event,events.order"
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/notifications_db
-    username: admin
-    password: adminPassword
-
   jpa:
-    hibernate:
-      ddl-auto: create-drop
     defer-datasource-initialization: true
     show-sql: true
+    hibernate:
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
         highlight_sql: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "events.user,events.ticket,events.event,events.order,events.promoCode"
+  datasource:
+    url: jdbc:postgresql://postgres:5432/notifications_db
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
-server:
-  port: 8083
-kafka:
-  bootstrap-servers: localhost:9092
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:8761/eureka/
   instance:
     prefer-ip-address: true
+
+server:
+  port: 8083

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Arena Sofia",
+    "description": "The largest multi-purpose indoor arena...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/arena_sofia.jpg"
+  },
+  {
+    "name": "Ancient Theatre of Philippopolis",
+    "description": "An iconic historical landmark...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/antinchen_teatur.jpg"
+  },
+  {
+    "name": "NDK",
+    "description": "The largest convention center...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/NDK.jpg"
+  },
+  {
+    "name": "Varna Sea Casino",
+    "description": "An elegant event space...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/morsko_kino_varna.jpg"
+  },
+  {
+    "name": "Inter Expo Center",
+    "description": "A modern exhibition hub...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/inter_esspo.jpg"
+  },
+  {
+    "name": "Ancient Theatre of Nessebar",
+    "description": "A breathtaking seaside amphitheater...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ancient_city_of_nesebar.jpg"
+  },
+  {
+    "name": "Ruse State Opera",
+    "description": "A majestic neo-baroque building...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/ruse_opera.jpg"
+  },
+  {
+    "name": "Plovdiv International Fair",
+    "description": "One of the oldest trade centers...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/Plovdiv_internation_fair.jpg"
+  },
+  {
+    "name": "Kapana Creative District Stage",
+    "description": "An open-air urban space...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/kapana.jpg"
+  },
+  {
+    "name": "Bansko Ski Resort Event Center",
+    "description": "A premier winter destination...",
+    "imageUrl": "https://evently-spring.s3.eu-north-1.amazonaws.com/venues/bansko_ski_resort.jpg"
+  }
+]

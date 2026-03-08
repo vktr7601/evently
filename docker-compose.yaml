@@ -9,51 +9,149 @@ services:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-#    networks:
-#      - evently-network
+    networks:
+      - evently-network
 
-  #  eureka:
-  #    image: eureka
-  #    container_name: eureka-service
-  #    ports:
-  #      - "8761:8761"
-  #    networks:
-  #      - evently-network
+  eureka:
+    build:
+      context: ./server
+      dockerfile: eureka-server/Dockerfile
+    container_name: eureka-service
+    ports:
+      - "8761:8761"
+    networks:
+      - evently-network
 
-  # --- KAFKA & CONDUKTOR ---
+  gateway:
+    build:
+      context: ./server
+      dockerfile: evently-gateway/Dockerfile
+    container_name: evently-gateway
+    ports:
+      - "9000:9000"
+    depends_on:
+      - eureka
+    networks:
+      - evently-network
+
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: evently-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway
+    networks:
+      - evently-network
+
+  events-service:
+    build:
+      context: ./server
+      dockerfile: events-service/Dockerfile
+    container_name: events-service
+    ports:
+      - "8082:8082"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+    depends_on:
+      - eureka
+      - postgres
+      - kafka
+      - redis
+    networks:
+      - evently-network
+
+  notification-service:
+    build:
+      context: ./server
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
+    depends_on:
+      - eureka
+      - postgres
+      - kafka
+    networks:
+      - evently-network
+  payment-service:
+    build:
+      context: ./server
+      dockerfile: payment-service/Dockerfile
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+    depends_on:
+      - eureka
+      - postgres
+      - kafka
+    networks:
+      - evently-network
+
+  user-service:
+    build:
+      context: ./server
+      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    ports:
+      - "8085:8085"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+    depends_on:
+      - eureka
+      - postgres
+      - kafka
+    networks:
+      - evently-network
+
+  booking-service:
+    build:
+      context: ./server
+      dockerfile: booking-service/Dockerfile
+    container_name: booking-service
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka
+      - postgres
+      - kafka
+    networks:
+      - evently-network
+
   kafka:
     image: apache/kafka:latest
     container_name: evently-message-broker
     ports:
       - "9092:9092"
-#  conduktor-console:
-#    image: conduktor/conduktor-console:latest
-#    container_name: conduktor-console
-#    ports:
-#      - "8081:8080" # Changed host port to 8081 because pgAdmin is using 8080
-#    environment:
-#      - CDK_DATABASE_URL=postgresql://conduktor:conduktor@postgres-conductor:5432/conduktor
-#      - CDK_DATABASE_PASSWORD=conduktor
-#      - KAFKA_BOOTSTRAP_SERVERS=message-broker:9092
-#      - CDK_ADMIN_EMAIL=admin@evently.com
-#      - CDK_ADMIN_PASSWORD=AdminPassword123!
-#    depends_on:
-#      - postgres-conductor
-#      - kafka
-#    networks:
-#      - evently-network
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      CLUSTER_ID: "4L6g3nShT-eMCtK--X86sw"
+    networks:
+      - evently-network
 
-#  postgres-conductor:
-#    image: postgres:14
-#    container_name: postgres-conductor
-#    environment:
-#      - POSTGRES_DB=conduktor
-#      - POSTGRES_USER=conduktor
-#      - POSTGRES_PASSWORD=conduktor
-#    networks:
-#      - evently-network
-
-  # --- OTHER SERVICES ---
   pgadmin:
     image: dpage/pgadmin4
     container_name: postgres-UI
@@ -62,8 +160,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: adminPassword
     ports:
       - "7654:80"
-#    networks:
-#      - evently-network
+    networks:
+      - evently-network
 
   redis:
     image: redis:latest
@@ -73,8 +171,8 @@ services:
     command: ["redis-server", "--aclfile", "/etc/redis/users.acl"]
     ports:
       - "6379:6379"
-#    networks:
-#      - evently-network
+    networks:
+      - evently-network
 
   redis-insight:
     image: redis/redisinsight:latest
@@ -83,20 +181,9 @@ services:
       - "5540:5540"
     depends_on:
       - redis
-#    networks:
-#      - evently-network
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
-    ports:
-      - "9876:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: message-broker:9092
-      DYNAMIC_CONFIG_ENABLED: 'true'
-#    networks:
-#      - evently-network
+    networks:
+      - evently-network
 
-#networks:
-#  evently-network:
-#    driver: bridge
+networks:
+  evently-network:
+    driver: bridge

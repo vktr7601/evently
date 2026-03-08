@@ -9,7 +9,7 @@ import org.hibernate.type.SqlTypes;
 import persistence.BaseEntity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +31,7 @@ public class Order extends BaseEntity {
             FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
     @Column(name = "expirationTime")
-    private LocalDateTime expirationTime;
+    private Instant expirationTime;
     @Column(name = "number")
     private UUID number;
     @Column(name = "active")
@@ -50,7 +50,7 @@ public class Order extends BaseEntity {
     @Override
     public void onCreate() {
         super.onCreate();
-        expirationTime = LocalDateTime.now().plusMinutes(10);
+        expirationTime = Instant.now().plusSeconds(600);
         number = UUID.randomUUID();
     }
 }

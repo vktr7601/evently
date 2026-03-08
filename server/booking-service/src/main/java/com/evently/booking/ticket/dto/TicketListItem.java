@@ -26,6 +26,8 @@ public class TicketListItem implements Serializable {
     private long id;
     @JsonProperty("number")
     private UUID number;
+    @JsonProperty("eventLocationId")
+    private long eventLocationId;
     @JsonProperty("eventName")
     private String eventName;
     @JsonProperty("eventLocationName")

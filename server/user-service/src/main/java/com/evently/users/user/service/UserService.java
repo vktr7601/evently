@@ -1,9 +1,14 @@
 package com.evently.users.user.service;
 
+import com.evently.users.config.seed.models.UserPreferencesSeed;
+import com.evently.users.config.seed.models.UserSeed;
 import com.evently.users.exceptions.DuplicateEmailException;
 import com.evently.users.exceptions.UserNotFoundException;
+import com.evently.users.follow.artist.model.FollowArtist;
 import com.evently.users.follow.artist.service.FollowArtistService;
+import com.evently.users.follow.category.model.FollowCategory;
 import com.evently.users.follow.category.service.FollowCategoryService;
+import com.evently.users.follow.location.model.FollowLocation;
 import com.evently.users.follow.location.service.FollowLocationService;
 import com.evently.users.user.dto.UserDetails;
 import com.evently.users.user.dto.UserPreferences;
@@ -18,8 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import persistence.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,8 +49,7 @@ public class UserService {
         userRepository.save(user);
         followCategoryService.followCategories(user,
                 userRequest.getCategories());
-        followLocationService.followLocations(user,
-                userRequest.getLocations());
+        followLocationService.followLocations(user, userRequest.getLocations());
         log.info("User  {} has been registered successfully", user);
 
 
@@ -82,8 +88,7 @@ public class UserService {
     }
 
     public UserDetails getUserDetails(Long userId) {
-        User user =
-                userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).get();
 
         UserDetails userDetails = usersMapper.toUserDetails(user);
         UserPreferences userPreferences = getUserPreferences(userId);
@@ -96,5 +101,57 @@ public class UserService {
     public void updateLastLoginDate(User user) {
         user.setLastLoggedIn(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    public List<Long> getUserWithNotificationOn() {
+        List<User> users =
+                userRepository.findAllByShouldReceiveNotification(true);
+
+        return users.stream().map(BaseEntity::getId).toList();
+    }
+
+    @Transactional
+    public void seedUser(List<UserSeed> userSeeds) {
+        List<User> users = new ArrayList<>();
+        for (UserSeed userSeed : userSeeds) {
+            if (!userRepository.existsByEmail(userSeed.getEmail()))
+                users.add(usersMapper.toUser(userSeed));
+        }
+
+        userRepository.saveAll(users);
+    }
+
+    @Transactional
+    public void seedUserPreferences(List<UserPreferencesSeed> userPreferencesSeed) {
+        for (UserPreferencesSeed seed : userPreferencesSeed) {
+            System.out.println(seed.getUserId());
+            User user =
+                    userRepository.findById(seed.getUserId()).get();
+            List<FollowArtist> followArtists = new ArrayList<>();
+            for (int i = 0; i < seed.getFollowSeed().getArtists().size(); i++) {
+                FollowArtist followArtist = new FollowArtist();
+                followArtist.setUser(user);
+                followArtist.setArtistId(seed.getFollowSeed().getArtists().get(i));
+                followArtists.add(followArtist);
+            }
+            List<FollowLocation> followLocations = new ArrayList<>();
+            for (int i = 0; i < seed.getFollowSeed().getLocations().size(); i++) {
+                FollowLocation followLocation = new FollowLocation();
+                followLocation.setUser(user);
+                followLocation.setLocationId(seed.getFollowSeed().getLocations().get(i));
+                followLocations.add(followLocation);
+            }
+
+            List<FollowCategory> followCategories = new ArrayList<>();
+            for (int i = 0; i < seed.getFollowSeed().getCategories().size(); i++) {
+                FollowCategory followCategory = new FollowCategory();
+                followCategory.setUser(user);
+                followCategory.setCategoryId(seed.getFollowSeed().getCategories().get(i));
+                followCategories.add(followCategory);
+            }
+            followArtistService.saveAll(followArtists);
+            followLocationService.saveAll(followLocations);
+            followCategoryService.saveAll(followCategories);
+        }
     }
 }

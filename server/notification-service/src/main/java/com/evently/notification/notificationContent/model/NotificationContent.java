@@ -14,6 +14,6 @@ import persistence.BaseEntity;
 public class NotificationContent extends BaseEntity {
     @Column(name = "title", length = 2048)
     private String title;
-    @Column(name = "html_body", length = 4048)
+    @Column(name = "html_body", columnDefinition = "TEXT")
     private String htmlBody;
 }

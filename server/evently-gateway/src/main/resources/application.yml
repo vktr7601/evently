@@ -9,33 +9,37 @@ spring:
       server:
         webmvc:
           routes:
-            - id: booking-service
-              uri: http://localhost:8081
-              predicates:
-                - Path=/tickets/**,/orders/**,/admin/orders/**,/refunds/**
-            - id: events-service
-              uri: http://localhost:8082
-              predicates:
-                - Path=/events/**,/locations/**,/artists/**,/categories/**,/admin/**
             - id: user-service
-              uri: http://localhost:8085
+              uri: lb://user-service
               predicates:
-                - Path=/user/**,/auth/**,/follows/**
-            - id: notification-service
-              uri: http://localhost:8083
+                - Path=/auth/**,/user/**,/follows/**,/admin/users/**
+
+            - id: events-service
+              uri: lb://events-service
               predicates:
-                - Path=/notifications/**
+                - Path=/events/**,/locations/**,/artists/**,/categories/**,/admin/events/**,/admin/locations/**,/admin/artists/**,/admin/categories/**
+
+            - id: booking-service
+              uri: lb://booking-service
+              predicates:
+                - Path=/tickets/**,/orders/**,/refunds/**,/promo-codes/**,/admin/orders/**,/admin/promo-codes/**
+
             - id: payment-service
-              uri: http://localhost:8084
+              uri: lb://payment-service
               predicates:
-                - Path=/payment-transactions/**
+                - Path=/payment-transactions/**,/admin/payment-transactions/**
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/notifications/**,/admin/notifications/**
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone:  http://eureka:8761/eureka/
   instance:
     prefer-ip-address: true
 logging:
@@ -45,5 +49,3 @@ logging:
     org.springframework.http.server.reactive: DEBUG
     org.springframework.web.reactive: DEBUG
     io.jsonwebtoken: DEBUG
-#    # Replace 'package.jwt' with the actual package name of your JWTUtility
-#    package.jwt: DEBUG

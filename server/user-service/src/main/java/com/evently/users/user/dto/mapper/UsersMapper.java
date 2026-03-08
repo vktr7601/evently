@@ -1,5 +1,6 @@
 package com.evently.users.user.dto.mapper;
 
+import com.evently.users.config.seed.models.UserSeed;
 import com.evently.users.user.dto.UserDetails;
 import com.evently.users.user.dto.request.RegisterUser;
 import com.evently.users.user.model.User;
@@ -58,6 +59,19 @@ public class UsersMapper {
             user.setUserRole(UserRole.USER);
         }
 
+        return user;
+    }
+
+    public User toUser(UserSeed userSeed) {
+        User user = new User();
+        user.setFirstName(userSeed.getFirstName());
+        user.setLastName(userSeed.getLastName());
+        user.setEmail(userSeed.getEmail());
+        user.setAge(userSeed.getAge());
+        user.setPassword(passwordEncoder.encode(userSeed.getPassword()));
+        user.setAge(userSeed.getAge());
+        user.setUserRole(UserRole.convertFromString(userSeed.getUserRole()));
+        user.setShouldReceiveNotification(userSeed.isShouldReceiveNotification());
         return user;
     }
 }

@@ -1,47 +1,51 @@
 spring:
   application:
     name: payment-service
+  jpa:
+    defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: payment-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "events.order,events.payment"
   datasource:
-    url: jdbc:postgresql://localhost:5432/payments_db
-    username: ${POSTGRES_USER:admin}
-    password: ${POSTGRES_PASSWORD:adminPassword}
+    url: jdbc:postgresql://postgres:5432/payments_db
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
   instance:
     prefer-ip-address: true
-
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-  kafka:
-    bootstrap-servers: localhost:9092
 
 server:
   port: 8084
 
 stripe:
-  secret-key: ${STRIPE_SECRET_KEY:placeholder_for_dev}
+  secret-key: ${STRIPE_SECRET_KEY}
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-
----
-spring:
-  config:
-    activate:
-      on-profile: production
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka:8761/eureka/
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.springframework.orm: DEBUG
+    org.springframework.data: DEBUG
+    org.hibernate: DEBUG

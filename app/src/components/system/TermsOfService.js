@@ -13,7 +13,6 @@ const TermsOfService = () => {
                 secondaryAction={{ text: "Privacy Policy", link: "/privacy" }}
             />
 
-            {/* 2. Overlapping Card Content */}
             <div className="container" style={{ marginTop: "-60px", position: "relative", zIndex: "10" }}>
                 <div className="row justify-content-center">
                     <div className="col-lg-10 col-xl-8">

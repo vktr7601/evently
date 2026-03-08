@@ -2,6 +2,7 @@ package com.evently.events.artists.service;
 
 import com.evently.events.artists.dto.ArtistDetails;
 import com.evently.events.artists.dto.ArtistListItem;
+import com.evently.events.artists.dto.ArtistSeed;
 import com.evently.events.artists.dto.mapper.ArtistMapper;
 import com.evently.events.artists.dto.request.ArtistRequest;
 import com.evently.events.artists.model.Artist;
@@ -18,6 +19,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -75,5 +77,17 @@ public class ArtistsService {
         Artist artist = artistMapper.toArtist(artistRequest, imageUrl);
         artistsRepository.save(artist);
         return artistMapper.toArtistDetails(artist);
+    }
+
+    @Transactional
+    public void seedArtists(List<ArtistSeed> artistSeedList) {
+        List<Artist> artistList = new ArrayList<>();
+        for (ArtistSeed artistSeed : artistSeedList) {
+            if (!artistsRepository.existsByName(artistSeed.getName())) {
+                artistList.add(artistMapper.toArtist(artistSeed));
+            }
+        }
+
+        artistsRepository.saveAll(artistList);
     }
 }

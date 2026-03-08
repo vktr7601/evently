@@ -32,14 +32,9 @@ public class UserRegisteredKafkaConsumer {
             return;
         }
         try {
-            if (!userRegisteredEvent.getFollowCategories().isEmpty() ||
-                    !userRegisteredEvent.getFollowLocations().isEmpty()) {
-
-            }
-
+            eventService.generateFeed(userRegisteredEvent.getUserId());
             ProcessedEvent processedEvent =
                     processedEventRepository.save(new ProcessedEvent(userRegisteredEvent.getMessageId(), Instant.now()));
-
         } catch (DataIntegrityViolationException e) {
             log.warn("Duplicate event detected during save: {}",
                     userRegisteredEvent.getMessageId());

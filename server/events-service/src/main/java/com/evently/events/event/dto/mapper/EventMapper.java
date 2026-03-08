@@ -2,8 +2,9 @@ package com.evently.events.event.dto.mapper;
 
 import com.evently.events.artists.model.Artist;
 import com.evently.events.category.dto.CategoryDto;
-import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.dto.EventDetailDto;
+import com.evently.events.event.dto.EventSeed;
+import com.evently.events.event.dto.request.EventCreateRequest;
 import com.evently.events.event.model.Event;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import events.ticket.TicketsCreationEvent;
@@ -35,6 +36,26 @@ public class EventMapper {
         if (dto != null) {
             event.setName(dto.getName());
             event.setDescription(dto.getDescription());
+        }
+
+        if (artist != null) {
+            event.setArtist(artist);
+            event.setImageUrl(artist.getImageUrl());
+        }
+
+        return event;
+    }
+
+    public Event toEntity(EventSeed eventSeed, Artist artist) {
+        if (eventSeed == null && artist == null) {
+            return null;
+        }
+
+        Event event = new Event();
+
+        if (eventSeed != null) {
+            event.setName(eventSeed.getName());
+            event.setDescription(eventSeed.getDescription());
         }
 
         if (artist != null) {

@@ -1,0 +1,74 @@
+[
+  {
+    "eventsLocationsId": 1,
+    "ticketsCount": 50,
+    "eventStartTime": "2026-02-20T20:00:00",
+    "pricePerTicket": 85.00
+  },
+  {
+    "eventsLocationsId": 2,
+    "ticketsCount": 50,
+    "eventStartTime": "2026-02-22T19:30:00",
+    "pricePerTicket": 120.00
+  },
+  {
+    "eventsLocationsId": 3,
+    "ticketsCount": 50,
+    "eventStartTime": "2026-04-10T21:00:00",
+    "pricePerTicket": 150.00
+  },
+  {
+    "eventsLocationsId": 4,
+    "ticketsCount": 50,
+    "eventStartTime": "2026-05-05T20:00:00",
+    "pricePerTicket": 65.00
+  },
+  {
+    "eventsLocationsId": 5,
+    "ticketsCount": 50,
+    "eventStartTime": "2026-05-20T19:00:00",
+    "pricePerTicket": 40.00
+  },
+  {
+    "eventsLocationsId": 6,
+    "ticketsCount": 50,
+    "eventStartTime": "2026-05-28T20:00:00",
+    "pricePerTicket": 55.00
+  },
+  {
+    "eventsLocationsId": 7,
+    "ticketsCount": 20,
+    "eventStartTime": "2026-07-15T23:00:00",
+    "pricePerTicket": 45.00
+  },
+  {
+    "eventsLocationsId": 8,
+    "ticketsCount": 21,
+    "eventStartTime": "2026-02-28T22:00:00",
+    "pricePerTicket": 35.00
+  },
+  {
+    "eventsLocationsId": 9,
+    "ticketsCount": 22,
+    "eventStartTime": "2026-04-18T20:30:00",
+    "pricePerTicket": 45.00
+  },
+  {
+    "eventsLocationsId": 10,
+    "ticketsCount": 23,
+    "eventStartTime": "2026-03-05T23:30:00",
+    "pricePerTicket": 50.00
+  },
+  {
+    "eventsLocationsId": 11,
+    "ticketsCount": 24,
+    "eventStartTime": "2026-03-12T22:00:00",
+    "pricePerTicket": 40.00
+  },
+  {
+    "eventsLocationsId": 12,
+    "ticketsCount": 25,
+    "eventStartTime": "2026-08-20T20:30:00",
+    "pricePerTicket": 100.00
+  }
+]

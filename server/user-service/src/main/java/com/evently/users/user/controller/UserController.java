@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -43,5 +44,11 @@ public class UserController {
                 userService.getUserPreferences(userId);
 
         return ResponseEntity.ok(userPreferences);
+    }
+
+    @GetMapping("/notification-on")
+    public ResponseEntity<List<Long>> getUserWithNotificationOn() {
+        List<Long> userIds = userService.getUserWithNotificationOn();
+        return ResponseEntity.ok(userIds);
     }
 }

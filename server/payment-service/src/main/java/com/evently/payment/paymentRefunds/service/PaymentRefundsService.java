@@ -1,12 +1,13 @@
 package com.evently.payment.paymentRefunds.service;
 
-import com.evently.payment.paymentRefunds.dto.PaymentRefundListItem;
+import com.evently.payment.infrastructure.exceptions.PaymentTransactionException;
 import com.evently.payment.paymentRefunds.dto.mapper.PaymentRefundMapper;
 import com.evently.payment.paymentRefunds.model.PaymentRefund;
 import com.evently.payment.paymentRefunds.model.RefundStatus;
 import com.evently.payment.paymentRefunds.repository.PaymentRefundRepository;
 import com.evently.payment.paymentTransactions.model.PaymentTransaction;
 import com.evently.payment.paymentTransactions.model.PaymentTransactionStatus;
+import com.evently.payment.paymentTransactions.repository.PaymentTransactionsRepository;
 import com.evently.payment.paymentTransactions.service.PaymentTransactionsService;
 import com.evently.payment.provider.contract.PaymentProvider;
 import com.evently.payment.provider.stripe.dto.StripeRefund;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -26,11 +26,16 @@ public class PaymentRefundsService {
     private final PaymentProvider paymentProvider;
     private final PaymentTransactionsService paymentTransactionsService;
     private final PaymentRefundMapper paymentRefundMapper;
+    private final PaymentTransactionsRepository paymentTransactionsRepository;
 
     @Transactional
     public RefundResponse handleRefund(RefundRequest refundRequest) {
         PaymentTransaction originalTransaction = paymentTransactionsService
                 .findById(refundRequest.getTransactionId());
+
+        if(originalTransaction.getPaymentTransactionStatus() == PaymentTransactionStatus.REFUNDED){
+            throw new PaymentTransactionException("Transaction is already REFUNDED");
+        }
 
         PaymentRefund paymentRefund = new PaymentRefund();
         paymentRefund.setTransaction(originalTransaction);
@@ -39,7 +44,6 @@ public class PaymentRefundsService {
         paymentRefund.setRefundType(refundRequest.getRefundType());
         paymentRefund.setRequestedBy(refundRequest.getRequestedBy());
         paymentRefund.setRequestedAt(Instant.now());
-        paymentRefundsRepository.save(paymentRefund);
         StripeRefund stripeRefund = new StripeRefund();
         stripeRefund.setTransactionId(originalTransaction.getId());
         stripeRefund.setRefundType(refundRequest.getRefundType());
@@ -50,7 +54,7 @@ public class PaymentRefundsService {
 
         if (result.isSuccess()) {
             paymentRefund.setStatus(RefundStatus.SUCCEEDED);
-            originalTransaction.setPaymentTransactionStatus(PaymentTransactionStatus.REFUNDED);
+            paymentTransactionsRepository.updateStatus(originalTransaction.getId(), PaymentTransactionStatus.REFUNDED);
             paymentRefund.setProviderRefundId(result.getRefundTransactionId());
             paymentRefund.setReceiptUrl(result.getReceiptUrl());
             paymentRefund.setProcessedAt(Instant.now());
