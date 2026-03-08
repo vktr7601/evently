@@ -49,9 +49,6 @@ public class StripePaymentProvider implements PaymentProvider {
 
                 RefundResponse failedResponse = new RefundResponse();
                 failedResponse.setSuccess(false);
-//                failedResponse.setMessage("Refund was not successful.
-//                Status:" +
-//                        " " + stripeRefund.getStatus());
                 return failedResponse;
             }
 

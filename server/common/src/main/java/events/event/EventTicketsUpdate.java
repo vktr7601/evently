@@ -15,12 +15,10 @@ public class EventTicketsUpdate implements Serializable {
     @JsonProperty("eventLocationId")
     private long eventLocationId;
 
-    // The actual values
     private LocalDateTime newStartTime;
     private Integer newTicketsCount;
     private BigDecimal newPrice;
 
-    // The "Dirty" Flags
     private boolean isDateUpdated;
     private boolean isTicketCountUpdated;
     private boolean isPriceUpdated;

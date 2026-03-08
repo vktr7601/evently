@@ -16,27 +16,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class EventKafkaListener {
 
     private final KafkaProducer kafkaProducer;
-//
-//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-//    public void handleEventCreatedNotification(EventCreated event) {
-////        var message = new EventCreated();
-////        message.setEventId(event.getEventId());
-////        message.setEventName(event.getEventName());
-////        message.setArtistId(event.getArtistId());
-////        message.setCategories(event.getCategories());
-////        message.setTicketsCreationEvents(event.getTicketsCreationEvents());
-//
-//        kafkaProducer.sendEventCreated(event);
-//    }
-
-
-//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-//    public void handleEventArchived(EventArchived eventFinished) {
-//        var message = new EventArchived();
-//        eventFinished.setEventLocationId(eventFinished.getEventLocationId());
-//
-//        kafkaProducer.sendEventFinishedMessage(message);
-//    }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleEventArchived(EventUpdated eventFinished) {

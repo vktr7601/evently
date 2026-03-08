@@ -135,17 +135,6 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
             @Param("endOfDay") LocalDateTime end
     );
 
-//    @Query(value = """
-//         SELECT el
-//         FROM EventsLocations el
-//         JOIN el.location loc ON loc.id = el.location.id
-//        AND el.date >= :startOfDay AND el.date <= :endOfDay
-//         WHERE loc.id = :locationId
-//        """)
-//    EventsLocations findByEventLocationIdAndEventIdAndStartDate(@Param
-//    ("locationId") long locationId, @Param("startOfDay") LocalDateTime
-//    date, @Param("endOfDay") LocalDateTime endDate);
-
     @Query("SELECT el.id FROM EventsLocations el WHERE el.eventStartTime < " +
             ":now AND el.eventsLocationsStatus = :status")
     List<Long> findIdsByStatusAndDate(
@@ -166,5 +155,4 @@ public interface EventsLocationsRepository extends JpaRepository<EventsLocations
             @Param("locationId") Long locationId,
             @Param("eventStartTime") LocalDateTime eventStartTime
     );
-
 }

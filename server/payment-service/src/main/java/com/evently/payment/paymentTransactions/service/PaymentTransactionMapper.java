@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PaymentTransactionMapper {
-
     public PaymentTransactionDetails toPaymentTransactionDetails(PaymentTransaction paymentTransaction) {
         PaymentTransactionDetails paymentTransactionDetails =
                 new PaymentTransactionDetails();

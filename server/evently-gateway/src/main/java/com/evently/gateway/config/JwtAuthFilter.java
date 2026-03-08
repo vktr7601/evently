@@ -89,7 +89,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if ("X-User-Id".equalsIgnoreCase(name)) return userIdValue;
                 if ("X-User-Role".equalsIgnoreCase(name)) return role;
                 if ("X-User-Email".equalsIgnoreCase(name))
-                    return email; // Added email
+                    return email;
                 return super.getHeader(name);
             }
 
@@ -100,8 +100,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if ("X-User-Role".equalsIgnoreCase(name))
                     return Collections.enumeration(List.of(role));
                 if ("X-User-Email".equalsIgnoreCase(name))
-                    return Collections.enumeration(List.of(email)); // Added
-                // email
+                    return Collections.enumeration(List.of(email));
                 return super.getHeaders(name);
             }
 
@@ -111,7 +110,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         new java.util.ArrayList<>(Collections.list(super.getHeaderNames()));
                 names.add("X-User-Id");
                 names.add("X-User-Role");
-                names.add("X-User-Email"); // Added email
+                names.add("X-User-Email");
                 return Collections.enumeration(names);
             }
         };

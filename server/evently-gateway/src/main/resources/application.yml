@@ -49,5 +49,3 @@ logging:
     org.springframework.http.server.reactive: DEBUG
     org.springframework.web.reactive: DEBUG
     io.jsonwebtoken: DEBUG
-#    # Replace 'package.jwt' with the actual package name of your JWTUtility
-#    package.jwt: DEBUG

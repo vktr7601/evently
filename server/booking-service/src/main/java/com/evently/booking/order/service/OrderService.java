@@ -390,12 +390,6 @@ public class OrderService {
 
     private void handleFailedPayment(PaymentResponse payment) {
         log.warn("Payment failed for order, message={}", payment.getMessage());
-
-//        if (payment.getMessage().startsWith("Invalid card")) {
-//            throw new ProcessOrderException(payment);
-//        }
-//
-//        throw new ProcessOrderException(payment);
     }
 
     public Order findByOrderNumberAndUserId(UUID number, Long userId) {

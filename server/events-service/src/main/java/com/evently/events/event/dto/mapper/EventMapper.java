@@ -2,9 +2,9 @@ package com.evently.events.event.dto.mapper;
 
 import com.evently.events.artists.model.Artist;
 import com.evently.events.category.dto.CategoryDto;
+import com.evently.events.event.dto.EventDetailDto;
 import com.evently.events.event.dto.EventSeed;
 import com.evently.events.event.dto.request.EventCreateRequest;
-import com.evently.events.event.dto.EventDetailDto;
 import com.evently.events.event.model.Event;
 import com.evently.events.eventsLocations.entities.EventsLocationsDto;
 import events.ticket.TicketsCreationEvent;

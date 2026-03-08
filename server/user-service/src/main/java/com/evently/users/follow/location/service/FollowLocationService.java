@@ -61,7 +61,6 @@ public class FollowLocationService {
     public List<Long> findAllByUserId(long userId) {
         return followLocationRepository.findAllByUserId(userId);
     }
-
     public void saveAll(List<FollowLocation> followLocations) {
         followLocationRepository.saveAll(followLocations);
     }

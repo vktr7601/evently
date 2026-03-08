@@ -61,7 +61,7 @@ const OrderPayment = () => {
     }, [order]);
 
     const expiryDate = useMemo(() =>
-        order?.expirationTime ? new Date(order.expirationTime) : null,
+            order?.expirationTime ? new Date(order.expirationTime) : null,
         [order]);
 
     useEffect(() => {
@@ -427,17 +427,6 @@ const styles = {
         marginTop: '8px',
         fontSize: '12px',
         color: '#94a3b8',
-    },
-    cancelButton: {
-        width: '100%',
-        backgroundColor: 'transparent',
-        color: '#64748b', // Subtle gray
-        border: 'none',
-        padding: '10px',
-        fontSize: '14px',
-        fontWeight: '600',
-        textDecoration: 'underline',
-        cursor: 'pointer'
     }
 };
 

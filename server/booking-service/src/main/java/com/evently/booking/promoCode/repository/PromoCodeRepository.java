@@ -12,12 +12,9 @@ import java.util.Optional;
 @Repository
 public interface PromoCodeRepository extends JpaRepository<PromoCode, Long> {
     Optional<PromoCode> findByCode(String code);
-//
-//    List<PromoCode> findByStatusAndExpiresAtBefore(PromoCodeStatus status,
-//                                                   Instant now);
 
     List<PromoCode> findByStatusAndExpiryDateBefore(PromoCodeStatus status,
-                                               Instant expiryDateAfter);
+                                                    Instant expiryDateAfter);
 
     List<PromoCode> findAllByUserId(Long userId);
 

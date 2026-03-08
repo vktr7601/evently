@@ -88,7 +88,7 @@ public class EventService {
         return events;
     }
 
-     @Cacheable(cacheNames = "events.eventDetails", key = "#id")
+    @Cacheable(cacheNames = "events.eventDetails", key = "#id")
     public EventDetailDto findEventDetailsById(Long id) {
         log.info("Attempting to find details for event ID: {}", id);
 
@@ -317,6 +317,6 @@ public class EventService {
         List<EventListItemDto> category = new ArrayList<>();
         List<EventListItemDto> events = new ArrayList<>();
 
-       return null;
+        return null;
     }
 }

@@ -38,14 +38,4 @@ public class PromoCodeController {
 
         return ResponseEntity.ok(promoCodeListItem);
     }
-//
-//    // POST /api/v1/promo-codes/redeem
-//    @PostMapping("/redeem")
-//    public ResponseEntity<PromoCodeResponse> redeem(
-//            @RequestBody @Valid RedeemPromoCodeRequest request,
-//            @AuthenticationPrincipal UUID userId) {
-//
-//        PromoCode redeemed = promoCodeService.redeem(request.code(), userId);
-//        return ResponseEntity.ok(PromoCodeResponse.from(redeemed));
-//    }
 }

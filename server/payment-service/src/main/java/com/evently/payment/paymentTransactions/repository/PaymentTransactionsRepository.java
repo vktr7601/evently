@@ -12,12 +12,13 @@ import java.util.List;
 
 @Repository
 public interface PaymentTransactionsRepository extends JpaRepository<PaymentTransaction, Long> {
-    // Optional<PaymentTransaction> findByIdAndUserId(long id, long userId);
     List<PaymentTransaction> findByIdAndUserId(Long id, long userId);
 
     List<PaymentTransaction> findAllByUserId(long userId);
 
     @Modifying
-    @Query("UPDATE PaymentTransaction p SET p.paymentTransactionStatus = :status WHERE p.id = :id")
-    void updateStatus(@Param("id") Long id, @Param("status") PaymentTransactionStatus status);
+    @Query("UPDATE PaymentTransaction p SET p.paymentTransactionStatus = " +
+            ":status WHERE p.id = :id")
+    void updateStatus(@Param("id") Long id,
+                      @Param("status") PaymentTransactionStatus status);
 }

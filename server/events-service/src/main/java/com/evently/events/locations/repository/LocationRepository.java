@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, Long> {
-
     @Query("""
             SELECT loc
             FROM Location loc
@@ -54,5 +53,4 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     List<Location> findAllByIdIn(Collection<Long> ids);
 
     boolean existsByName(String name);
-
 }

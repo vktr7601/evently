@@ -36,6 +36,4 @@ public class OrderDetails implements Serializable {
     private long transactionId;
     @JsonProperty("tickets")
     private List<TicketListItem> ticketListItems;
-//    @JsonProperty("receiptUrl")
-//    private String receiptUrl;
 }
