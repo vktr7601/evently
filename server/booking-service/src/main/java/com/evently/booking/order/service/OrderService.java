@@ -317,7 +317,7 @@ public class OrderService {
                 orderRepository.findPendingOrderByIdAndUserId(userId).orElseThrow(() -> new NoActiveOrderException(userId));
 
         validateOrderDetails(order);
-        if (finishOrderRequest.getPromoCode() != null) {
+        if (finishOrderRequest.getPromoCode() != null && !finishOrderRequest.getPromoCode().isEmpty()) {
             promoCodeService.validatePromoCode(finishOrderRequest.getPromoCode(), userId);
             promoCodeService.validateAmount(order.getTotalPrice(),
                     finishOrderRequest.getPromoCode());
